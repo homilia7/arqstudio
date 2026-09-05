@@ -20,6 +20,7 @@ import { ManualArchitecturePanel } from "./components/ManualArchitecturePanel";
 import { CloudflareD1Modal } from "./components/CloudflareD1Modal";
 import { AgentConnectionsModal } from "./components/AgentConnectionsModal";
 import { CreateProjectModal } from "./components/CreateProjectModal";
+import { LoginScreen } from "./components/LoginScreen";
 import { UserManualModal } from "./components/UserManualModal";
 import { ApiKeyOnboardingModal } from "./components/ApiKeyOnboardingModal";
 import { CloudflareEdgeModal } from "./components/CloudflareEdgeModal";
@@ -293,6 +294,10 @@ export default function App() {
   const approvedTasksCount = activeTasks.filter((t) => t.status === "verified" || t.locked).length;
   const pendingReviewCount = activeTasks.filter((t) => t.status === "ready_for_review").length;
   const pendingWaitCount = activeTasks.filter((t) => t.status === "pending").length;
+
+  if (!currentUser) {
+    return <LoginScreen onLogin={handleUpdateCurrentUser} />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-[#07090c] dark:bg-[#07090c] text-[#c9d1d9] font-sans selection:bg-emerald-600 selection:text-white pb-6">
