@@ -69,7 +69,7 @@ export const MemoryLockfileSidebar: React.FC<MemoryLockfileSidebarProps> = ({
               : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
           )}
         >
-          <Lock className="w-3 h-3" /> historial.md ( 0 )
+          <Lock className="w-3 h-3" /> historial.md (0)
         </button>
 
         <button
@@ -80,7 +80,7 @@ export const MemoryLockfileSidebar: React.FC<MemoryLockfileSidebarProps> = ({
               : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
           )}
         >
-          <BookOpen className="w-3 h-3" /> RAG Vectorial ( {ragCount} )
+          <BookOpen className="w-3 h-3" /> RAG Vectorial ({ragCount})
         </button>
 
         <button
@@ -91,7 +91,7 @@ export const MemoryLockfileSidebar: React.FC<MemoryLockfileSidebarProps> = ({
               : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
           )}
         >
-          <Cpu className="w-3 h-3" /> STM ( {activeTokens} tk )
+          <Cpu className="w-3 h-3" /> STM ({activeTokens} tk)
         </button>
       </div>
 

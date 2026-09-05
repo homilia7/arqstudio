@@ -93,7 +93,7 @@ export const ProjectCommandBar: React.FC<ProjectCommandBarProps> = ({
       <div className="flex items-center gap-2 font-mono text-[11px]">
         {/* Aprobadas */}
         <span className="px-2.5 py-1 rounded bg-[#201a09] border border-[#854d0e] text-[#eab308] flex items-center gap-1">
-          <Lock className="w-3 h-3" /> {approvedTasksCount} aprox.
+          <Lock className="w-3 h-3" /> {approvedTasksCount} aprobadas
         </span>
 
         {/* Modelo */}
@@ -103,7 +103,7 @@ export const ProjectCommandBar: React.FC<ProjectCommandBarProps> = ({
 
         {/* Fecha */}
         <span className="px-2.5 py-1 rounded bg-[#1c2128] border border-[#30363d] text-[#8b949e] hidden lg:inline-block">
-          Día: 5 de septiembre de 2026
+          Sep 2026 • Edge
         </span>
 
         {/* Toggle Panel Izquierdo (Auditoría) */}

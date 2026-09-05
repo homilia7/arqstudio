@@ -33,13 +33,13 @@ export const IdeStatusBar: React.FC<IdeStatusBarProps> = ({
         {/* RAG */}
         <div className="flex items-center gap-1 text-[#c084fc] hidden sm:flex">
           <BookOpen className="w-3 h-3" />
-          <span>RAG: {ragDocsCount} documentos ( 0 tk )</span>
+          <span>RAG: {ragDocsCount} docs | {activeTokens} tk</span>
         </div>
 
         {/* Lockfile */}
         <div className="flex items-center gap-1 text-emerald-400">
           <Lock className="w-3 h-3" />
-          <span>historial.md: BLOQUEADO</span>
+          <span>historial.md: LOCKED</span>
         </div>
 
         {/* Multijugador */}
@@ -51,7 +51,7 @@ export const IdeStatusBar: React.FC<IdeStatusBarProps> = ({
         {/* Rama Git */}
         <div className="flex items-center gap-1 text-emerald-400 hidden lg:flex">
           <FolderGit2 className="w-3 h-3" />
-          <span>principal (CABEZADO)</span>
+          <span>main (HEAD)</span>
         </div>
       </div>
     </footer>
