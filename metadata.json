@@ -1,0 +1,6 @@
+{
+  "name": "Antigravity AI Task Hub & QA Verifier",
+  "description": "Plataforma de conexión API y control de calidad para agentes de IA. Envía instrucciones, registra entregas vía API, revisa URLs de trabajo en vivo, bloquea tareas aprobadas y guarda el historial de cambios.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
