@@ -315,6 +315,10 @@ export default function App() {
         onOpenNotifications={() => setNotificationsDrawerOpen(true)}
         onOpenD1Modal={() => setD1ModalOpen(true)}
         onOpenAuditHistory={() => setIsLeftSidebarOpen(!isLeftSidebarOpen)}
+        onOpenUserManual={() => setUserManualOpen(true)}
+        onOpenApiKeyOnboarding={() => setApiKeyOnboardingOpen(true)}
+        onOpenCloudflareEdge={() => setCloudflareEdgeOpen(true)}
+        onOpenGatekeeper={() => setGatekeeperOpen(true)}
         onRefresh={() => loadData(false)}
         onLogout={() => handleUpdateCurrentUser(null)}
         isRefreshing={isRefreshing}
@@ -523,6 +527,41 @@ export default function App() {
         isOpen={d1ModalOpen}
         onClose={() => setD1ModalOpen(false)}
         onRefreshData={() => loadData(true)}
+      />
+
+      <UserManualModal
+        isOpen={userManualOpen}
+        onClose={() => setUserManualOpen(false)}
+        onOpenApiKey={() => {
+          setUserManualOpen(false);
+          setApiKeyOnboardingOpen(true);
+        }}
+        onOpenCloudflare={() => {
+          setUserManualOpen(false);
+          setCloudflareEdgeOpen(true);
+        }}
+        onOpenGatekeeper={() => {
+          setUserManualOpen(false);
+          setGatekeeperOpen(true);
+        }}
+      />
+
+      <ApiKeyOnboardingModal
+        isOpen={apiKeyOnboardingOpen}
+        onClose={() => setApiKeyOnboardingOpen(false)}
+        projectId={activeProject?.id || "proj-default"}
+        projectName={activeProject?.name || "ARQAISTUDIO Core"}
+        apiKey={activeProject?.apiKey || "arqai_sec_1234_main"}
+      />
+
+      <CloudflareEdgeModal
+        isOpen={cloudflareEdgeOpen}
+        onClose={() => setCloudflareEdgeOpen(false)}
+      />
+
+      <GatekeeperModal
+        isOpen={gatekeeperOpen}
+        onClose={() => setGatekeeperOpen(false)}
       />
 
       {agentConnectionsOpen && (
