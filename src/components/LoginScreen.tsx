@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Lock, User, ArrowRight, ShieldCheck, KeyRound, Mail, UserPlus, LogIn, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Lock, User, ArrowRight, ShieldCheck, Mail, UserPlus, LogIn, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
 import * as api from '../services/api';
 
 interface LoginScreenProps {
@@ -7,7 +7,7 @@ interface LoginScreenProps {
 }
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
-  const [authMode, setAuthMode] = useState<'login' | 'register' | 'pin_only'>('login');
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [name, setName] = useState('');
   const [pin, setPin] = useState('');
   const [email, setEmail] = useState('');
@@ -26,7 +26,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
     setIsExiting(true);
     setTimeout(() => {
       onLogin(user);
-    }, 700);
+    }, 500);
   };
 
   // 1. INICIAR SESIÓN (NOMBRE + PIN)
@@ -34,11 +34,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
     e.preventDefault();
     const cleanName = name.trim();
     if (!cleanName) {
-      setError('Por favor ingresa tu nombre de usuario.');
+      setError('Ingresa tu nombre de usuario.');
       return;
     }
     if (pin.length !== 4) {
-      setError('El PIN debe tener 4 dígitos numéricos.');
+      setError('El PIN debe tener 4 dígitos.');
       return;
     }
     setIsLoading(true);
@@ -47,7 +47,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
     try {
       const res = await api.loginUser(cleanName, pin, email);
       if (res.success && res.user) {
-        triggerLoginSuccess(res.user, `¡Bienvenido de nuevo, ${res.user.name}! Conectando sesión...`);
+        triggerLoginSuccess(res.user, `¡Bienvenido, ${res.user.name}!`);
       } else {
         setError(res.error || 'Credenciales no válidas.');
       }
@@ -58,16 +58,16 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
     }
   };
 
-  // 2. CREAR CUENTA NUEVA (REGISTRO INDEPENDIENTE - 0 PROYECTOS INICIALES)
+  // 2. CREAR CUENTA NUEVA
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanName = name.trim();
     if (!cleanName) {
-      setError('Ingresa un nombre de usuario para tu cuenta.');
+      setError('Ingresa un nombre de usuario.');
       return;
     }
     if (pin.length !== 4) {
-      setError('Ingresa un PIN de acceso de 4 dígitos.');
+      setError('El PIN debe tener 4 dígitos.');
       return;
     }
     setIsLoading(true);
@@ -76,7 +76,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
     try {
       const res = await api.registerUser(cleanName, pin, email);
       if (res.success && res.user) {
-        triggerLoginSuccess(res.user, `¡Cuenta creada con éxito para ${res.user.name}! Ingresando...`);
+        triggerLoginSuccess(res.user, `¡Cuenta creada para ${res.user.name}!`);
       } else {
         setError(res.error || 'No se pudo crear la cuenta.');
       }
@@ -87,354 +87,162 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
     }
   };
 
-  // 3. ACCESO RÁPIDO CON PIN ÚNICO
-  const handlePinOnlySubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (pin.length !== 4) {
-      setError('Ingresa un PIN de 4 dígitos.');
-      return;
-    }
-    setIsLoading(true);
-    setError('');
-    setSuccessMessage('');
-    try {
-      const res = await api.loginWithPin(pin);
-      if (res.success && res.user) {
-        triggerLoginSuccess(res.user, `PIN validado para ${res.user.name}. Ingresando...`);
-      }
-    } catch (err: any) {
-      setError(err.message || 'PIN no válido o colisión detectada.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleSelectAdmin = () => {
-    setName('Administrador');
+    setName('admin');
     setPin('1234');
     setError('');
   };
 
   return (
-    <div className={`min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-4 transition-opacity duration-700 ${isExiting ? 'opacity-0' : 'opacity-100'}`}>
-      <div className={`w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden transition-all duration-700 ${isExiting ? 'animate-slide-up-exit' : ''}`}>
-        {/* Header */}
-        <div className="p-6 text-center space-y-2 border-b border-zinc-800 bg-zinc-950/60">
-          <div className="w-14 h-14 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-inner">
-            <ShieldCheck className="w-7 h-7 text-emerald-400" />
+    <div className={`min-h-screen bg-[#07090c] flex flex-col items-center justify-center p-3 transition-opacity duration-500 ${isExiting ? 'opacity-0' : 'opacity-100'}`}>
+      <div className="w-full max-w-[340px] bg-[#0e1117] border border-zinc-800 rounded-xl shadow-2xl overflow-hidden text-xs text-zinc-200 animate-in fade-in zoom-in-95 duration-200">
+        
+        {/* Compact Header */}
+        <div className="px-4 py-3.5 text-center border-b border-zinc-800/80 bg-[#12151b] relative">
+          <div className="flex items-center justify-center gap-2 mb-1">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <h1 className="text-sm font-bold text-white tracking-tight flex items-center gap-1.5">
+              ARQAISTUDIO <span className="text-[10px] font-mono font-normal px-1 py-0.2 rounded bg-zinc-800 text-zinc-400 border border-zinc-700">v2.4</span>
+            </h1>
           </div>
-          <h1 className="text-xl font-bold text-white tracking-tight">ARQAI Workspace</h1>
-          <p className="text-xs text-zinc-400">
-            {authMode === 'login' && 'Ingresa con tu Nombre y tu PIN para acceder a tus proyectos.'}
-            {authMode === 'register' && 'Crea una cuenta nueva independiente con 0 proyectos iniciales.'}
-            {authMode === 'pin_only' && 'Acceso directo con PIN (solo para códigos sin duplicados).'}
+          <p className="text-[11px] text-zinc-400">
+            {authMode === 'login' ? 'Acceso al entorno de supervisión de agentes' : 'Registro de nuevo usuario en Cloudflare D1'}
           </p>
         </div>
 
         {/* Tab Selector */}
-        <div className="flex border-b border-zinc-800 bg-zinc-950/40 p-1.5 gap-1">
+        <div className="flex border-b border-zinc-800 bg-[#090b0e] p-1 gap-1">
           <button
-            id="tab-btn-login"
             type="button"
             onClick={() => {
               setAuthMode('login');
               resetForm();
             }}
-            className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+            className={`flex-1 py-1 px-2.5 rounded text-[11px] font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
               authMode === 'login'
-                ? 'bg-emerald-600 text-white shadow-sm'
-                : 'text-zinc-400 hover:text-white hover:bg-zinc-800/60'
+                ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-800/80'
+                : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
             }`}
           >
-            <LogIn className="w-3.5 h-3.5" />
+            <LogIn className="w-3 h-3 text-emerald-400" />
             <span>Iniciar Sesión</span>
           </button>
 
           <button
-            id="tab-btn-register"
             type="button"
             onClick={() => {
               setAuthMode('register');
               resetForm();
             }}
-            className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+            className={`flex-1 py-1 px-2.5 rounded text-[11px] font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
               authMode === 'register'
-                ? 'bg-emerald-600 text-white shadow-sm'
-                : 'text-zinc-400 hover:text-white hover:bg-zinc-800/60'
+                ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-800/80'
+                : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
             }`}
           >
-            <UserPlus className="w-3.5 h-3.5" />
+            <UserPlus className="w-3 h-3 text-emerald-400" />
             <span>Crear Cuenta</span>
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-6">
-          {/* Mensajes de error y éxito */}
+        {/* Form Body */}
+        <div className="p-4 space-y-3">
+          {/* Alertas */}
           {error && (
-            <div className="mb-5 p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs text-rose-300 flex items-start gap-2.5">
-              <AlertCircle className="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5" />
-              <div className="leading-relaxed">{error}</div>
+            <div className="p-2 bg-rose-500/10 border border-rose-500/20 rounded-md text-[11px] text-rose-300 flex items-start gap-2">
+              <AlertCircle className="w-3.5 h-3.5 text-rose-400 shrink-0 mt-0.5" />
+              <div className="leading-snug">{error}</div>
             </div>
           )}
 
           {successMessage && (
-            <div className="mb-5 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs text-emerald-300 flex items-start gap-2.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-              <div className="leading-relaxed">{successMessage}</div>
+            <div className="p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-md text-[11px] text-emerald-300 flex items-start gap-2">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+              <div className="leading-snug">{successMessage}</div>
             </div>
           )}
 
-          {/* TAB 1: INICIAR SESIÓN */}
-          {authMode === 'login' && (
-            <form onSubmit={handleLoginSubmit} className="space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-zinc-300 flex items-center justify-between">
-                  <span>Nombre de Usuario</span>
+          {/* Formulario */}
+          <form onSubmit={authMode === 'login' ? handleLoginSubmit : handleRegisterSubmit} className="space-y-2.5">
+            {/* Usuario */}
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-[11px]">
+                <label className="text-zinc-300 font-medium">Usuario</label>
+                {authMode === 'login' && (
                   <button
                     type="button"
                     onClick={handleSelectAdmin}
-                    className="text-[11px] text-emerald-400 hover:underline cursor-pointer"
+                    className="text-[10px] text-emerald-400 hover:underline cursor-pointer"
                   >
-                    Usar Admin
+                    Llenar Admin (1234)
                   </button>
-                </label>
+                )}
+              </div>
+              <div className="relative">
+                <User className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full pl-8 pr-2.5 py-1.5 bg-[#090b0e] border border-zinc-800 rounded-md text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500 text-xs transition-colors"
+                  placeholder="Ej: admin o tu nombre"
+                  autoFocus
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Email (Solo registro) */}
+            {authMode === 'register' && (
+              <div className="space-y-1">
+                <label className="text-[11px] text-zinc-300 font-medium">Correo Electrónico (Opcional)</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <User className="w-4 h-4 text-zinc-500" />
-                  </div>
+                  <Mail className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
-                    id="input-login-name"
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-sm"
-                    placeholder="Ej. Carlos o Administrador"
-                    autoFocus
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-zinc-300">PIN de Acceso (4 Dígitos)</label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="w-4 h-4 text-zinc-500" />
-                  </div>
-                  <input
-                    id="input-login-pin"
-                    type="password"
-                    value={pin}
-                    onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                    className="w-full pl-10 pr-4 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white placeholder-slate-600 tracking-[0.5em] font-mono focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-sm"
-                    placeholder="••••"
-                    maxLength={4}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="p-3 bg-zinc-950/60 border border-zinc-800/80 rounded-xl text-[11px] text-zinc-400 space-y-1">
-                <div className="text-zinc-300 font-medium">💡 Cuentas y Contraseñas Independientes:</div>
-                <p>
-                  Dos usuarios pueden tener el mismo PIN (ej. 1234), pero su <strong>Nombre de Usuario</strong> identifica su cuenta y carga únicamente sus propios proyectos.
-                </p>
-              </div>
-
-              <button
-                id="btn-submit-login"
-                type="submit"
-                disabled={isLoading || !name.trim() || pin.length !== 4}
-                className="w-full flex items-center justify-center gap-2 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-emerald-500/20 cursor-pointer text-sm"
-              >
-                {isLoading ? 'Iniciando sesión...' : 'Ingresar al Workspace'}
-                {!isLoading && <ArrowRight className="w-4 h-4" />}
-              </button>
-
-              <div className="pt-2 flex items-center justify-between text-xs text-zinc-400">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setAuthMode('pin_only');
-                    resetForm();
-                  }}
-                  className="hover:text-emerald-400 transition-colors cursor-pointer"
-                >
-                  ¿Ingresar solo con PIN?
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setAuthMode('register');
-                    resetForm();
-                  }}
-                  className="text-emerald-400 hover:underline cursor-pointer font-medium"
-                >
-                  ¿No tienes cuenta? Regístrate
-                </button>
-              </div>
-            </form>
-          )}
-
-          {/* TAB 2: CREAR CUENTA NUEVA */}
-          {authMode === 'register' && (
-            <form onSubmit={handleRegisterSubmit} className="space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-zinc-300">
-                  Nombre de Usuario <span className="text-emerald-400">* (Único)</span>
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <User className="w-4 h-4 text-zinc-500" />
-                  </div>
-                  <input
-                    id="input-register-name"
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-sm"
-                    placeholder="Ej. Ana Lopez o Usuario2"
-                    autoFocus
-                    required
-                  />
-                </div>
-                <p className="text-[10px] text-zinc-500">
-                  Este nombre distinguirá tu cuenta de las demás de forma única.
-                </p>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-zinc-300">
-                  PIN de Acceso <span className="text-emerald-400">* (4 Dígitos)</span>
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="w-4 h-4 text-zinc-500" />
-                  </div>
-                  <input
-                    id="input-register-pin"
-                    type="password"
-                    value={pin}
-                    onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                    className="w-full pl-10 pr-4 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white placeholder-slate-600 tracking-[0.5em] font-mono focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-sm"
-                    placeholder="••••"
-                    maxLength={4}
-                    required
-                  />
-                </div>
-                <p className="text-[10px] text-zinc-500">
-                  Puedes elegir cualquier PIN de 4 números (incluso si otro usuario usa el mismo).
-                </p>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-zinc-300">Correo Electrónico (Opcional)</label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className="w-4 h-4 text-zinc-500" />
-                  </div>
-                  <input
-                    id="input-register-email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-sm"
-                    placeholder="usuario@ejemplo.com"
+                    className="w-full pl-8 pr-2.5 py-1.5 bg-[#090b0e] border border-zinc-800 rounded-md text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500 text-xs transition-colors"
+                    placeholder="correo@ejemplo.com"
                   />
                 </div>
               </div>
+            )}
 
-              {/* Regla de negocio explícita */}
-              <div className="p-3 bg-emerald-950/20 border border-emerald-500/20 rounded-xl text-[11px] text-zinc-300 space-y-1">
-                <div className="font-semibold text-emerald-400 flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                  Garantía de Aislamiento de Datos:
-                </div>
-                <ul className="list-disc list-inside text-zinc-400 space-y-0.5">
-                  <li>Inicias con <strong>0 proyectos</strong> en tu cuenta nueva.</li>
-                  <li>Tus proyectos se guardan en la base de datos vinculados a tu usuario.</li>
-                  <li>Al cerrar sesión y volver a loguearte, tus proyectos estarán ahí.</li>
-                </ul>
+            {/* PIN */}
+            <div className="space-y-1">
+              <label className="text-[11px] text-zinc-300 font-medium">PIN de Acceso (4 dígitos)</label>
+              <div className="relative">
+                <Lock className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="password"
+                  value={pin}
+                  onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                  className="w-full pl-8 pr-2.5 py-1.5 bg-[#090b0e] border border-zinc-800 rounded-md text-white placeholder-zinc-500 tracking-[0.4em] font-mono focus:outline-none focus:border-emerald-500 text-xs transition-colors"
+                  placeholder="••••"
+                  maxLength={4}
+                  required
+                />
               </div>
+            </div>
 
-              <button
-                id="btn-submit-register"
-                type="submit"
-                disabled={isLoading || !name.trim() || pin.length !== 4}
-                className="w-full flex items-center justify-center gap-2 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-emerald-500/20 cursor-pointer text-sm"
-              >
-                {isLoading ? 'Registrando en base de datos...' : 'Crear Cuenta y Entrar'}
-                {!isLoading && <ArrowRight className="w-4 h-4" />}
-              </button>
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isLoading || !name.trim() || pin.length !== 4}
+              className="w-full mt-1 flex items-center justify-center gap-1.5 py-2 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-semibold rounded-md transition-all disabled:opacity-50 disabled:cursor-not-allowed text-xs cursor-pointer shadow-xs"
+            >
+              <span>{isLoading ? 'Verificando...' : authMode === 'login' ? 'Ingresar al Workspace' : 'Crear Cuenta en D1'}</span>
+              {!isLoading && <ArrowRight className="w-3.5 h-3.5" />}
+            </button>
+          </form>
 
-              <div className="text-center pt-1">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setAuthMode('login');
-                    resetForm();
-                  }}
-                  className="text-xs text-zinc-400 hover:text-emerald-400 transition-colors cursor-pointer"
-                >
-                  ¿Ya tienes cuenta creada? Inicia sesión aquí
-                </button>
-              </div>
-            </form>
-          )}
-
-          {/* TAB 3: SOLO PIN (OPCIONAL / ACCESO RÁPIDO) */}
-          {authMode === 'pin_only' && (
-            <form onSubmit={handlePinOnlySubmit} className="space-y-4">
-              <div className="space-y-2 text-center">
-                <label className="text-xs font-medium text-zinc-300 block">
-                  PIN de Acceso (4 Dígitos)
-                </label>
-                <div className="relative max-w-[220px] mx-auto">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <KeyRound className="w-4 h-4 text-emerald-500" />
-                  </div>
-                  <input
-                    type="password"
-                    autoFocus
-                    value={pin}
-                    onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                    className="w-full pl-10 pr-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white placeholder-slate-600 tracking-[0.6em] text-center font-mono text-lg focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
-                    placeholder="••••"
-                    maxLength={4}
-                    required
-                  />
-                </div>
-                <p className="text-[11px] text-zinc-400 pt-1">
-                  Nota: Si dos usuarios tienen el mismo PIN, deberás ingresar indicando tu Nombre de Usuario.
-                </p>
-              </div>
-
-              <button
-                id="btn-login-with-pin"
-                type="submit"
-                disabled={isLoading || pin.length !== 4}
-                className="w-full flex items-center justify-center gap-2 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-emerald-500/20 cursor-pointer text-sm"
-              >
-                {isLoading ? 'Verificando PIN...' : 'Ingresar con PIN'}
-                {!isLoading && <ArrowRight className="w-4 h-4" />}
-              </button>
-
-              <div className="text-center pt-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setAuthMode('login');
-                    resetForm();
-                  }}
-                  className="text-xs text-zinc-400 hover:text-emerald-400 transition-colors cursor-pointer"
-                >
-                  ← Volver a Iniciar Sesión con Nombre y PIN
-                </button>
-              </div>
-            </form>
-          )}
+          {/* Footer note */}
+          <div className="pt-2 border-t border-zinc-800/80 text-center text-[10px] text-zinc-500">
+            Cloudflare D1 SQL Serverless Edge Auth
+          </div>
         </div>
+
       </div>
     </div>
   );
