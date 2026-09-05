@@ -98,10 +98,10 @@ export const DesktopMenuBar: React.FC<DesktopMenuBarProps> = ({
         />
       )}
 
-      <header className="bg-[#0b0d10] text-zinc-400 border-b border-[#1c2027] text-[12px] font-sans select-none flex items-center justify-between px-3 h-9 z-50 relative shrink-0">
+      <header className="bg-[#0b0d10] text-zinc-400 border-b border-[#1c2027] text-[12px] font-sans select-none flex items-center justify-between px-3 h-9 z-50 relative shrink-0 overflow-visible">
         
         {/* Lado Izquierdo: Brand & Menús del IDE */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-1.5 shrink-0 overflow-visible">
           
           {/* Logo & Versión */}
           <div className="flex items-center gap-1.5 pr-2 border-r border-zinc-800 shrink-0">
