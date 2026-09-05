@@ -20,6 +20,10 @@ import { ManualArchitecturePanel } from "./components/ManualArchitecturePanel";
 import { NeonDatabaseModal } from "./components/NeonDatabaseModal";
 import { AgentConnectionsModal } from "./components/AgentConnectionsModal";
 import { CreateProjectModal } from "./components/CreateProjectModal";
+import { UserManualModal } from "./components/UserManualModal";
+import { ApiKeyOnboardingModal } from "./components/ApiKeyOnboardingModal";
+import { CloudflareEdgeModal } from "./components/CloudflareEdgeModal";
+import { GatekeeperModal } from "./components/GatekeeperModal";
 import { MyAccount } from "./components/MyAccount";
 import { AdminUsersPanel } from "./components/AdminUsersPanel";
 import { NotificationsDrawer } from "./components/NotificationsDrawer";
@@ -125,6 +129,10 @@ export default function App() {
 
   // Modals state
   const [createProjectModalOpen, setCreateProjectModalOpen] = useState(false);
+  const [userManualOpen, setUserManualOpen] = useState(false);
+  const [apiKeyOnboardingOpen, setApiKeyOnboardingOpen] = useState(false);
+  const [cloudflareEdgeOpen, setCloudflareEdgeOpen] = useState(false);
+  const [gatekeeperOpen, setGatekeeperOpen] = useState(false);
   const [reviewTask, setReviewTask] = useState<TaskItem | null>(null);
   const [contextTask, setContextTask] = useState<TaskItem | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -405,6 +413,31 @@ export default function App() {
       />
 
       {/* Modales */}
+      <UserManualModal
+        isOpen={userManualOpen}
+        onClose={() => setUserManualOpen(false)}
+        onOpenApiKey={() => { setUserManualOpen(false); setApiKeyOnboardingOpen(true); }}
+        onOpenCloudflare={() => { setUserManualOpen(false); setCloudflareEdgeOpen(true); }}
+        onOpenGatekeeper={() => { setUserManualOpen(false); setGatekeeperOpen(true); }}
+      />
+
+      <ApiKeyOnboardingModal
+        isOpen={apiKeyOnboardingOpen}
+        onClose={() => setApiKeyOnboardingOpen(false)}
+        projectId={activeProject?.id || "proj-default"}
+        projectName={activeProject?.name || "ARQAISTUDIO Core"}
+        apiKey={activeProject?.api_key || "arqai_sec_1234_main"}
+      />
+
+      <CloudflareEdgeModal
+        isOpen={cloudflareEdgeOpen}
+        onClose={() => setCloudflareEdgeOpen(false)}
+      />
+
+      <GatekeeperModal
+        isOpen={gatekeeperOpen}
+        onClose={() => setGatekeeperOpen(false)}
+      />
       <CreateProjectModal
         isOpen={createProjectModalOpen}
         onClose={() => setCreateProjectModalOpen(false)}

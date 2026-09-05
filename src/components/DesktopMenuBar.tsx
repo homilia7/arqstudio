@@ -32,6 +32,10 @@ interface DesktopMenuBarProps {
   onOpenNotifications: () => void;
   onOpenNeonModal: () => void;
   onOpenAuditHistory: () => void;
+  onOpenUserManual?: () => void;
+  onOpenApiKeyOnboarding?: () => void;
+  onOpenCloudflareEdge?: () => void;
+  onOpenGatekeeper?: () => void;
   onRefresh: () => void;
   isRefreshing: boolean;
   unreadNotificationsCount: number;
@@ -50,6 +54,10 @@ export const DesktopMenuBar: React.FC<DesktopMenuBarProps> = ({
   onOpenNotifications,
   onOpenNeonModal,
   onOpenAuditHistory,
+  onOpenUserManual,
+  onOpenApiKeyOnboarding,
+  onOpenCloudflareEdge,
+  onOpenGatekeeper,
   onRefresh,
   isRefreshing,
   unreadNotificationsCount,
@@ -227,7 +235,43 @@ export const DesktopMenuBar: React.FC<DesktopMenuBarProps> = ({
 
       {/* Lado Derecho: Iconos de Acción Encapsulados en Píldoras */}
       <div className="flex items-center gap-1.5">
-        {/* Píldora Verde: Documentación */}
+        {/* Píldora Verde: Manual de Usuario */}
+        <button
+          onClick={onOpenUserManual}
+          title="Manual de Usuario & Especificaciones AgentOS"
+          className="flex items-center gap-1 px-2 py-1 rounded-md bg-[#063b27] border border-[#0e6245] text-emerald-300 hover:bg-[#084c32] transition-colors cursor-pointer text-[11px] font-medium"
+        >
+          <BookOpen className="w-3.5 h-3.5 text-emerald-400" />
+          <span className="hidden sm:inline">Manual</span>
+        </button>
+
+        {/* Píldora Amarilla: API Keys & Onboarding */}
+        <button
+          onClick={onOpenApiKeyOnboarding}
+          title="API Keys & Onboarding de Agentes"
+          className="flex items-center gap-1 px-2 py-1 rounded-md bg-[#3b2d06] border border-[#6b500c] text-amber-300 hover:bg-[#4d3a08] transition-colors cursor-pointer text-[11px] font-mono"
+        >
+          <Key className="w-3.5 h-3.5 text-amber-400" />
+          <span className="hidden md:inline">API Keys</span>
+        </button>
+
+        {/* Píldora Rosa: Gatekeeper */}
+        <button
+          onClick={onOpenGatekeeper}
+          title="ARQAI Gatekeeper & Kill Switch"
+          className="p-1.5 rounded-md bg-[#3b0918] border border-[#63112a] text-rose-300 hover:bg-[#4c0c20] transition-colors cursor-pointer"
+        >
+          <Shield className="w-3.5 h-3.5 text-rose-400" />
+        </button>
+
+        {/* Píldora Naranja: Cloudflare Edge */}
+        <button
+          onClick={onOpenCloudflareEdge}
+          title="Cloudflare Edge Native Telemetría"
+          className="p-1.5 rounded-md bg-[#3b2009] border border-[#633a11] text-orange-300 hover:bg-[#4c2a0c] transition-colors cursor-pointer"
+        >
+          <Cloud className="w-3.5 h-3.5 text-orange-400" />
+        </button>
         <button
           onClick={onOpenApiDocs}
           title="Documentación de la Skill"
