@@ -17,7 +17,7 @@ import { SimulateAgentModal } from "./components/SimulateAgentModal";
 import { ContextMemoryModal } from "./components/ContextMemoryModal";
 import { PlanGeneratorModal } from "./components/PlanGeneratorModal";
 import { ManualArchitecturePanel } from "./components/ManualArchitecturePanel";
-import { NeonDatabaseModal } from "./components/NeonDatabaseModal";
+import { CloudflareD1Modal } from "./components/CloudflareD1Modal";
 import { AgentConnectionsModal } from "./components/AgentConnectionsModal";
 import { CreateProjectModal } from "./components/CreateProjectModal";
 import { UserManualModal } from "./components/UserManualModal";
@@ -139,7 +139,7 @@ export default function App() {
   const [apiDocsOpen, setApiDocsOpen] = useState(false);
   const [simulateTask, setSimulateTask] = useState<TaskItem | null>(null);
   const [planGeneratorOpen, setPlanGeneratorOpen] = useState(false);
-  const [neonModalOpen, setNeonModalOpen] = useState(false);
+  const [d1ModalOpen, setD1ModalOpen] = useState(false);
   const [agentConnectionsOpen, setAgentConnectionsOpen] = useState(false);
   const [myAccountOpen, setMyAccountOpen] = useState(false);
   const [adminUsersOpen, setAdminUsersOpen] = useState(false);
@@ -308,7 +308,7 @@ export default function App() {
         onOpenApiDocs={() => setApiDocsOpen(true)}
         onOpenAgentConnections={() => setAgentConnectionsOpen(true)}
         onOpenNotifications={() => setNotificationsDrawerOpen(true)}
-        onOpenNeonModal={() => setNeonModalOpen(true)}
+        onOpenD1Modal={() => setD1ModalOpen(true)}
         onOpenAuditHistory={() => setIsLeftSidebarOpen(!isLeftSidebarOpen)}
         onRefresh={() => loadData(false)}
         isRefreshing={isRefreshing}
@@ -513,9 +513,9 @@ export default function App() {
         }}
       />
 
-      <NeonDatabaseModal
-        isOpen={neonModalOpen}
-        onClose={() => setNeonModalOpen(false)}
+      <CloudflareD1Modal
+        isOpen={d1ModalOpen}
+        onClose={() => setD1ModalOpen(false)}
         onRefreshData={() => loadData(true)}
       />
 

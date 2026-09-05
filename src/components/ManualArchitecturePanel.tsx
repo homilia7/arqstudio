@@ -36,7 +36,7 @@ interface ManualArchitecturePanelProps {
   onProjectUpdated: (project: Project) => void;
   onPlanGeneratedSuccess: () => void;
   onSwitchToTasksView: () => void;
-  onOpenNeonModal?: () => void;
+  onOpenCloudflare D1Modal?: () => void;
   showToast: (message: string, type?: "success" | "error" | "info") => void;
 }
 
@@ -45,7 +45,7 @@ export const ManualArchitecturePanel: React.FC<ManualArchitecturePanelProps> = (
   onProjectUpdated,
   onPlanGeneratedSuccess,
   onSwitchToTasksView,
-  onOpenNeonModal,
+  onOpenCloudflare D1Modal,
   showToast,
 }) => {
   const [blueprint, setBlueprint] = useState<ProjectBlueprint>({
@@ -237,7 +237,7 @@ export const ManualArchitecturePanel: React.FC<ManualArchitecturePanelProps> = (
       connections: [
         {
           id: "conn-supabase",
-          name: "Supabase (Auth & PostgreSQL)",
+          name: "Supabase (Auth & Cloudflare D1 SQL)",
           type: "database",
           configDetails: "URL y Anon Key. Tablas: 'usuarios', 'contadores', 'clientes', 'documentos'. Row Level Security (RLS) habilitado.",
         },
@@ -948,22 +948,22 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
                 </h3>
               </div>
               <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
-                Bases de datos (Neon PostgreSQL, Supabase), autenticación, APIs externas, servicios de correo o almacenamiento.
+                Bases de datos (Cloudflare D1 SQL, Supabase), autenticación, APIs externas, servicios de correo o almacenamiento.
               </p>
             </div>
           </div>
 
           <div className="flex items-center space-x-2.5 shrink-0">
-            {onOpenNeonModal && (
+            {onOpenCloudflare D1Modal && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  onOpenNeonModal();
+                  onOpenCloudflare D1Modal();
                 }}
                 className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 flex items-center space-x-1.5 transition-colors cursor-pointer shadow-2xs"
               >
                 <Database className="w-3.5 h-3.5 text-emerald-500" />
-                <span>Estado Neon DB</span>
+                <span>Estado Cloudflare D1 DB</span>
               </button>
             )}
             <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-purple-100 dark:bg-purple-950/80 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800/80">
@@ -1047,7 +1047,7 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
                     onChange={(e) => setNewConnType(e.target.value as any)}
                     className="w-full text-xs bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded px-2.5 py-1.5 text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   >
-                    <option value="database">Base de Datos (PostgreSQL, Supabase)</option>
+                    <option value="database">Base de Datos (Cloudflare D1 SQL, Supabase)</option>
                     <option value="auth">Autenticación (Supabase Auth, OAuth)</option>
                     <option value="api">API Externa / Webhook</option>
                     <option value="storage">Almacenamiento (S3, Supabase Storage)</option>

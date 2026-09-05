@@ -30,7 +30,7 @@ interface DesktopMenuBarProps {
   onOpenApiDocs: () => void;
   onOpenAgentConnections: () => void;
   onOpenNotifications: () => void;
-  onOpenNeonModal: () => void;
+  onOpenD1Modal: () => void;
   onOpenAuditHistory: () => void;
   onOpenUserManual?: () => void;
   onOpenApiKeyOnboarding?: () => void;
@@ -52,7 +52,7 @@ export const DesktopMenuBar: React.FC<DesktopMenuBarProps> = ({
   onOpenApiDocs,
   onOpenAgentConnections,
   onOpenNotifications,
-  onOpenNeonModal,
+  onOpenD1Modal,
   onOpenAuditHistory,
   onOpenUserManual,
   onOpenApiKeyOnboarding,
@@ -154,7 +154,7 @@ export const DesktopMenuBar: React.FC<DesktopMenuBarProps> = ({
             {activeDropdown === 'memoria' && (
               <div className="absolute left-0 mt-1 w-52 bg-[#161b22] border border-[#30363d] rounded-md shadow-2xl py-1 z-50 text-[#c9d1d9]">
                 <button
-                  onClick={() => { onOpenNeonModal(); closeDropdown(); }}
+                  onClick={() => { onOpenD1Modal(); closeDropdown(); }}
                   className="w-full text-left px-3 py-1.5 hover:bg-[#21262d] flex items-center gap-2"
                 >
                   <Database className="w-3.5 h-3.5 text-emerald-400" /> Cloudflare D1 SQL
@@ -291,7 +291,7 @@ export const DesktopMenuBar: React.FC<DesktopMenuBarProps> = ({
 
         {/* Píldora Verde-Azul: Seguridad */}
         <button
-          onClick={onOpenNeonModal}
+          onClick={onOpenD1Modal}
           title="Cloudflare D1 & Seguridad"
           className="p-1.5 rounded-md bg-[#09353b] border border-[#115b63] text-teal-400 hover:bg-[#0c444c] transition-colors"
         >

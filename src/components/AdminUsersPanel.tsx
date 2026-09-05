@@ -133,7 +133,7 @@ export function AdminUsersPanel({ currentUser, refreshKey }: AdminUsersPanelProp
             </span>
           </h2>
           <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-            Supervisa los accesos, credenciales y elimina usuarios registrados en la base de datos PostgreSQL / Cloudflare D1.
+            Supervisa los accesos, credenciales y elimina usuarios registrados en la base de datos Cloudflare D1 SQL / Cloudflare D1.
           </p>
         </div>
         <div className="flex items-center space-x-3">
