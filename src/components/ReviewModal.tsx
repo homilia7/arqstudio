@@ -166,7 +166,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
 
             {task.workUrl && (
               <a
-                href={workUrl}
+                href={task.workUrl.startsWith("http") ? task.workUrl : `https://${task.workUrl}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center space-x-1 px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-[11px] rounded shadow-2xs transition-colors shrink-0 cursor-pointer"
