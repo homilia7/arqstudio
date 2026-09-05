@@ -120,7 +120,7 @@ export const TaskList: React.FC<TaskListProps> = ({
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
-            <span>Vista Módulos & Etapas ({modules.length})</span>
+            <span>Vista Módulos & Etapas, TAREAS, PASOS ({modules.length})</span>
           </button>
         </div>
 
