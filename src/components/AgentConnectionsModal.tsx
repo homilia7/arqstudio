@@ -167,7 +167,7 @@ export const AgentConnectionsModal: React.FC<AgentConnectionsModalProps> = ({
       return "text-sky-300 bg-sky-950/80 border-sky-500/40";
     if (n.includes("CODEX"))
       return "text-purple-300 bg-purple-950/80 border-purple-500/40";
-    return "text-slate-300 bg-slate-900 border-slate-700";
+    return "text-zinc-300 bg-zinc-900 border-zinc-700";
   };
 
   const formatDate = (dateStr: string) => {
@@ -189,10 +189,10 @@ export const AgentConnectionsModal: React.FC<AgentConnectionsModalProps> = ({
   if (typeof document === "undefined") return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[99999] bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-xl shadow-2xl w-full max-w-3xl flex flex-col max-h-[88vh] shrink-0 overflow-hidden text-xs">
+    <div className="fixed inset-0 z-[99999] bg-zinc-950/80 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4">
+      <div className="bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl w-full max-w-3xl flex flex-col max-h-[88vh] shrink-0 overflow-hidden text-xs">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3 border-b border-slate-800 bg-slate-950/90">
+        <div className="flex items-center justify-between px-5 py-3 border-b border-zinc-800 bg-zinc-950/90">
           <div className="flex items-center space-x-2.5">
             <div className="p-1.5 bg-emerald-950/80 text-emerald-400 border border-emerald-500/30 rounded-lg flex items-center justify-center">
               <Radio className="w-4 h-4 animate-pulse text-emerald-400" />
@@ -207,7 +207,7 @@ export const AgentConnectionsModal: React.FC<AgentConnectionsModalProps> = ({
                   <span>API ACTIVA</span>
                 </span>
               </div>
-              <p className="text-[10px] text-slate-400">
+              <p className="text-[10px] text-zinc-400">
                 Supervisa en vivo qué agentes IA están usando la API y bloquea o autoriza su acceso instantáneamente.
               </p>
             </div>
@@ -226,7 +226,7 @@ export const AgentConnectionsModal: React.FC<AgentConnectionsModalProps> = ({
             )}
             <button
               onClick={onClose}
-              className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+              className="p-1 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -234,14 +234,14 @@ export const AgentConnectionsModal: React.FC<AgentConnectionsModalProps> = ({
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex items-center justify-between px-5 py-2 bg-slate-950/50 border-b border-slate-800">
+        <div className="flex items-center justify-between px-5 py-2 bg-zinc-950/50 border-b border-zinc-800">
           <div className="flex items-center space-x-2">
             <button
               onClick={() => setActiveTab("agents")}
               className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center space-x-1.5 cursor-pointer ${
                 activeTab === "agents"
                   ? "bg-indigo-950/90 text-indigo-300 border border-indigo-500/50 shadow-xs"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800/60"
+                  : "text-zinc-400 hover:text-white hover:bg-zinc-800/60"
               }`}
             >
               <Bot className="w-3.5 h-3.5" />
@@ -252,7 +252,7 @@ export const AgentConnectionsModal: React.FC<AgentConnectionsModalProps> = ({
               className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center space-x-1.5 cursor-pointer ${
                 activeTab === "logs"
                   ? "bg-indigo-950/90 text-indigo-300 border border-indigo-500/50 shadow-xs"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800/60"
+                  : "text-zinc-400 hover:text-white hover:bg-zinc-800/60"
               }`}
             >
               <Activity className="w-3.5 h-3.5" />
@@ -260,7 +260,7 @@ export const AgentConnectionsModal: React.FC<AgentConnectionsModalProps> = ({
             </button>
           </div>
 
-          <div className="text-[11px] text-slate-400 hidden sm:flex items-center gap-2">
+          <div className="text-[11px] text-zinc-400 hidden sm:flex items-center gap-2">
             <span className="text-emerald-400 font-semibold">
               {uniqueAgents.filter((a) => !isBlocked(a.name)).length} Autorizados
             </span>
@@ -281,12 +281,12 @@ export const AgentConnectionsModal: React.FC<AgentConnectionsModalProps> = ({
             /* LISTA DE AGENTES DETECTADOS Y BLOQUEO */
             <div className="space-y-2.5">
               {uniqueAgents.length === 0 ? (
-                <div className="text-center py-12 bg-slate-950/40 border border-slate-800/80 rounded-xl p-6">
-                  <Server className="w-10 h-10 text-slate-600 mx-auto mb-2" />
-                  <p className="text-slate-200 font-bold text-xs">
+                <div className="text-center py-12 bg-zinc-950/40 border border-zinc-800/80 rounded-xl p-6">
+                  <Server className="w-10 h-10 text-zinc-600 mx-auto mb-2" />
+                  <p className="text-zinc-200 font-bold text-xs">
                     Ningún Agente se ha conectado por API aún.
                   </p>
-                  <p className="text-[10px] text-slate-400 mt-1 max-w-md mx-auto">
+                  <p className="text-[10px] text-zinc-400 mt-1 max-w-md mx-auto">
                     Cuando un agente (Antigravity AI, Codex, Hermes, Claude, GPT, etc.) realice una petición HTTP a la API de ARQAI, aparecerá registrado aquí inmediatamente.
                   </p>
                 </div>
@@ -301,7 +301,7 @@ export const AgentConnectionsModal: React.FC<AgentConnectionsModalProps> = ({
                       className={`p-3.5 rounded-xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
                         blocked
                           ? "bg-rose-950/30 border-rose-900/60 hover:border-rose-700/80"
-                          : "bg-slate-950/60 border-slate-800 hover:border-slate-700"
+                          : "bg-zinc-950/60 border-zinc-800 hover:border-zinc-700"
                       }`}
                     >
                       <div className="flex items-start gap-3">
@@ -341,7 +341,7 @@ export const AgentConnectionsModal: React.FC<AgentConnectionsModalProps> = ({
                             )}
                           </div>
 
-                          <div className="flex items-center gap-2 text-[10px] text-slate-400 flex-wrap">
+                          <div className="flex items-center gap-2 text-[10px] text-zinc-400 flex-wrap">
                             <span>
                               <strong>{agent.requestsCount}</strong> peticiones registradas
                             </span>
@@ -395,8 +395,8 @@ export const AgentConnectionsModal: React.FC<AgentConnectionsModalProps> = ({
             <div className="space-y-2">
               {connections.length === 0 ? (
                 <div className="text-center py-10">
-                  <Server className="w-10 h-10 text-slate-600 mx-auto mb-2" />
-                  <p className="text-slate-300 font-bold text-xs">
+                  <Server className="w-10 h-10 text-zinc-600 mx-auto mb-2" />
+                  <p className="text-zinc-300 font-bold text-xs">
                     No hay registros de actividad aún.
                   </p>
                 </div>
@@ -404,10 +404,10 @@ export const AgentConnectionsModal: React.FC<AgentConnectionsModalProps> = ({
                 connections.map((conn) => (
                   <div
                     key={conn.id}
-                    className="p-3 bg-slate-950/60 border border-slate-800 rounded-lg hover:border-slate-700 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+                    className="p-3 bg-zinc-950/60 border border-zinc-800 rounded-lg hover:border-zinc-700 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-2"
                   >
                     <div className="flex items-start gap-2.5">
-                      <div className="w-7 h-7 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-indigo-400 shrink-0 mt-0.5">
+                      <div className="w-7 h-7 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-indigo-400 shrink-0 mt-0.5">
                         <Activity className="w-3.5 h-3.5" />
                       </div>
                       <div className="space-y-0.5">
@@ -425,7 +425,7 @@ export const AgentConnectionsModal: React.FC<AgentConnectionsModalProps> = ({
                             </span>
                           )}
                           {conn.projectName && (
-                            <span className="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+                            <span className="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-zinc-800 text-zinc-300 border border-zinc-700">
                               Proyecto: {conn.projectName}
                             </span>
                           )}
@@ -437,8 +437,8 @@ export const AgentConnectionsModal: React.FC<AgentConnectionsModalProps> = ({
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-1 text-[10px] text-slate-400 font-mono shrink-0 bg-slate-900 px-2 py-0.5 rounded border border-slate-800/80">
-                      <Calendar className="w-3 h-3 text-slate-500" />
+                    <div className="flex items-center gap-1 text-[10px] text-zinc-400 font-mono shrink-0 bg-zinc-900 px-2 py-0.5 rounded border border-zinc-800/80">
+                      <Calendar className="w-3 h-3 text-zinc-500" />
                       <span>{formatDate(conn.connectedAt)}</span>
                     </div>
                   </div>
@@ -449,14 +449,14 @@ export const AgentConnectionsModal: React.FC<AgentConnectionsModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-2.5 bg-slate-950 border-t border-slate-800 flex items-center justify-between">
-          <div className="flex items-center space-x-1 text-[10px] text-slate-400 font-mono">
+        <div className="px-5 py-2.5 bg-zinc-950 border-t border-zinc-800 flex items-center justify-between">
+          <div className="flex items-center space-x-1 text-[10px] text-zinc-400 font-mono">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 inline" />
             <span>ARQAI Gatekeeper: Bloqueo activo a nivel de Edge API</span>
           </div>
           <button
             onClick={onClose}
-            className="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-semibold cursor-pointer transition-colors"
+            className="px-3 py-1 bg-zinc-800 hover:bg-slate-700 text-white rounded-lg text-xs font-semibold cursor-pointer transition-colors"
           >
             Cerrar
           </button>

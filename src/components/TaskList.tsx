@@ -96,15 +96,15 @@ export const TaskList: React.FC<TaskListProps> = ({
   return (
     <div className="space-y-3.5">
       {/* Selector de Modo de Vista & Filtro Destacado de Corrección */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-slate-100/90 dark:bg-slate-900 border border-slate-300/80 dark:border-slate-800 p-2.5 rounded-lg shadow-sm transition-colors">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-zinc-200/90 dark:bg-zinc-900 border border-zinc-300/80 dark:border-zinc-800 p-2.5 rounded-lg shadow-sm transition-colors">
         {/* Toggle de Modo de Vista */}
-        <div className="flex items-center space-x-1 bg-slate-100 dark:bg-slate-800 p-0.5 rounded border border-slate-200 dark:border-slate-700 w-full sm:w-auto overflow-x-auto">
+        <div className="flex items-center space-x-1 bg-zinc-200 dark:bg-zinc-800 p-0.5 rounded border border-zinc-300 dark:border-zinc-700 w-full sm:w-auto overflow-x-auto">
           <button
             onClick={() => setViewMode("tasks")}
             className={`flex-1 sm:flex-none px-3 py-1.5 rounded text-xs font-semibold transition-all flex items-center justify-center space-x-1.5 cursor-pointer whitespace-nowrap ${
               viewMode === "tasks"
-                ? "bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm border border-slate-200/60 dark:border-slate-600"
-                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                ? "bg-zinc-100 dark:bg-zinc-900 dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm border border-zinc-300/60 dark:border-slate-600"
+                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
             }`}
           >
             <ListTodo className="w-3.5 h-3.5" />
@@ -115,8 +115,8 @@ export const TaskList: React.FC<TaskListProps> = ({
             onClick={() => setViewMode("modules")}
             className={`flex-1 sm:flex-none px-3 py-1.5 rounded text-xs font-semibold transition-all flex items-center justify-center space-x-1.5 cursor-pointer whitespace-nowrap ${
               viewMode === "modules"
-                ? "bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm border border-slate-200/60 dark:border-slate-600"
-                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                ? "bg-zinc-100 dark:bg-zinc-900 dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm border border-zinc-300/60 dark:border-slate-600"
+                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
@@ -165,20 +165,20 @@ export const TaskList: React.FC<TaskListProps> = ({
       ) : (
         <>
           {/* Barra de Filtros y Búsqueda */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-slate-100 dark:bg-slate-900 p-2.5 rounded-lg border border-slate-300 dark:border-slate-800 shadow-sm transition-colors">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-zinc-200 dark:bg-zinc-900 p-2.5 rounded-lg border border-zinc-300 dark:border-zinc-800 shadow-sm transition-colors">
             {/* Pestañas de Filtro */}
             <div className="flex items-center space-x-1 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
               <button
                 onClick={() => onFilterChange("all")}
                 className={`px-2.5 py-1 rounded text-xs font-medium whitespace-nowrap transition-all flex items-center space-x-1.5 cursor-pointer ${
                   filter === "all"
-                    ? "bg-slate-800 dark:bg-slate-700 text-white shadow-sm font-semibold"
-                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
+                    ? "bg-zinc-800 dark:bg-slate-700 text-white shadow-sm font-semibold"
+                    : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200 dark:hover:bg-zinc-800"
                 }`}
               >
                 <Layers className="w-3.5 h-3.5" />
                 <span>Todas</span>
-                <span className="ml-1 px-1.5 py-0.2 rounded-full bg-slate-200 dark:bg-slate-800 text-[10px] text-slate-700 dark:text-slate-300">
+                <span className="ml-1 px-1.5 py-0.2 rounded-full bg-zinc-200 dark:bg-zinc-800 text-[10px] text-zinc-700 dark:text-zinc-300">
                   {counts.all}
                 </span>
               </button>
@@ -250,11 +250,11 @@ export const TaskList: React.FC<TaskListProps> = ({
                 className={`px-2.5 py-1 rounded text-xs font-medium whitespace-nowrap transition-all flex items-center space-x-1.5 cursor-pointer ${
                   filter === "pending"
                     ? "bg-slate-700 dark:bg-slate-600 text-white shadow-sm font-semibold"
-                    : "text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+                    : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-800"
                 }`}
               >
                 <span>Pendientes</span>
-                <span className="ml-1 px-1.5 py-0.2 rounded-full bg-slate-200 dark:bg-slate-800 text-[10px] text-slate-700 dark:text-slate-300">
+                <span className="ml-1 px-1.5 py-0.2 rounded-full bg-zinc-200 dark:bg-zinc-800 text-[10px] text-zinc-700 dark:text-zinc-300">
                   {counts.pending}
                 </span>
               </button>
@@ -262,27 +262,27 @@ export const TaskList: React.FC<TaskListProps> = ({
 
             {/* Buscador */}
             <div className="relative min-w-[220px]">
-              <Search className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Buscar por instrucción o URL..."
-                className="w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white rounded pl-8 pr-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-white dark:focus:bg-slate-800 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                className="w-full bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-300 dark:border-zinc-700 text-xs text-zinc-900 dark:text-white rounded pl-8 pr-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-zinc-100 dark:bg-zinc-900 dark:focus:bg-zinc-800 placeholder:text-zinc-400 dark:placeholder:text-zinc-500"
               />
             </div>
           </div>
 
           {/* Lista de Tareas */}
           {filteredTasks.length === 0 ? (
-            <div className="bg-slate-200/90 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg p-10 text-center shadow-sm transition-colors">
-              <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 mx-auto flex items-center justify-center text-slate-400 dark:text-slate-500 mb-3">
+            <div className="bg-zinc-200/90 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-lg p-10 text-center shadow-sm transition-colors">
+              <div className="w-12 h-12 rounded-full bg-zinc-200 dark:bg-zinc-800 mx-auto flex items-center justify-center text-zinc-400 dark:text-zinc-500 mb-3">
                 <Filter className="w-6 h-6" />
               </div>
-              <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1">
+              <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200 mb-1">
                 No se encontraron tareas en esta vista
               </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto mb-4">
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 max-w-sm mx-auto mb-4">
                 {searchTerm
                   ? "No hay tareas que coincidan con tu búsqueda."
                   : filter === "ready_for_review"

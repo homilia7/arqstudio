@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { DesktopMenuBar } from "./components/DesktopMenuBar";
 import { ProjectCommandBar } from "./components/ProjectCommandBar";
+import { CreateProjectModal } from "./components/CreateProjectModal";
 import { AgentSupervisorView } from "./components/AgentSupervisorView";
 import { MemoryRagView } from "./components/MemoryRagView";
 import { SemanticGitView } from "./components/SemanticGitView";
@@ -100,6 +101,7 @@ export default function App() {
   };
 
   // Modals state
+  const [createProjectModalOpen, setCreateProjectModalOpen] = useState(false);
   const [reviewTask, setReviewTask] = useState<TaskItem | null>(null);
   const [contextTask, setContextTask] = useState<TaskItem | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -166,20 +168,20 @@ export default function App() {
     loadData(false);
   };
 
-  const handleCreateProject = async () => {
-    const name = prompt("Nombre del nuevo proyecto:");
-    if (!name?.trim()) return;
+    const handleCreateProjectModalSubmit = async (data: { name: string; description?: string; mainUrl?: string }) => {
     try {
-      const created = await api.createProject({ 
-        name: name.trim(), 
-        mainUrl: "https://arqstudio.pages.dev",
-        userId: currentUser?.id 
+      const created = await api.createProject({
+        name: data.name,
+        description: data.description,
+        mainUrl: data.mainUrl || "https://arqaistudio.pages.dev",
+        userId: currentUser?.id
       });
       setProjects((prev) => [created, ...prev]);
       setActiveProject(created);
       showToast("Proyecto creado con éxito.", "success");
     } catch (e) {
       showToast("Error al crear proyecto", "error");
+      throw e;
     }
   };
 
@@ -269,7 +271,7 @@ export default function App() {
         activeProject={activeProject}
         allProjects={projects}
         onSelectProject={handleSelectProject}
-        onOpenNewProject={handleCreateProject}
+        onOpenNewProject={() => setCreateProjectModalOpen(true)}
         onOpenMyAccount={() => setMyAccountOpen(true)}
         onOpenAdminUsers={() => setAdminUsersOpen(true)}
         onOpenApiDocs={() => setApiDocsOpen(true)}
@@ -287,7 +289,7 @@ export default function App() {
         activeProject={activeProject}
         allProjects={projects}
         onSelectProject={handleSelectProject}
-        onOpenNewProject={handleCreateProject}
+        onOpenNewProject={() => setCreateProjectModalOpen(true)}
         onCloneProject={handleCloneProject}
         onDeleteProject={handleDeleteProject}
         activeTab={activeTab}
@@ -418,6 +420,12 @@ export default function App() {
       )}
 
       {/* Modals */}
+      <CreateProjectModal
+        isOpen={createProjectModalOpen}
+        onClose={() => setCreateProjectModalOpen(false)}
+        onCreateProject={handleCreateProjectModalSubmit}
+      />
+
       <ReviewModal
         task={reviewTask}
         onClose={() => setReviewTask(null)}

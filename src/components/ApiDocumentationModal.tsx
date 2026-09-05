@@ -159,24 +159,24 @@ ${antigravitySystemPrompt}`;
   const [copiedAll, setCopiedAll] = useState(false);
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-slate-950/80 backdrop-blur-md flex items-start justify-center p-3 sm:p-4 pt-12 sm:pt-16 overflow-y-auto">
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl max-w-4xl w-full shadow-2xl overflow-hidden flex flex-col max-h-[85vh] transition-colors shrink-0">
+    <div className="fixed inset-0 z-[9999] bg-zinc-950/80 backdrop-blur-md flex items-start justify-center p-3 sm:p-4 pt-12 sm:pt-16 overflow-y-auto">
+      <div className="bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-xl max-w-4xl w-full shadow-2xl overflow-hidden flex flex-col max-h-[85vh] transition-colors shrink-0">
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/90 dark:bg-slate-800/80">
+        <div className="p-4 sm:p-5 border-b border-zinc-300 dark:border-zinc-800 flex items-center justify-between bg-zinc-100/90 dark:bg-zinc-800/80">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-lg bg-indigo-50 dark:bg-indigo-950/80 border border-indigo-100 dark:border-indigo-800/80 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
               <BrainCircuit className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight">
+                <h3 className="text-sm font-bold text-zinc-900 dark:text-white tracking-tight">
                   Instrucciones & API Key para Antigravity AI
                 </h3>
                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
                   v2.0 Full Autonomous
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
                 Copia las credenciales y el prompt completo con 1 solo clic para pegárselo a Antigravity, Codex, Hermes o Claude.
               </p>
             </div>
@@ -184,7 +184,7 @@ ${antigravitySystemPrompt}`;
 
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+            className="p-1.5 text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -195,16 +195,16 @@ ${antigravitySystemPrompt}`;
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center space-x-1.5">
               <Globe className="w-3.5 h-3.5 text-indigo-400" />
-              <span className="text-slate-300 font-medium">Base URL:</span>
-              <code className="font-mono text-[11px] bg-slate-900 px-2 py-0.5 rounded border border-indigo-900/80 font-semibold text-white">
+              <span className="text-zinc-300 font-medium">Base URL:</span>
+              <code className="font-mono text-[11px] bg-zinc-900 px-2 py-0.5 rounded border border-indigo-900/80 font-semibold text-white">
                 {originUrl}
               </code>
             </div>
 
             <div className="flex items-center space-x-1.5">
               <Key className="w-3.5 h-3.5 text-amber-400" />
-              <span className="text-slate-300 font-medium">API Key:</span>
-              <code className="font-mono text-[11px] bg-slate-900 px-2 py-0.5 rounded border border-amber-500/40 font-semibold text-amber-300">
+              <span className="text-zinc-300 font-medium">API Key:</span>
+              <code className="font-mono text-[11px] bg-zinc-900 px-2 py-0.5 rounded border border-amber-500/40 font-semibold text-amber-300">
                 {apiKey}
               </code>
             </div>
@@ -251,13 +251,13 @@ ${antigravitySystemPrompt}`;
         </div>
 
         {/* Tab Navigation */}
-        <div className="px-5 pt-3 border-b border-slate-200 dark:border-slate-800 flex space-x-4 text-xs font-semibold">
+        <div className="px-5 pt-3 border-b border-zinc-300 dark:border-zinc-800 flex space-x-4 text-xs font-semibold">
           <button
             onClick={() => setActiveTab("prompt")}
             className={`pb-2.5 flex items-center space-x-1.5 border-b-2 transition-colors cursor-pointer ${
               activeTab === "prompt"
                 ? "border-indigo-600 text-indigo-600 dark:text-indigo-400"
-                : "border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
+                : "border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200"
             }`}
           >
             <Sparkles className="w-3.5 h-3.5" />
@@ -269,7 +269,7 @@ ${antigravitySystemPrompt}`;
             className={`pb-2.5 flex items-center space-x-1.5 border-b-2 transition-colors cursor-pointer ${
               activeTab === "endpoints"
                 ? "border-indigo-600 text-indigo-600 dark:text-indigo-400"
-                : "border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
+                : "border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200"
             }`}
           >
             <Terminal className="w-3.5 h-3.5" />
@@ -281,7 +281,7 @@ ${antigravitySystemPrompt}`;
             className={`pb-2.5 flex items-center space-x-1.5 border-b-2 transition-colors cursor-pointer ${
               activeTab === "workflow"
                 ? "border-indigo-600 text-indigo-600 dark:text-indigo-400"
-                : "border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
+                : "border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200"
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
@@ -294,7 +294,7 @@ ${antigravitySystemPrompt}`;
           {activeTab === "prompt" && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-1.5 text-slate-700 dark:text-slate-300 font-bold">
+                <div className="flex items-center space-x-1.5 text-zinc-700 dark:text-zinc-300 font-bold">
                   <Sparkles className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                   <span>Copia y pega este texto completo en el chat o instrucciones de Antigravity:</span>
                 </div>
@@ -318,7 +318,7 @@ ${antigravitySystemPrompt}`;
               </div>
 
               <div className="relative">
-                <pre className="bg-slate-900 dark:bg-slate-950 p-4 rounded-xl text-[11px] font-mono text-slate-100 overflow-x-auto border border-slate-800 whitespace-pre-wrap leading-relaxed max-h-96 shadow-inner select-all">
+                <pre className="bg-zinc-900 dark:bg-zinc-950 p-4 rounded-xl text-[11px] font-mono text-zinc-100 overflow-x-auto border border-zinc-800 whitespace-pre-wrap leading-relaxed max-h-96 shadow-inner select-all">
                   {antigravitySystemPrompt}
                 </pre>
               </div>
@@ -334,18 +334,18 @@ ${antigravitySystemPrompt}`;
 
           {activeTab === "endpoints" && (
             <div className="space-y-4">
-              <p className="text-slate-600 dark:text-slate-400 text-xs">
+              <p className="text-zinc-600 dark:text-zinc-400 text-xs">
                 Endpoints REST optimizados para que Antigravity interactúe con el backlog y la memoria técnica en tiempo real:
               </p>
 
               {/* Endpoint 1: Siguiente tarea */}
-              <div className="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-lg border border-slate-200 dark:border-slate-700 space-y-2">
+              <div className="bg-zinc-100 dark:bg-zinc-800/60 p-3.5 rounded-lg border border-zinc-300 dark:border-zinc-700 space-y-2">
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <div className="flex items-center space-x-2">
                     <span className="px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 font-mono font-bold text-[10px]">
                       GET
                     </span>
-                    <span className="font-mono text-slate-900 dark:text-white font-bold text-xs">
+                    <span className="font-mono text-zinc-900 dark:text-white font-bold text-xs">
                       /api/agent/next-task?projectId={projectId}
                     </span>
                   </div>
@@ -357,22 +357,22 @@ ${antigravitySystemPrompt}`;
                     <span>{copiedCurl === "next" ? "Copiado" : "Copiar cURL"}</span>
                   </button>
                 </div>
-                <p className="text-slate-600 dark:text-slate-400 text-[11px]">
+                <p className="text-zinc-600 dark:text-zinc-400 text-[11px]">
                   Devuelve la tarea prioritaria que Antigravity debe resolver. Si el usuario reportó errores en una tarea (<code>needs_revision</code>), se devuelve con máxima prioridad junto a las notas de observación.
                 </p>
-                <pre className="bg-slate-900 dark:bg-slate-950 p-2.5 rounded text-[11px] font-mono text-indigo-300 border border-slate-800 overflow-x-auto">
+                <pre className="bg-zinc-900 dark:bg-zinc-950 p-2.5 rounded text-[11px] font-mono text-indigo-300 border border-zinc-800 overflow-x-auto">
                   {curlNextTask}
                 </pre>
               </div>
 
               {/* Endpoint 2: Memoria de contexto */}
-              <div className="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-lg border border-slate-200 dark:border-slate-700 space-y-2">
+              <div className="bg-zinc-100 dark:bg-zinc-800/60 p-3.5 rounded-lg border border-zinc-300 dark:border-zinc-700 space-y-2">
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <div className="flex items-center space-x-2">
                     <span className="px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 font-mono font-bold text-[10px]">
                       GET
                     </span>
-                    <span className="font-mono text-slate-900 dark:text-white font-bold text-xs">
+                    <span className="font-mono text-zinc-900 dark:text-white font-bold text-xs">
                       /api/agent/context-memory?taskId=&#123;TASK_ID&#125;
                     </span>
                   </div>
@@ -384,22 +384,22 @@ ${antigravitySystemPrompt}`;
                     <span>{copiedCurl === "ctx" ? "Copiado" : "Copiar cURL"}</span>
                   </button>
                 </div>
-                <p className="text-slate-600 dark:text-slate-400 text-[11px]">
+                <p className="text-zinc-600 dark:text-zinc-400 text-[11px]">
                   Retorna la ficha técnica de la tarea: lista de archivos afectados, requerimientos técnicos, dependencias y reglas que Antigravity debe respetar sin desviarse.
                 </p>
-                <pre className="bg-slate-900 dark:bg-slate-950 p-2.5 rounded text-[11px] font-mono text-indigo-300 border border-slate-800 overflow-x-auto">
+                <pre className="bg-zinc-900 dark:bg-zinc-950 p-2.5 rounded text-[11px] font-mono text-indigo-300 border border-zinc-800 overflow-x-auto">
                   {curlContext}
                 </pre>
               </div>
 
               {/* Endpoint 3: Completar tarea */}
-              <div className="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-lg border border-slate-200 dark:border-slate-700 space-y-2">
+              <div className="bg-zinc-100 dark:bg-zinc-800/60 p-3.5 rounded-lg border border-zinc-300 dark:border-zinc-700 space-y-2">
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <div className="flex items-center space-x-2">
                     <span className="px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-950/70 text-indigo-800 dark:text-indigo-300 font-mono font-bold text-[10px]">
                       POST
                     </span>
-                    <span className="font-mono text-slate-900 dark:text-white font-bold text-xs">
+                    <span className="font-mono text-zinc-900 dark:text-white font-bold text-xs">
                       /api/agent/complete-task
                     </span>
                   </div>
@@ -411,39 +411,39 @@ ${antigravitySystemPrompt}`;
                     <span>{copiedCurl === "complete" ? "Copiado" : "Copiar cURL"}</span>
                   </button>
                 </div>
-                <p className="text-slate-600 dark:text-slate-400 text-[11px]">
+                <p className="text-zinc-600 dark:text-zinc-400 text-[11px]">
                   Antigravity notifica que finalizó la tarea. Se guardan las notas técnicas y la URL de prueba, y la tarea se marca como <code>ready_for_review</code>.
                 </p>
-                <pre className="bg-slate-900 dark:bg-slate-950 p-2.5 rounded text-[11px] font-mono text-indigo-300 border border-slate-800 overflow-x-auto">
+                <pre className="bg-zinc-900 dark:bg-zinc-950 p-2.5 rounded text-[11px] font-mono text-indigo-300 border border-zinc-800 overflow-x-auto">
                   {curlComplete}
                 </pre>
               </div>
 
               {/* Endpoints Adicionales */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-lg border border-slate-200 dark:border-slate-700">
+                <div className="p-3 bg-zinc-100 dark:bg-zinc-800/60 rounded-lg border border-zinc-300 dark:border-zinc-700">
                   <span className="font-mono font-bold text-amber-600 dark:text-amber-400 text-[11px]">
                     PATCH /api/tasks/:id
                   </span>
-                  <p className="text-slate-600 dark:text-slate-400 text-[11px] mt-1">
+                  <p className="text-zinc-600 dark:text-zinc-400 text-[11px] mt-1">
                     Permite a Antigravity marcar la tarea como <code>status: "in_progress"</code> al comenzar a escribir código.
                   </p>
                 </div>
 
-                <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-lg border border-slate-200 dark:border-slate-700">
+                <div className="p-3 bg-zinc-100 dark:bg-zinc-800/60 rounded-lg border border-zinc-300 dark:border-zinc-700">
                   <span className="font-mono font-bold text-blue-600 dark:text-blue-400 text-[11px]">
                     PUT /api/projects/:id/blueprint
                   </span>
-                  <p className="text-slate-600 dark:text-slate-400 text-[11px] mt-1">
+                  <p className="text-zinc-600 dark:text-zinc-400 text-[11px] mt-1">
                     Guarda el Blueprint estructurado (masterPrompt, generalFeatures, screens, connections, architecturalNotes) en Cloudflare D1.
                   </p>
                 </div>
 
-                <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-lg border border-slate-200 dark:border-slate-700">
+                <div className="p-3 bg-zinc-100 dark:bg-zinc-800/60 rounded-lg border border-zinc-300 dark:border-zinc-700">
                   <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400 text-[11px]">
                     POST /api/projects/:id/generate-plan-from-blueprint
                   </span>
-                  <p className="text-slate-600 dark:text-slate-400 text-[11px] mt-1">
+                  <p className="text-zinc-600 dark:text-zinc-400 text-[11px] mt-1">
                     Genera el plan de trabajo específico por dominio con módulos, etapas y tareas con memoria técnica completa desde el Blueprint.
                   </p>
                 </div>
@@ -458,49 +458,49 @@ ${antigravitySystemPrompt}`;
                   <Layers className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                   <span>Ciclo de Vida Autónomo Antigravity + Humano</span>
                 </h4>
-                <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                <p className="text-[11px] text-zinc-600 dark:text-zinc-300 leading-relaxed">
                   Este flujo garantiza que la IA no trabaje a ciegas y que el usuario mantenga el 100% del control de calidad sin necesidad de supervisión manual en cada línea de código.
                 </p>
               </div>
 
               <div className="space-y-3">
-                <div className="flex items-start space-x-3 p-3 bg-slate-50 dark:bg-slate-800/60 rounded-lg border border-slate-200 dark:border-slate-700">
+                <div className="flex items-start space-x-3 p-3 bg-zinc-100 dark:bg-zinc-800/60 rounded-lg border border-zinc-300 dark:border-zinc-700">
                   <div className="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
                     1
                   </div>
                   <div>
-                    <h5 className="font-bold text-slate-900 dark:text-white text-xs">
+                    <h5 className="font-bold text-zinc-900 dark:text-white text-xs">
                       Consulta Automática de Tareas
                     </h5>
-                    <p className="text-slate-600 dark:text-slate-400 text-[11px] mt-0.5">
+                    <p className="text-zinc-600 dark:text-zinc-400 text-[11px] mt-0.5">
                       Antigravity consulta <code>/api/agent/next-task</code>. Si encuentra tareas que el usuario rechazó en pruebas anteriores (<code>needs_revision</code>), las atiende primero.
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-start space-x-3 p-3 bg-slate-50 dark:bg-slate-800/60 rounded-lg border border-slate-200 dark:border-slate-700">
+                <div className="flex items-start space-x-3 p-3 bg-zinc-100 dark:bg-zinc-800/60 rounded-lg border border-zinc-300 dark:border-zinc-700">
                   <div className="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
                     2
                   </div>
                   <div>
-                    <h5 className="font-bold text-slate-900 dark:text-white text-xs">
+                    <h5 className="font-bold text-zinc-900 dark:text-white text-xs">
                       Carga de Memoria de Contexto Técnico
                     </h5>
-                    <p className="text-slate-600 dark:text-slate-400 text-[11px] mt-0.5">
+                    <p className="text-zinc-600 dark:text-zinc-400 text-[11px] mt-0.5">
                       Antes de tocar código, consulta <code>/api/agent/context-memory</code> para respetar archivos protegidos, librerías del proyecto y notas persistentes.
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-start space-x-3 p-3 bg-slate-50 dark:bg-slate-800/60 rounded-lg border border-slate-200 dark:border-slate-700">
+                <div className="flex items-start space-x-3 p-3 bg-zinc-100 dark:bg-zinc-800/60 rounded-lg border border-zinc-300 dark:border-zinc-700">
                   <div className="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
                     3
                   </div>
                   <div>
-                    <h5 className="font-bold text-slate-900 dark:text-white text-xs">
+                    <h5 className="font-bold text-zinc-900 dark:text-white text-xs">
                       Ejecución y Entrega para Validación
                     </h5>
-                    <p className="text-slate-600 dark:text-slate-400 text-[11px] mt-0.5">
+                    <p className="text-zinc-600 dark:text-zinc-400 text-[11px] mt-0.5">
                       Al completar su tarea, hace un POST a <code>/api/agent/complete-task</code>. La tarea pasa a <code>ready_for_review</code>.
                     </p>
                   </div>
@@ -514,7 +514,7 @@ ${antigravitySystemPrompt}`;
                     <h5 className="font-bold text-emerald-900 dark:text-emerald-300 text-xs">
                       Revisión Humana y Bloqueo Seguro
                     </h5>
-                    <p className="text-slate-600 dark:text-slate-300 text-[11px] mt-0.5">
+                    <p className="text-zinc-600 dark:text-zinc-300 text-[11px] mt-0.5">
                       Tú pruebas la web con el botón "Revisar en Web". Si funciona, la apruebas y bloqueas (<code>locked: true</code>) para que la IA nunca la sobreescriba.
                     </p>
                   </div>
@@ -525,14 +525,14 @@ ${antigravitySystemPrompt}`;
         </div>
 
         {/* Footer */}
-        <div className="p-3.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-800/80 flex items-center justify-between">
-          <span className="text-[11px] text-slate-500 dark:text-slate-400">
+        <div className="p-3.5 border-t border-zinc-300 dark:border-zinc-800 bg-zinc-100/90 dark:bg-zinc-800/80 flex items-center justify-between">
+          <span className="text-[11px] text-zinc-500 dark:text-zinc-400">
             Seguridad reforzada con autenticación por <code>x-api-key</code>
           </span>
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-1.5 text-xs font-semibold bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors shadow-2xs cursor-pointer"
+            className="px-4 py-1.5 text-xs font-semibold bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-slate-700 text-zinc-700 dark:text-zinc-200 rounded-lg border border-zinc-300 dark:border-zinc-700 transition-colors shadow-2xs cursor-pointer"
           >
             Cerrar
           </button>

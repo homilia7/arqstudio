@@ -54,11 +54,11 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
           <div>
             <div className="flex items-center space-x-1.5">
-              <h1 className="font-bold text-xs sm:text-base text-slate-900 dark:text-white tracking-tight">
+              <h1 className="font-bold text-xs sm:text-base text-zinc-900 dark:text-white tracking-tight">
                 ARQ AI
               </h1>
             </div>
-            <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 hidden md:block">
+            <p className="text-[10px] sm:text-[11px] text-zinc-500 dark:text-zinc-400 hidden md:block">
               Control de Instrucciones, Revisión Web y Bloqueo de Tareas
             </p>
           </div>
@@ -85,12 +85,12 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={toggleTheme}
               title={theme === "dark" ? "Cambiar a Modo Claro" : "Cambiar a Modo Oscuro"}
               aria-label="Cambiar tema claro u oscuro"
-              className="h-8 w-8 inline-flex items-center justify-center rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
+              className="h-8 w-8 inline-flex items-center justify-center rounded-lg text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white transition-colors cursor-pointer"
             >
               {theme === "dark" ? (
                 <Sun className="w-4 h-4 text-amber-400" />
               ) : (
-                <Moon className="w-4 h-4 text-slate-600" />
+                <Moon className="w-4 h-4 text-zinc-600" />
               )}
             </button>
 
@@ -99,7 +99,7 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={onRefresh}
               disabled={isRefreshing}
               title="Recargar datos"
-              className="h-8 w-8 inline-flex items-center justify-center rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer disabled:opacity-50"
+              className="h-8 w-8 inline-flex items-center justify-center rounded-lg text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white transition-colors cursor-pointer disabled:opacity-50"
             >
               <RefreshCw
                 className={`w-3.5 h-3.5 ${
@@ -143,7 +143,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 onClick={onOpenNotifications}
                 title="Buzón de Notificaciones de Agentes IA"
-                className="h-7 inline-flex items-center gap-1 px-2 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer whitespace-nowrap relative shrink-0"
+                className="h-7 inline-flex items-center gap-1 px-2 rounded-lg text-xs font-medium text-zinc-600 dark:text-zinc-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors cursor-pointer whitespace-nowrap relative shrink-0"
               >
                 <div className="relative">
                   <Bell className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
@@ -189,7 +189,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 onClick={onOpenMyAccount}
                 title="Configuración de Mi Cuenta y PIN de Acceso"
-                className="h-7 inline-flex items-center gap-1 px-2 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 bg-slate-100/80 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer whitespace-nowrap border border-slate-200/80 dark:border-slate-700/60 shrink-0"
+                className="h-7 inline-flex items-center gap-1 px-2 rounded-lg text-xs font-medium text-zinc-700 dark:text-zinc-200 hover:text-indigo-600 dark:hover:text-indigo-400 bg-zinc-200/80 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-slate-700 transition-colors cursor-pointer whitespace-nowrap border border-zinc-300/80 dark:border-zinc-700/60 shrink-0"
               >
                 <div className="w-3.5 h-3.5 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-[8px] shrink-0">
                   {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : <User className="w-2.5 h-2.5" />}
@@ -203,7 +203,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 onClick={onOpenAdminUsers}
                 title="Administración de Usuarios del Sistema"
-                className="h-7 inline-flex items-center gap-1 px-2 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer whitespace-nowrap shrink-0"
+                className="h-7 inline-flex items-center gap-1 px-2 rounded-lg text-xs font-medium text-zinc-600 dark:text-zinc-300 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors cursor-pointer whitespace-nowrap shrink-0"
               >
                 <ShieldCheck className="w-3.5 h-3.5 text-rose-500 shrink-0" />
                 <span className="hidden sm:inline">Usuarios</span>
@@ -214,7 +214,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               onClick={onOpenHistory}
               title="Historial de auditoría y eventos"
-              className="h-7 inline-flex items-center gap-1 px-2 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer whitespace-nowrap shrink-0"
+              className="h-7 inline-flex items-center gap-1 px-2 rounded-lg text-xs font-medium text-zinc-600 dark:text-zinc-300 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors cursor-pointer whitespace-nowrap shrink-0"
             >
               <History className="w-3.5 h-3.5 text-amber-500 shrink-0" />
               <span className="hidden sm:inline">Auditoría</span>

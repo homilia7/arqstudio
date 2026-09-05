@@ -481,7 +481,7 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
 
   if (isLoading) {
     return (
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-12 text-center text-slate-500">
+      <div className="bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-lg p-12 text-center text-zinc-500">
         <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-3 text-indigo-600" />
         <p className="text-sm font-semibold">Cargando arquitectura del proyecto...</p>
       </div>
@@ -491,7 +491,7 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
   return (
     <div className="space-y-6">
       {/* Header del Panel de Arquitectura Manual */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm transition-colors">
+      <div className="bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-xl p-5 shadow-sm transition-colors">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="flex items-start space-x-3.5">
             <div className="w-10 h-10 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800/60 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
@@ -499,14 +499,14 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
+                <h2 className="text-base font-bold text-zinc-900 dark:text-white tracking-tight">
                   Panel Exclusivo: Creación & Arquitectura Manual del Proyecto
                 </h2>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 dark:bg-indigo-950/80 text-indigo-800 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/80">
                   Blueprint & Planificación
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-3xl leading-relaxed">
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-3xl leading-relaxed">
                 Define aquí a mano todo lo que compone el proyecto: el <strong>prompt de lo que trata</strong>, las <strong>pantallas</strong>, las <strong>funcionalidades de cada pantalla</strong>, los <strong>requerimientos generales</strong> y las <strong>conexiones</strong>. Luego indica a Antigravity que lea las instrucciones y organice el plan en módulos, etapas, tareas y pasos.
               </p>
             </div>
@@ -529,7 +529,7 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
             <button
               onClick={handleSaveBlueprint}
               disabled={isSaving}
-              className="px-3.5 py-1.5 text-xs font-semibold rounded-md bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-white transition-colors flex items-center space-x-1.5 shadow-xs disabled:opacity-50 cursor-pointer"
+              className="px-3.5 py-1.5 text-xs font-semibold rounded-md bg-zinc-900 dark:bg-zinc-200 text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-100 dark:bg-zinc-900 transition-colors flex items-center space-x-1.5 shadow-xs disabled:opacity-50 cursor-pointer"
             >
               <Save className="w-3.5 h-3.5" />
               <span>{isSaving ? "Guardando..." : "Guardar Blueprint"}</span>
@@ -548,22 +548,22 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
       </div>
 
       {/* Barra de Control Global de Acordeón */}
-      <div className="flex items-center justify-between px-1 bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-lg border border-slate-200/80 dark:border-slate-800">
-        <div className="flex items-center space-x-2 text-xs text-slate-600 dark:text-slate-400">
+      <div className="flex items-center justify-between px-1 bg-zinc-100 dark:bg-zinc-900/60 p-2.5 rounded-lg border border-zinc-300/80 dark:border-zinc-800">
+        <div className="flex items-center space-x-2 text-xs text-zinc-600 dark:text-zinc-400">
           <ChevronsUpDown className="w-4 h-4 text-indigo-500 shrink-0" />
-          <span className="font-semibold text-slate-800 dark:text-slate-200">Arquitectura por Secciones (Acordeón)</span>
-          <span className="hidden sm:inline text-[11px] text-slate-400">· Haz clic en cualquier encabezado para desplegar o contraer su contenido</span>
+          <span className="font-semibold text-zinc-800 dark:text-zinc-200">Arquitectura por Secciones (Acordeón)</span>
+          <span className="hidden sm:inline text-[11px] text-zinc-400">· Haz clic en cualquier encabezado para desplegar o contraer su contenido</span>
         </div>
         <div className="flex items-center space-x-1.5">
           <button
             onClick={expandAllSections}
-            className="px-2.5 py-1 text-[11px] font-semibold rounded-md bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer shadow-2xs"
+            className="px-2.5 py-1 text-[11px] font-semibold rounded-md bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-slate-700 text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700 transition-colors cursor-pointer shadow-2xs"
           >
             Expandir Todo
           </button>
           <button
             onClick={collapseAllSections}
-            className="px-2.5 py-1 text-[11px] font-semibold rounded-md bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer shadow-2xs"
+            className="px-2.5 py-1 text-[11px] font-semibold rounded-md bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-slate-700 text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700 transition-colors cursor-pointer shadow-2xs"
           >
             Colapsar Todo
           </button>
@@ -571,10 +571,10 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
       </div>
 
       {/* SECCIÓN 1: PROMPT MAESTRO / DE QUÉ TRATA EL PROYECTO */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm transition-all overflow-hidden">
+      <div className="bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-xl shadow-sm transition-all overflow-hidden">
         <div
           onClick={() => toggleSection("prompt")}
-          className="flex items-center justify-between p-4 sm:p-5 cursor-pointer select-none hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
+          className="flex items-center justify-between p-4 sm:p-5 cursor-pointer select-none hover:bg-zinc-100/70 dark:hover:bg-zinc-800/40 transition-colors"
         >
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-800/60 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
@@ -582,23 +582,23 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-900 dark:text-zinc-100">
                   1. Prompt de lo que trata el Proyecto (Visión & Objetivo Maestro)
                 </h3>
                 {blueprint.masterPrompt.trim() && (
                   <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" title="Definido" />
                 )}
               </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
                 Describe la idea del proyecto, el problema que resuelve, usuarios a los que va dirigido y alcance general.
               </p>
             </div>
           </div>
           <div className="flex items-center space-x-2.5 shrink-0">
-            <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/80 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+            <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 bg-zinc-200 dark:bg-zinc-800/80 px-2 py-0.5 rounded border border-zinc-300 dark:border-zinc-700">
               {blueprint.masterPrompt.length} caracteres
             </span>
-            <div className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300">
+            <div className="w-7 h-7 rounded-lg bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-300">
               {openSections.prompt ? (
                 <ChevronUp className="w-4 h-4" />
               ) : (
@@ -609,23 +609,23 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
         </div>
 
         {openSections.prompt && (
-          <div className="p-5 pt-0 space-y-3 border-t border-slate-100 dark:border-slate-800 mt-1">
+          <div className="p-5 pt-0 space-y-3 border-t border-zinc-200 dark:border-zinc-800 mt-1">
             <textarea
               value={blueprint.masterPrompt}
               onChange={(e) => setBlueprint({ ...blueprint, masterPrompt: e.target.value })}
               placeholder="Ej: Construir una plataforma web SaaS para gestionar clientes y facturas de despachos contables. Debe tener autenticación con roles, panel de administración para supervisar usuarios, panel del contador para registrar comprobantes, y exportación directa de libros contables a Excel..."
               rows={4}
-              className="w-full text-xs text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-lg p-3 font-mono focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-colors"
+              className="w-full text-xs text-zinc-800 dark:text-zinc-200 bg-zinc-100 dark:bg-zinc-950/80 border border-zinc-300 dark:border-zinc-800 rounded-lg p-3 font-mono focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-colors"
             />
           </div>
         )}
       </div>
 
       {/* SECCIÓN 2: PANTALLAS Y FUNCIONALIDADES DE CADA PANTALLA */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm transition-all overflow-hidden">
+      <div className="bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-xl shadow-sm transition-all overflow-hidden">
         <div
           onClick={() => toggleSection("screens")}
-          className="flex items-center justify-between p-4 sm:p-5 cursor-pointer select-none hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
+          className="flex items-center justify-between p-4 sm:p-5 cursor-pointer select-none hover:bg-zinc-100/70 dark:hover:bg-zinc-800/40 transition-colors"
         >
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-100 dark:border-emerald-800/60 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
@@ -633,11 +633,11 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-900 dark:text-zinc-100">
                   2. Pantallas del Proyecto & Funcionalidades por Pantalla ({blueprint.screens.length})
                 </h3>
               </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
                 Agrega cada pantalla que tendrá la aplicación y detalla individualmente las funcionalidades que incluye cada una.
               </p>
             </div>
@@ -646,7 +646,7 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
             <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/80">
               {blueprint.screens.length} pantallas
             </span>
-            <div className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300">
+            <div className="w-7 h-7 rounded-lg bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-300">
               {openSections.screens ? (
                 <ChevronUp className="w-4 h-4" />
               ) : (
@@ -657,15 +657,15 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
         </div>
 
         {openSections.screens && (
-          <div className="p-5 pt-0 space-y-4 border-t border-slate-100 dark:border-slate-800 mt-1">
+          <div className="p-5 pt-0 space-y-4 border-t border-zinc-200 dark:border-zinc-800 mt-1">
             {/* Lista de Pantallas Creadas */}
             {blueprint.screens.length === 0 ? (
-              <div className="p-8 text-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-lg bg-slate-50/50 dark:bg-slate-950/50">
-                <Layout className="w-8 h-8 text-slate-300 dark:text-slate-700 mx-auto mb-2" />
-                <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <div className="p-8 text-center border-2 border-dashed border-zinc-300 dark:border-zinc-800 rounded-lg bg-zinc-100/50 dark:bg-zinc-950/50">
+                <Layout className="w-8 h-8 text-zinc-300 dark:text-zinc-700 mx-auto mb-2" />
+                <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
                   No hay pantallas agregadas todavía
                 </p>
-                <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
+                <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-0.5">
                   Utiliza el formulario de abajo para agregar la primera pantalla (ej. Login, Dashboard, Clientes).
                 </p>
               </div>
@@ -674,7 +674,7 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
                 {blueprint.screens.map((screen, sIdx) => (
                   <div
                     key={screen.id}
-                    className="border border-slate-200 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-950/50 rounded-lg p-4 space-y-3 transition-colors"
+                    className="border border-zinc-300 dark:border-zinc-800 bg-zinc-100/40 dark:bg-zinc-950/50 rounded-lg p-4 space-y-3 transition-colors"
                   >
                     {/* Cabecera de la Pantalla */}
                     <div className="flex items-start justify-between gap-3">
@@ -683,7 +683,7 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
                           {sIdx + 1}
                         </span>
                         <div>
-                          <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                          <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100">
                             {screen.name}
                           </h4>
                           <span className="text-[10px] font-mono text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-1.5 py-0.5 rounded border border-indigo-100 dark:border-indigo-800/60">
@@ -694,7 +694,7 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
 
                       <button
                         onClick={() => handleDeleteScreen(screen.id)}
-                        className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded transition-colors cursor-pointer"
+                        className="p-1.5 text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded transition-colors cursor-pointer"
                         title="Eliminar pantalla"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -702,14 +702,14 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
                     </div>
 
                     {screen.description && (
-                      <p className="text-[11px] text-slate-600 dark:text-slate-400 italic">
+                      <p className="text-[11px] text-zinc-600 dark:text-zinc-400 italic">
                         {screen.description}
                       </p>
                     )}
 
                     {/* Lista de Funcionalidades de esta Pantalla */}
                     <div className="space-y-2 pt-1">
-                      <div className="flex items-center justify-between text-[11px] font-semibold text-slate-700 dark:text-slate-300">
+                      <div className="flex items-center justify-between text-[11px] font-semibold text-zinc-700 dark:text-zinc-300">
                         <span className="flex items-center space-x-1">
                           <ListPlus className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                           <span>Funcionalidades de "{screen.name}" ({screen.features.length})</span>
@@ -717,7 +717,7 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
                       </div>
 
                       {screen.features.length === 0 ? (
-                        <p className="text-[10px] text-slate-400 dark:text-slate-500 italic pl-1">
+                        <p className="text-[10px] text-zinc-400 dark:text-zinc-500 italic pl-1">
                           Aún no has agregado funcionalidades específicas para esta pantalla.
                         </p>
                       ) : (
@@ -725,7 +725,7 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
                           {screen.features.map((feat, fIdx) => (
                             <div
                               key={fIdx}
-                              className="flex items-center justify-between gap-2 p-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-xs text-slate-700 dark:text-slate-300 shadow-2xs"
+                              className="flex items-center justify-between gap-2 p-1.5 bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded text-xs text-zinc-700 dark:text-zinc-300 shadow-2xs"
                             >
                               <div className="flex items-start space-x-2">
                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
@@ -733,7 +733,7 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
                               </div>
                               <button
                                 onClick={() => handleDeleteFeatureFromScreen(screen.id, fIdx)}
-                                className="p-1 text-slate-400 hover:text-rose-600 rounded transition-colors cursor-pointer"
+                                className="p-1 text-zinc-400 hover:text-rose-600 rounded transition-colors cursor-pointer"
                                 title="Eliminar funcionalidad"
                               >
                                 <Trash2 className="w-3 h-3" />
@@ -761,11 +761,11 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
                             }
                           }}
                           placeholder={`Agregar funcionalidad a ${screen.name} y presionar Enter...`}
-                          className="flex-1 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded px-2.5 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                          className="flex-1 text-xs bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded px-2.5 py-1.5 text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                         />
                         <button
                           onClick={() => handleAddFeatureToScreen(screen.id)}
-                          className="px-2.5 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-semibold text-xs rounded border border-slate-200 dark:border-slate-700 transition-colors flex items-center space-x-1 cursor-pointer"
+                          className="px-2.5 py-1.5 bg-zinc-200 dark:bg-zinc-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-semibold text-xs rounded border border-zinc-300 dark:border-zinc-700 transition-colors flex items-center space-x-1 cursor-pointer"
                         >
                           <Plus className="w-3 h-3" />
                           <span>Agregar</span>
@@ -778,15 +778,15 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
             )}
 
             {/* Formulario para Agregar Nueva Pantalla */}
-            <div className="bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-lg p-3.5 space-y-3">
-              <div className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center space-x-1.5">
+            <div className="bg-zinc-100 dark:bg-zinc-950/60 border border-zinc-300 dark:border-zinc-800 rounded-lg p-3.5 space-y-3">
+              <div className="text-xs font-bold text-zinc-800 dark:text-zinc-200 flex items-center space-x-1.5">
                 <Plus className="w-3.5 h-3.5 text-indigo-600" />
                 <span>+ Agregar Nueva Pantalla al Proyecto</span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <div>
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1 block">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-1 block">
                     Nombre de la Pantalla *
                   </label>
                   <input
@@ -794,12 +794,12 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
                     value={newScreenName}
                     onChange={(e) => setNewScreenName(e.target.value)}
                     placeholder="Ej. Gestión de Clientes"
-                    className="w-full text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded px-2.5 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="w-full text-xs bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded px-2.5 py-1.5 text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
                 </div>
 
                 <div>
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1 block">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-1 block">
                     Ruta / URL Sugerida
                   </label>
                   <input
@@ -807,12 +807,12 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
                     value={newScreenPath}
                     onChange={(e) => setNewScreenPath(e.target.value)}
                     placeholder="Ej. /clientes"
-                    className="w-full text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded px-2.5 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-mono"
+                    className="w-full text-xs bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded px-2.5 py-1.5 text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-mono"
                   />
                 </div>
 
                 <div>
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1 block">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-1 block">
                     Descripción Breve
                   </label>
                   <input
@@ -820,7 +820,7 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
                     value={newScreenDesc}
                     onChange={(e) => setNewScreenDesc(e.target.value)}
                     placeholder="Ej. Tabla y formulario CRUD para clientes"
-                    className="w-full text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded px-2.5 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="w-full text-xs bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded px-2.5 py-1.5 text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
                 </div>
               </div>
@@ -840,10 +840,10 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
       </div>
 
       {/* SECCIÓN 3: FUNCIONALIDADES GENERALES DEL PROYECTO */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm transition-all overflow-hidden">
+      <div className="bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-xl shadow-sm transition-all overflow-hidden">
         <div
           onClick={() => toggleSection("generalFeatures")}
-          className="flex items-center justify-between p-4 sm:p-5 cursor-pointer select-none hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
+          className="flex items-center justify-between p-4 sm:p-5 cursor-pointer select-none hover:bg-zinc-100/70 dark:hover:bg-zinc-800/40 transition-colors"
         >
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/60 border border-amber-100 dark:border-amber-800/60 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
@@ -851,11 +851,11 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-900 dark:text-zinc-100">
                   3. Funcionalidades Generales del Proyecto ({blueprint.generalFeatures.length})
                 </h3>
               </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
                 Requerimientos globales que aplican de forma transversal a toda la aplicación (Autenticación, roles, exportaciones, diseño responsivo, seguridad).
               </p>
             </div>
@@ -864,7 +864,7 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
             <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/80">
               {blueprint.generalFeatures.length} generales
             </span>
-            <div className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300">
+            <div className="w-7 h-7 rounded-lg bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-300">
               {openSections.generalFeatures ? (
                 <ChevronUp className="w-4 h-4" />
               ) : (
@@ -875,17 +875,17 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
         </div>
 
         {openSections.generalFeatures && (
-          <div className="p-5 pt-0 space-y-4 border-t border-slate-100 dark:border-slate-800 mt-1">
+          <div className="p-5 pt-0 space-y-4 border-t border-zinc-200 dark:border-zinc-800 mt-1">
             {/* Badges de Funcionalidades Generales */}
             <div className="space-y-2">
               {blueprint.generalFeatures.length === 0 ? (
-                <p className="text-[11px] text-slate-400 italic">No hay requerimientos generales registrados.</p>
+                <p className="text-[11px] text-zinc-400 italic">No hay requerimientos generales registrados.</p>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {blueprint.generalFeatures.map((feat, idx) => (
                     <div
                       key={idx}
-                      className="flex items-center justify-between p-2 rounded-md bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-slate-200"
+                      className="flex items-center justify-between p-2 rounded-md bg-zinc-100 dark:bg-zinc-950/70 border border-zinc-300 dark:border-zinc-800 text-xs text-zinc-800 dark:text-zinc-200"
                     >
                       <div className="flex items-center space-x-2">
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
@@ -893,7 +893,7 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
                       </div>
                       <button
                         onClick={() => handleDeleteGeneralFeature(idx)}
-                        className="p-1 text-slate-400 hover:text-rose-600 rounded transition-colors cursor-pointer"
+                        className="p-1 text-zinc-400 hover:text-rose-600 rounded transition-colors cursor-pointer"
                         title="Eliminar"
                       >
                         <Trash2 className="w-3 h-3" />
@@ -917,7 +917,7 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
                   }
                 }}
                 placeholder="Agregar funcionalidad general (ej. 'Modo oscuro/claro', 'Exportación a Excel', 'Manejo de errores global')..."
-                className="flex-1 text-xs bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded px-3 py-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="flex-1 text-xs bg-zinc-100 dark:bg-zinc-950/80 border border-zinc-300 dark:border-zinc-800 rounded px-3 py-2 text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
               <button
                 onClick={handleAddGeneralFeature}
@@ -932,10 +932,10 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
       </div>
 
       {/* SECCIÓN 4: CONEXIONES DEL PROYECTO */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm transition-all overflow-hidden">
+      <div className="bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-xl shadow-sm transition-all overflow-hidden">
         <div
           onClick={() => toggleSection("connections")}
-          className="flex items-center justify-between p-4 sm:p-5 cursor-pointer select-none hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
+          className="flex items-center justify-between p-4 sm:p-5 cursor-pointer select-none hover:bg-zinc-100/70 dark:hover:bg-zinc-800/40 transition-colors"
         >
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-950/60 border border-purple-100 dark:border-purple-800/60 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0">
@@ -943,11 +943,11 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-900 dark:text-zinc-100">
                   4. Conexiones & Servicios del Proyecto ({blueprint.connections.length})
                 </h3>
               </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
                 Bases de datos (Neon PostgreSQL, Supabase), autenticación, APIs externas, servicios de correo o almacenamiento.
               </p>
             </div>
@@ -969,7 +969,7 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
             <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-purple-100 dark:bg-purple-950/80 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800/80">
               {blueprint.connections.length} servicios
             </span>
-            <div className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300">
+            <div className="w-7 h-7 rounded-lg bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-300">
               {openSections.connections ? (
                 <ChevronUp className="w-4 h-4" />
               ) : (
@@ -980,35 +980,35 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
         </div>
 
         {openSections.connections && (
-          <div className="p-5 pt-0 space-y-4 border-t border-slate-100 dark:border-slate-800 mt-1">
+          <div className="p-5 pt-0 space-y-4 border-t border-zinc-200 dark:border-zinc-800 mt-1">
             {blueprint.connections.length === 0 ? (
-              <p className="text-[11px] text-slate-400 italic">No hay conexiones configuradas.</p>
+              <p className="text-[11px] text-zinc-400 italic">No hay conexiones configuradas.</p>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {blueprint.connections.map((conn) => (
                   <div
                     key={conn.id}
-                    className="p-3 bg-slate-50/60 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-lg space-y-1.5 relative group"
+                    className="p-3 bg-zinc-100/60 dark:bg-zinc-950/60 border border-zinc-300 dark:border-zinc-800 rounded-lg space-y-1.5 relative group"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex items-center space-x-2">
                         <span className="px-1.5 py-0.5 rounded text-[10px] font-bold font-mono uppercase bg-purple-100 dark:bg-purple-950/80 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800/80">
                           {conn.type}
                         </span>
-                        <h5 className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                        <h5 className="text-xs font-bold text-zinc-900 dark:text-zinc-100">
                           {conn.name}
                         </h5>
                       </div>
                       <button
                         onClick={() => handleDeleteConnection(conn.id)}
-                        className="p-1 text-slate-400 hover:text-rose-600 rounded transition-colors cursor-pointer"
+                        className="p-1 text-zinc-400 hover:text-rose-600 rounded transition-colors cursor-pointer"
                         title="Eliminar conexión"
                       >
                         <Trash2 className="w-3 h-3" />
                       </button>
                     </div>
                     {conn.configDetails && (
-                      <p className="text-[11px] text-slate-600 dark:text-slate-400 font-mono">
+                      <p className="text-[11px] text-zinc-600 dark:text-zinc-400 font-mono">
                         {conn.configDetails}
                       </p>
                     )}
@@ -1018,15 +1018,15 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
             )}
 
             {/* Formulario Agregar Conexión */}
-            <div className="bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-lg p-3.5 space-y-3">
-              <div className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center space-x-1.5">
+            <div className="bg-zinc-100 dark:bg-zinc-950/60 border border-zinc-300 dark:border-zinc-800 rounded-lg p-3.5 space-y-3">
+              <div className="text-xs font-bold text-zinc-800 dark:text-zinc-200 flex items-center space-x-1.5">
                 <Plus className="w-3.5 h-3.5 text-purple-600" />
                 <span>+ Agregar Conexión o Servicio Externo</span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <div>
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1 block">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-1 block">
                     Nombre de la Conexión *
                   </label>
                   <input
@@ -1034,18 +1034,18 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
                     value={newConnName}
                     onChange={(e) => setNewConnName(e.target.value)}
                     placeholder="Ej. Supabase Auth & Database"
-                    className="w-full text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded px-2.5 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="w-full text-xs bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded px-2.5 py-1.5 text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
                 </div>
 
                 <div>
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1 block">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-1 block">
                     Tipo de Conexión
                   </label>
                   <select
                     value={newConnType}
                     onChange={(e) => setNewConnType(e.target.value as any)}
-                    className="w-full text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded px-2.5 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="w-full text-xs bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded px-2.5 py-1.5 text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   >
                     <option value="database">Base de Datos (PostgreSQL, Supabase)</option>
                     <option value="auth">Autenticación (Supabase Auth, OAuth)</option>
@@ -1056,7 +1056,7 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
                 </div>
 
                 <div>
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1 block">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-1 block">
                     Detalles / Tablas / Variables
                   </label>
                   <input
@@ -1064,7 +1064,7 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
                     value={newConnDetails}
                     onChange={(e) => setNewConnDetails(e.target.value)}
                     placeholder="Ej. Tablas: users, clientes. Variables: SUPABASE_URL"
-                    className="w-full text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded px-2.5 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="w-full text-xs bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded px-2.5 py-1.5 text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
                 </div>
               </div>
@@ -1120,13 +1120,13 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
                 e.stopPropagation();
                 setShowJsonPasteModal(true);
               }}
-              className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs rounded-md border border-slate-700 transition-all flex items-center space-x-1.5 cursor-pointer"
+              className="px-3 py-1.5 bg-zinc-800 hover:bg-slate-700 text-zinc-200 font-semibold text-xs rounded-md border border-zinc-700 transition-all flex items-center space-x-1.5 cursor-pointer"
             >
               <FileCode className="w-3.5 h-3.5 text-indigo-400" />
               <span>Pegar JSON</span>
             </button>
 
-            <div className="w-7 h-7 rounded-lg bg-slate-800/80 border border-indigo-800/60 flex items-center justify-center text-indigo-300 hover:text-white">
+            <div className="w-7 h-7 rounded-lg bg-zinc-800/80 border border-indigo-800/60 flex items-center justify-center text-indigo-300 hover:text-white">
               {openSections.antigravity ? (
                 <ChevronUp className="w-4 h-4" />
               ) : (
@@ -1150,7 +1150,7 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
                 </span>
               </div>
 
-              <pre className="bg-slate-950/90 border border-indigo-900/60 rounded-lg p-3.5 text-[11px] font-mono text-indigo-100 whitespace-pre-wrap leading-relaxed max-h-52 overflow-y-auto">
+              <pre className="bg-zinc-950/90 border border-indigo-900/60 rounded-lg p-3.5 text-[11px] font-mono text-indigo-100 whitespace-pre-wrap leading-relaxed max-h-52 overflow-y-auto">
                 {antigravityInstructionPrompt}
               </pre>
             </div>
@@ -1159,7 +1159,7 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-indigo-900/60 text-xs">
               <div className="flex items-center space-x-2">
                 <span className="text-indigo-300 text-[11px]">Comando cURL de lectura:</span>
-                <code className="bg-slate-950 px-2 py-0.5 rounded text-[11px] text-indigo-200 font-mono border border-slate-800">
+                <code className="bg-zinc-950 px-2 py-0.5 rounded text-[11px] text-indigo-200 font-mono border border-zinc-800">
                   {curlCommand}
                 </code>
                 <button
@@ -1188,24 +1188,24 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
 
       {/* MODAL PARA PEGAR PLAN EN FORMATO JSON MANUALMENTE */}
       {showJsonPasteModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl max-w-2xl w-full p-5 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div className="fixed inset-0 z-50 bg-zinc-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-xl max-w-2xl w-full p-5 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-3">
               <div className="flex items-center space-x-2">
                 <FileCode className="w-5 h-5 text-indigo-600" />
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                <h3 className="text-sm font-bold text-zinc-900 dark:text-white">
                   Pegar Plan de Acción Estructurado (JSON)
                 </h3>
               </div>
               <button
                 onClick={() => setShowJsonPasteModal(false)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer text-sm"
+                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 cursor-pointer text-sm"
               >
                 ✕
               </button>
             </div>
 
-            <p className="text-xs text-slate-600 dark:text-slate-400">
+            <p className="text-xs text-zinc-600 dark:text-zinc-400">
               Si Antigravity te devolvió el plan organizado en formato JSON en el chat, pégalo aquí para que se creen automáticamente los módulos, etapas, tareas, minitareas y pasos en la plataforma.
             </p>
 
@@ -1214,13 +1214,13 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
               onChange={(e) => setJsonInput(e.target.value)}
               placeholder='{ "modules": [ { "title": "Módulo 1: Arquitectura Base", "stages": [ { "title": "Etapa 1.1", "tasks": [ { "title": "Crear vista", "subtasks": [...] } ] } ] } ] }'
               rows={8}
-              className="w-full text-xs font-mono bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full text-xs font-mono bg-zinc-100 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-lg p-3 text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
             />
 
             <div className="flex items-center justify-end space-x-2 pt-2">
               <button
                 onClick={() => setShowJsonPasteModal(false)}
-                className="px-3.5 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer"
+                className="px-3.5 py-1.5 text-xs font-semibold text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded transition-colors cursor-pointer"
               >
                 Cancelar
               </button>

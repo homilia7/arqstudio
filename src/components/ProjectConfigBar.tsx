@@ -195,7 +195,7 @@ export const ProjectConfigBar: React.FC<ProjectConfigBarProps> = ({
               <h3 className="text-sm sm:text-base font-bold text-white tracking-tight">
                 ¡Bienvenido a ARQAI Hub! Sin proyectos creados
               </h3>
-              <p className="text-xs text-slate-300">
+              <p className="text-xs text-zinc-300">
                 Haz clic en el botón animado para registrar tu primer proyecto y conectar tu Agente de IA.
               </p>
             </div>
@@ -217,18 +217,18 @@ export const ProjectConfigBar: React.FC<ProjectConfigBarProps> = ({
 
         {/* Modal Nuevo Proyecto */}
         {showNewModal && (
-          <div className="fixed inset-0 z-[9999] bg-slate-950/80 backdrop-blur-md flex items-start justify-center p-4 pt-14 sm:pt-20 overflow-y-auto">
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl max-w-md w-full p-5 shadow-2xl shrink-0">
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-1 flex items-center space-x-2">
+          <div className="fixed inset-0 z-[9999] bg-zinc-950/80 backdrop-blur-md flex items-start justify-center p-4 pt-14 sm:pt-20 overflow-y-auto">
+            <div className="bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-xl max-w-md w-full p-5 shadow-2xl shrink-0">
+              <h3 className="text-sm font-bold text-zinc-900 dark:text-white mb-1 flex items-center space-x-2">
                 <Sparkles className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                 <span>Crear Nuevo Proyecto</span>
               </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-4">
                 Configura un nuevo espacio para que Antigravity trabaje y reporte sus cambios.
               </p>
               <form onSubmit={handleCreateNew} className="space-y-3.5">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
                     Nombre del Proyecto *
                   </label>
                   <input
@@ -236,14 +236,14 @@ export const ProjectConfigBar: React.FC<ProjectConfigBarProps> = ({
                     value={newProjName}
                     onChange={(e) => setNewProjName(e.target.value)}
                     placeholder="Ej: App de Reservas para Servicios, CRM Portal..."
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500 focus:outline-none focus:bg-white dark:focus:bg-slate-800"
+                    className="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded px-3 py-2 text-sm text-zinc-900 dark:text-white focus:ring-1 focus:ring-indigo-500 focus:outline-none focus:bg-zinc-100 dark:bg-zinc-900 dark:focus:bg-zinc-800"
                     required
                     autoFocus
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
+                  <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5 flex items-center justify-between">
                     <span>Idea Base / Descripción del Proyecto</span>
                     <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-normal">Recomendado para IA</span>
                   </label>
@@ -252,12 +252,12 @@ export const ProjectConfigBar: React.FC<ProjectConfigBarProps> = ({
                     value={newProjDesc}
                     onChange={(e) => setNewProjDesc(e.target.value)}
                     placeholder="Ej: Aplicación de reservas para servicios. Los clientes eligen servicio, fecha y hora disponible y confirman. El admin gestiona horarios, bloqueos y citas..."
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-xs text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500 focus:outline-none focus:bg-white dark:focus:bg-slate-800 resize-none"
+                    className="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded px-3 py-2 text-xs text-zinc-900 dark:text-white focus:ring-1 focus:ring-indigo-500 focus:outline-none focus:bg-zinc-100 dark:bg-zinc-900 dark:focus:bg-zinc-800 resize-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
                     URL Principal del Proyecto
                   </label>
                   <input
@@ -265,7 +265,7 @@ export const ProjectConfigBar: React.FC<ProjectConfigBarProps> = ({
                     value={newProjUrl}
                     onChange={(e) => setNewProjUrl(e.target.value)}
                     placeholder="http://localhost:3000 o https://staging.myshop.ai/admin"
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-sm text-slate-900 dark:text-white font-mono text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none focus:bg-white dark:focus:bg-slate-800"
+                    className="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded px-3 py-2 text-sm text-zinc-900 dark:text-white font-mono text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none focus:bg-zinc-100 dark:bg-zinc-900 dark:focus:bg-zinc-800"
                   />
                 </div>
 
@@ -282,11 +282,11 @@ export const ProjectConfigBar: React.FC<ProjectConfigBarProps> = ({
                   </label>
                 </div>
 
-                <div className="flex justify-end space-x-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <div className="flex justify-end space-x-2 pt-2 border-t border-zinc-200 dark:border-zinc-800">
                   <button
                     type="button"
                     onClick={() => setShowNewModal(false)}
-                    className="px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                    className="px-3 py-1.5 text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-white bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded hover:bg-zinc-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
                   >
                     Cancelar
                   </button>
@@ -310,7 +310,7 @@ export const ProjectConfigBar: React.FC<ProjectConfigBarProps> = ({
     name !== activeProject.name || mainUrl !== activeProject.mainUrl;
 
   return (
-    <div className="bg-slate-900/90 border-b border-slate-800 text-slate-200 text-xs transition-colors">
+    <div className="bg-zinc-900/90 border-b border-zinc-800 text-zinc-200 text-xs transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 space-y-1.5">
         {/* FILA 1: TOOLBAR MINIMALISTA UNIFICADO ("BOTONES SOLO DE LETRAS EN PEQUEÑO") */}
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 text-[11.5px]">
@@ -318,7 +318,7 @@ export const ProjectConfigBar: React.FC<ProjectConfigBarProps> = ({
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
             <div className="flex items-center space-x-1.5">
               <FolderGit2 className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 shrink-0">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 shrink-0">
                 PROYECTO:
               </span>
               <select
@@ -327,10 +327,10 @@ export const ProjectConfigBar: React.FC<ProjectConfigBarProps> = ({
                   const found = projects.find((p) => p.id === e.target.value);
                   if (found) onSelectProject(found);
                 }}
-                className="bg-transparent text-white font-bold text-xs focus:outline-none cursor-pointer max-w-[180px] sm:max-w-xs truncate border-b border-slate-700 hover:border-indigo-400 py-0.5"
+                className="bg-transparent text-white font-bold text-xs focus:outline-none cursor-pointer max-w-[180px] sm:max-w-xs truncate border-b border-zinc-700 hover:border-indigo-400 py-0.5"
               >
                 {projects.map((p) => (
-                  <option key={p.id} value={p.id} className="bg-slate-900 text-white">
+                  <option key={p.id} value={p.id} className="bg-zinc-900 text-white">
                     {p.name}
                   </option>
                 ))}
@@ -339,7 +339,7 @@ export const ProjectConfigBar: React.FC<ProjectConfigBarProps> = ({
 
             <button
               onClick={() => setShowNewModal(true)}
-              className="text-xs font-semibold text-indigo-400 hover:text-indigo-300 transition-colors flex items-center space-x-1 cursor-pointer py-0.5 px-1 rounded hover:bg-slate-800"
+              className="text-xs font-semibold text-indigo-400 hover:text-indigo-300 transition-colors flex items-center space-x-1 cursor-pointer py-0.5 px-1 rounded hover:bg-zinc-800"
             >
               <Plus className="w-3 h-3" />
               <span>+ Nuevo</span>
@@ -357,7 +357,7 @@ export const ProjectConfigBar: React.FC<ProjectConfigBarProps> = ({
                 }}
                 disabled={isCloning}
                 title="Clonar este proyecto"
-                className="text-xs font-semibold text-slate-300 hover:text-indigo-400 transition-colors flex items-center space-x-1 cursor-pointer py-0.5 px-1 rounded hover:bg-slate-800"
+                className="text-xs font-semibold text-zinc-300 hover:text-indigo-400 transition-colors flex items-center space-x-1 cursor-pointer py-0.5 px-1 rounded hover:bg-zinc-800"
               >
                 <GitFork className="w-3 h-3 text-indigo-400" />
                 <span>{isCloning ? "Clonando..." : "Clonar"}</span>
@@ -369,7 +369,7 @@ export const ProjectConfigBar: React.FC<ProjectConfigBarProps> = ({
                 id="btn-auto-architecture-antigravity"
                 onClick={onOpenAutoArchitecture}
                 title="Generar arquitectura automática con IA"
-                className="text-xs font-bold text-purple-400 hover:text-purple-300 transition-colors flex items-center space-x-1 cursor-pointer py-0.5 px-1 rounded hover:bg-slate-800"
+                className="text-xs font-bold text-purple-400 hover:text-purple-300 transition-colors flex items-center space-x-1 cursor-pointer py-0.5 px-1 rounded hover:bg-zinc-800"
               >
                 <Sparkles className="w-3 h-3 text-purple-400 animate-pulse" />
                 <span>Auto AI</span>
@@ -378,11 +378,11 @@ export const ProjectConfigBar: React.FC<ProjectConfigBarProps> = ({
           </div>
 
           {/* Avance Compacto */}
-          <div className="flex items-center space-x-2 text-[11px] font-semibold text-slate-300">
+          <div className="flex items-center space-x-2 text-[11px] font-semibold text-zinc-300">
             <BarChart3 className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
             <span>Avance: {completionPercentage}%</span>
-            <span className="text-[10px] text-slate-400 font-normal">({verifiedTasks}/{totalTasks})</span>
-            <div className="w-12 bg-slate-800 h-1.5 rounded-full overflow-hidden shrink-0">
+            <span className="text-[10px] text-zinc-400 font-normal">({verifiedTasks}/{totalTasks})</span>
+            <div className="w-12 bg-zinc-800 h-1.5 rounded-full overflow-hidden shrink-0">
               <div
                 className="bg-emerald-400 h-full transition-all duration-500"
                 style={{ width: `${completionPercentage}%` }}
@@ -392,10 +392,10 @@ export const ProjectConfigBar: React.FC<ProjectConfigBarProps> = ({
 
           {/* API Key & Borrado Solo Texto */}
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <div className="flex items-center space-x-1.5 font-mono text-[11px] text-slate-400">
+            <div className="flex items-center space-x-1.5 font-mono text-[11px] text-zinc-400">
               <KeyRound className="w-3 h-3 text-indigo-400 shrink-0" />
               <span>Key:</span>
-              <span className="text-slate-200 font-medium">
+              <span className="text-zinc-200 font-medium">
                 {activeProject.apiKey.substring(0, 10)}...
               </span>
               <button
@@ -442,26 +442,26 @@ export const ProjectConfigBar: React.FC<ProjectConfigBarProps> = ({
         {/* FILA 2: METADATOS SLIM INLINE (NOMBRE & URL WEB) */}
         <form
           onSubmit={handleSave}
-          className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 pt-1 border-t border-slate-800/60 text-[11px]"
+          className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 pt-1 border-t border-zinc-800/60 text-[11px]"
         >
           <div className="flex flex-1 flex-wrap items-center gap-x-4 gap-y-1 min-w-[280px]">
             {/* Input Nombre */}
             <div className="flex items-center space-x-1.5 flex-1 min-w-[180px]">
-              <span className="font-bold text-slate-400 shrink-0">Nombre:</span>
+              <span className="font-bold text-zinc-400 shrink-0">Nombre:</span>
               <input
                 type="text"
                 id="project-name-input"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Nombre del proyecto..."
-                className="w-full bg-slate-950/60 border border-slate-800 rounded px-2 py-0.5 text-xs text-white font-medium focus:outline-none focus:border-indigo-500"
+                className="w-full bg-zinc-950/60 border border-zinc-800 rounded px-2 py-0.5 text-xs text-white font-medium focus:outline-none focus:border-indigo-500"
                 required
               />
             </div>
 
             {/* Input URL Web */}
             <div className="flex items-center space-x-1.5 flex-1 min-w-[220px]">
-              <span className="font-bold text-slate-400 shrink-0">URL Web:</span>
+              <span className="font-bold text-zinc-400 shrink-0">URL Web:</span>
               <div className="relative w-full">
                 <input
                   type="text"
@@ -469,14 +469,14 @@ export const ProjectConfigBar: React.FC<ProjectConfigBarProps> = ({
                   value={mainUrl}
                   onChange={(e) => setMainUrl(e.target.value)}
                   placeholder="https://..."
-                  className="w-full bg-slate-950/60 border border-slate-800 rounded px-2 pr-6 py-0.5 text-xs text-white font-mono focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-zinc-950/60 border border-zinc-800 rounded px-2 pr-6 py-0.5 text-xs text-white font-mono focus:outline-none focus:border-indigo-500"
                 />
                 {mainUrl && (
                   <a
                     href={mainUrl.startsWith("http") ? mainUrl : `https://${mainUrl}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="absolute right-1.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-400 transition-colors"
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-indigo-400 transition-colors"
                     title="Abrir URL Web"
                   >
                     <ExternalLink className="w-3 h-3" />
@@ -495,7 +495,7 @@ export const ProjectConfigBar: React.FC<ProjectConfigBarProps> = ({
                 ? "text-emerald-400"
                 : hasUnsavedChanges
                 ? "text-indigo-400 hover:text-indigo-300"
-                : "text-slate-500 cursor-not-allowed"
+                : "text-zinc-500 cursor-not-allowed"
             }`}
           >
             {savedSuccess ? (
@@ -516,18 +516,18 @@ export const ProjectConfigBar: React.FC<ProjectConfigBarProps> = ({
 
         {/* Modal Nuevo Proyecto */}
       {showNewModal && (
-        <div className="fixed inset-0 z-[9999] bg-slate-950/60 backdrop-blur-sm flex items-start justify-center p-4 pt-12 sm:pt-16 overflow-y-auto animate-fadeIn">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl max-w-md w-full p-5 shadow-2xl shrink-0 my-0">
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-1 flex items-center space-x-2">
+        <div className="fixed inset-0 z-[9999] bg-zinc-950/60 backdrop-blur-sm flex items-start justify-center p-4 pt-12 sm:pt-16 overflow-y-auto animate-fadeIn">
+          <div className="bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-xl max-w-md w-full p-5 shadow-2xl shrink-0 my-0">
+            <h3 className="text-sm font-bold text-zinc-900 dark:text-white mb-1 flex items-center space-x-2">
               <Sparkles className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
               <span>Crear Nuevo Proyecto</span>
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-4">
               Configura un nuevo espacio para que Antigravity trabaje y reporte sus cambios.
             </p>
             <form onSubmit={handleCreateNew} className="space-y-3.5">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
                   Nombre del Proyecto *
                 </label>
                 <input
@@ -535,14 +535,14 @@ export const ProjectConfigBar: React.FC<ProjectConfigBarProps> = ({
                   value={newProjName}
                   onChange={(e) => setNewProjName(e.target.value)}
                   placeholder="Ej: App de Reservas para Servicios, CRM Portal..."
-                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-sm text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500 focus:outline-none focus:bg-white dark:focus:bg-slate-800"
+                  className="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded px-3 py-2 text-sm text-zinc-900 dark:text-white focus:ring-1 focus:ring-indigo-500 focus:outline-none focus:bg-zinc-100 dark:bg-zinc-900 dark:focus:bg-zinc-800"
                   required
                   autoFocus
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
+                <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5 flex items-center justify-between">
                   <span>Idea Base / Descripción del Proyecto</span>
                   <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-normal">Recomendado para IA</span>
                 </label>
@@ -551,12 +551,12 @@ export const ProjectConfigBar: React.FC<ProjectConfigBarProps> = ({
                   value={newProjDesc}
                   onChange={(e) => setNewProjDesc(e.target.value)}
                   placeholder="Ej: Aplicación de reservas para servicios. Los clientes eligen servicio, fecha y hora disponible y confirman. El admin gestiona horarios, bloqueos y citas..."
-                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-xs text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500 focus:outline-none focus:bg-white dark:focus:bg-slate-800 resize-none"
+                  className="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded px-3 py-2 text-xs text-zinc-900 dark:text-white focus:ring-1 focus:ring-indigo-500 focus:outline-none focus:bg-zinc-100 dark:bg-zinc-900 dark:focus:bg-zinc-800 resize-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
                   URL Principal del Proyecto
                 </label>
                 <input
@@ -564,7 +564,7 @@ export const ProjectConfigBar: React.FC<ProjectConfigBarProps> = ({
                   value={newProjUrl}
                   onChange={(e) => setNewProjUrl(e.target.value)}
                   placeholder="http://localhost:3000 o https://staging.myshop.ai/admin"
-                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-3 py-2 text-sm text-slate-900 dark:text-white font-mono text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none focus:bg-white dark:focus:bg-slate-800"
+                  className="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded px-3 py-2 text-sm text-zinc-900 dark:text-white font-mono text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none focus:bg-zinc-100 dark:bg-zinc-900 dark:focus:bg-zinc-800"
                 />
               </div>
 
@@ -581,11 +581,11 @@ export const ProjectConfigBar: React.FC<ProjectConfigBarProps> = ({
                 </label>
               </div>
 
-              <div className="flex justify-end space-x-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex justify-end space-x-2 pt-2 border-t border-zinc-200 dark:border-zinc-800">
                 <button
                   type="button"
                   onClick={() => setShowNewModal(false)}
-                  className="px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                  className="px-3 py-1.5 text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-white bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded hover:bg-zinc-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
                 >
                   Cancelar
                 </button>
@@ -604,34 +604,34 @@ export const ProjectConfigBar: React.FC<ProjectConfigBarProps> = ({
 
       {/* Modal de Confirmación de Borrado de Proyecto */}
       {showDeleteModal && (
-        <div className="fixed inset-0 z-[9999] bg-slate-950/80 backdrop-blur-md flex items-start justify-center p-4 pt-14 sm:pt-20 overflow-y-auto">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl max-w-md w-full p-5 shadow-2xl space-y-4 shrink-0">
+        <div className="fixed inset-0 z-[9999] bg-zinc-950/80 backdrop-blur-md flex items-start justify-center p-4 pt-14 sm:pt-20 overflow-y-auto">
+          <div className="bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-xl max-w-md w-full p-5 shadow-2xl space-y-4 shrink-0">
             <div className="flex items-start space-x-3">
               <div className="w-10 h-10 rounded-full bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800/80 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0">
                 <AlertTriangle className="w-5 h-5" />
               </div>
               <div className="space-y-1">
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                <h3 className="text-sm font-bold text-zinc-900 dark:text-white">
                   ¿Eliminar proyecto "{activeProject.name}"?
                 </h3>
-                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
                   Estás a punto de eliminar este proyecto. Se borrarán de forma definitiva todos los <span className="font-semibold text-rose-600 dark:text-rose-400">módulos, etapas, tareas y registros de control de calidad</span> asociados.
                 </p>
               </div>
             </div>
 
-            <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded p-3 text-[11px] text-slate-600 dark:text-slate-400 space-y-1">
-              <p className="font-medium text-slate-800 dark:text-slate-200">
+            <div className="bg-zinc-100 dark:bg-zinc-800/60 border border-zinc-300 dark:border-zinc-700/80 rounded p-3 text-[11px] text-zinc-600 dark:text-zinc-400 space-y-1">
+              <p className="font-medium text-zinc-800 dark:text-zinc-200">
                 ⚠️ Esta acción es permanente y no se puede deshacer.
               </p>
             </div>
 
-            <div className="flex items-center justify-end space-x-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex items-center justify-end space-x-2 pt-2 border-t border-zinc-200 dark:border-zinc-800">
               <button
                 type="button"
                 disabled={isDeleting}
                 onClick={() => setShowDeleteModal(false)}
-                className="px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                className="px-3 py-1.5 text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-white bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded hover:bg-zinc-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
               >
                 Cancelar
               </button>
@@ -651,17 +651,17 @@ export const ProjectConfigBar: React.FC<ProjectConfigBarProps> = ({
 
       {/* Modal de Confirmación de Borrado de TODOS los Proyectos */}
       {showDeleteAllModal && (
-        <div className="fixed inset-0 z-[9999] bg-slate-950/80 backdrop-blur-md flex items-start justify-center p-4 pt-14 sm:pt-20 overflow-y-auto">
-          <div className="bg-white dark:bg-slate-900 border border-rose-300 dark:border-rose-900 rounded-xl max-w-md w-full p-6 shadow-2xl space-y-4 shrink-0">
+        <div className="fixed inset-0 z-[9999] bg-zinc-950/80 backdrop-blur-md flex items-start justify-center p-4 pt-14 sm:pt-20 overflow-y-auto">
+          <div className="bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-rose-300 dark:border-rose-900 rounded-xl max-w-md w-full p-6 shadow-2xl space-y-4 shrink-0">
             <div className="flex items-start space-x-3.5">
               <div className="w-11 h-11 rounded-xl bg-rose-100 dark:bg-rose-950 border border-rose-300 dark:border-rose-800 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0">
                 <Trash2 className="w-6 h-6" />
               </div>
               <div className="space-y-1">
-                <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                <h3 className="text-base font-bold text-zinc-900 dark:text-white">
                   ¿Borrar TODOS los proyectos ({projects.length})?
                 </h3>
-                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
                   Esta acción eliminará <span className="font-bold text-rose-600 dark:text-rose-400">todos los proyectos, módulos, etapas, tareas y registros de control de calidad</span>. El área de trabajo quedará completamente vacía.
                 </p>
               </div>
@@ -677,12 +677,12 @@ export const ProjectConfigBar: React.FC<ProjectConfigBarProps> = ({
               </p>
             </div>
 
-            <div className="flex items-center justify-end space-x-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex items-center justify-end space-x-2 pt-2 border-t border-zinc-200 dark:border-zinc-800">
               <button
                 type="button"
                 disabled={isDeletingAll}
                 onClick={() => setShowDeleteAllModal(false)}
-                className="px-3.5 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                className="px-3.5 py-2 text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-white bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-lg hover:bg-zinc-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
               >
                 Cancelar
               </button>

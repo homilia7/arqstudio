@@ -116,15 +116,15 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className={`min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 transition-opacity duration-700 ${isExiting ? 'opacity-0' : 'opacity-100'}`}>
-      <div className={`w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden transition-all duration-700 ${isExiting ? 'animate-slide-up-exit' : ''}`}>
+    <div className={`min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-4 transition-opacity duration-700 ${isExiting ? 'opacity-0' : 'opacity-100'}`}>
+      <div className={`w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden transition-all duration-700 ${isExiting ? 'animate-slide-up-exit' : ''}`}>
         {/* Header */}
-        <div className="p-6 text-center space-y-2 border-b border-slate-800 bg-slate-950/60">
+        <div className="p-6 text-center space-y-2 border-b border-zinc-800 bg-zinc-950/60">
           <div className="w-14 h-14 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-inner">
             <ShieldCheck className="w-7 h-7 text-emerald-400" />
           </div>
           <h1 className="text-xl font-bold text-white tracking-tight">ARQAI Workspace</h1>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-zinc-400">
             {authMode === 'login' && 'Ingresa con tu Nombre y tu PIN para acceder a tus proyectos.'}
             {authMode === 'register' && 'Crea una cuenta nueva independiente con 0 proyectos iniciales.'}
             {authMode === 'pin_only' && 'Acceso directo con PIN (solo para códigos sin duplicados).'}
@@ -132,7 +132,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
         </div>
 
         {/* Tab Selector */}
-        <div className="flex border-b border-slate-800 bg-slate-950/40 p-1.5 gap-1">
+        <div className="flex border-b border-zinc-800 bg-zinc-950/40 p-1.5 gap-1">
           <button
             id="tab-btn-login"
             type="button"
@@ -143,7 +143,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
               authMode === 'login'
                 ? 'bg-emerald-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                : 'text-zinc-400 hover:text-white hover:bg-zinc-800/60'
             }`}
           >
             <LogIn className="w-3.5 h-3.5" />
@@ -160,7 +160,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
               authMode === 'register'
                 ? 'bg-emerald-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                : 'text-zinc-400 hover:text-white hover:bg-zinc-800/60'
             }`}
           >
             <UserPlus className="w-3.5 h-3.5" />
@@ -189,7 +189,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           {authMode === 'login' && (
             <form onSubmit={handleLoginSubmit} className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-slate-300 flex items-center justify-between">
+                <label className="text-xs font-medium text-zinc-300 flex items-center justify-between">
                   <span>Nombre de Usuario</span>
                   <button
                     type="button"
@@ -201,14 +201,14 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <User className="w-4 h-4 text-slate-500" />
+                    <User className="w-4 h-4 text-zinc-500" />
                   </div>
                   <input
                     id="input-login-name"
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-sm"
+                    className="w-full pl-10 pr-4 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-sm"
                     placeholder="Ej. Carlos o Administrador"
                     autoFocus
                     required
@@ -217,17 +217,17 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-slate-300">PIN de Acceso (4 Dígitos)</label>
+                <label className="text-xs font-medium text-zinc-300">PIN de Acceso (4 Dígitos)</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="w-4 h-4 text-slate-500" />
+                    <Lock className="w-4 h-4 text-zinc-500" />
                   </div>
                   <input
                     id="input-login-pin"
                     type="password"
                     value={pin}
                     onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                    className="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-600 tracking-[0.5em] font-mono focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-sm"
+                    className="w-full pl-10 pr-4 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white placeholder-slate-600 tracking-[0.5em] font-mono focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-sm"
                     placeholder="••••"
                     maxLength={4}
                     required
@@ -235,8 +235,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                 </div>
               </div>
 
-              <div className="p-3 bg-slate-950/60 border border-slate-800/80 rounded-xl text-[11px] text-slate-400 space-y-1">
-                <div className="text-slate-300 font-medium">💡 Cuentas y Contraseñas Independientes:</div>
+              <div className="p-3 bg-zinc-950/60 border border-zinc-800/80 rounded-xl text-[11px] text-zinc-400 space-y-1">
+                <div className="text-zinc-300 font-medium">💡 Cuentas y Contraseñas Independientes:</div>
                 <p>
                   Dos usuarios pueden tener el mismo PIN (ej. 1234), pero su <strong>Nombre de Usuario</strong> identifica su cuenta y carga únicamente sus propios proyectos.
                 </p>
@@ -252,7 +252,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                 {!isLoading && <ArrowRight className="w-4 h-4" />}
               </button>
 
-              <div className="pt-2 flex items-center justify-between text-xs text-slate-400">
+              <div className="pt-2 flex items-center justify-between text-xs text-zinc-400">
                 <button
                   type="button"
                   onClick={() => {
@@ -281,77 +281,77 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           {authMode === 'register' && (
             <form onSubmit={handleRegisterSubmit} className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-slate-300">
+                <label className="text-xs font-medium text-zinc-300">
                   Nombre de Usuario <span className="text-emerald-400">* (Único)</span>
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <User className="w-4 h-4 text-slate-500" />
+                    <User className="w-4 h-4 text-zinc-500" />
                   </div>
                   <input
                     id="input-register-name"
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-sm"
+                    className="w-full pl-10 pr-4 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-sm"
                     placeholder="Ej. Ana Lopez o Usuario2"
                     autoFocus
                     required
                   />
                 </div>
-                <p className="text-[10px] text-slate-500">
+                <p className="text-[10px] text-zinc-500">
                   Este nombre distinguirá tu cuenta de las demás de forma única.
                 </p>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-slate-300">
+                <label className="text-xs font-medium text-zinc-300">
                   PIN de Acceso <span className="text-emerald-400">* (4 Dígitos)</span>
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="w-4 h-4 text-slate-500" />
+                    <Lock className="w-4 h-4 text-zinc-500" />
                   </div>
                   <input
                     id="input-register-pin"
                     type="password"
                     value={pin}
                     onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                    className="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-600 tracking-[0.5em] font-mono focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-sm"
+                    className="w-full pl-10 pr-4 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white placeholder-slate-600 tracking-[0.5em] font-mono focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-sm"
                     placeholder="••••"
                     maxLength={4}
                     required
                   />
                 </div>
-                <p className="text-[10px] text-slate-500">
+                <p className="text-[10px] text-zinc-500">
                   Puedes elegir cualquier PIN de 4 números (incluso si otro usuario usa el mismo).
                 </p>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-slate-300">Correo Electrónico (Opcional)</label>
+                <label className="text-xs font-medium text-zinc-300">Correo Electrónico (Opcional)</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className="w-4 h-4 text-slate-500" />
+                    <Mail className="w-4 h-4 text-zinc-500" />
                   </div>
                   <input
                     id="input-register-email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-sm"
+                    className="w-full pl-10 pr-4 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-sm"
                     placeholder="usuario@ejemplo.com"
                   />
                 </div>
               </div>
 
               {/* Regla de negocio explícita */}
-              <div className="p-3 bg-emerald-950/20 border border-emerald-500/20 rounded-xl text-[11px] text-slate-300 space-y-1">
+              <div className="p-3 bg-emerald-950/20 border border-emerald-500/20 rounded-xl text-[11px] text-zinc-300 space-y-1">
                 <div className="font-semibold text-emerald-400 flex items-center gap-1.5">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                   Garantía de Aislamiento de Datos:
                 </div>
-                <ul className="list-disc list-inside text-slate-400 space-y-0.5">
+                <ul className="list-disc list-inside text-zinc-400 space-y-0.5">
                   <li>Inicias con <strong>0 proyectos</strong> en tu cuenta nueva.</li>
                   <li>Tus proyectos se guardan en la base de datos vinculados a tu usuario.</li>
                   <li>Al cerrar sesión y volver a loguearte, tus proyectos estarán ahí.</li>
@@ -375,7 +375,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                     setAuthMode('login');
                     resetForm();
                   }}
-                  className="text-xs text-slate-400 hover:text-emerald-400 transition-colors cursor-pointer"
+                  className="text-xs text-zinc-400 hover:text-emerald-400 transition-colors cursor-pointer"
                 >
                   ¿Ya tienes cuenta creada? Inicia sesión aquí
                 </button>
@@ -387,7 +387,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           {authMode === 'pin_only' && (
             <form onSubmit={handlePinOnlySubmit} className="space-y-4">
               <div className="space-y-2 text-center">
-                <label className="text-xs font-medium text-slate-300 block">
+                <label className="text-xs font-medium text-zinc-300 block">
                   PIN de Acceso (4 Dígitos)
                 </label>
                 <div className="relative max-w-[220px] mx-auto">
@@ -399,13 +399,13 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                     autoFocus
                     value={pin}
                     onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                    className="w-full pl-10 pr-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-600 tracking-[0.6em] text-center font-mono text-lg focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                    className="w-full pl-10 pr-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl text-white placeholder-slate-600 tracking-[0.6em] text-center font-mono text-lg focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
                     placeholder="••••"
                     maxLength={4}
                     required
                   />
                 </div>
-                <p className="text-[11px] text-slate-400 pt-1">
+                <p className="text-[11px] text-zinc-400 pt-1">
                   Nota: Si dos usuarios tienen el mismo PIN, deberás ingresar indicando tu Nombre de Usuario.
                 </p>
               </div>
@@ -427,7 +427,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                     setAuthMode('login');
                     resetForm();
                   }}
-                  className="text-xs text-slate-400 hover:text-emerald-400 transition-colors cursor-pointer"
+                  className="text-xs text-zinc-400 hover:text-emerald-400 transition-colors cursor-pointer"
                 >
                   ← Volver a Iniciar Sesión con Nombre y PIN
                 </button>

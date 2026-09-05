@@ -88,21 +88,21 @@ export const NotificationsDrawer: React.FC<NotificationsDrawerProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-[9999] bg-slate-950/60 backdrop-blur-sm flex items-start justify-center p-3 sm:p-4 pt-4 sm:pt-14 overflow-y-auto animate-fadeIn"
+      className="fixed inset-0 z-[9999] bg-zinc-950/60 backdrop-blur-sm flex items-start justify-center p-3 sm:p-4 pt-4 sm:pt-14 overflow-y-auto animate-fadeIn"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col transition-all max-h-[80vh]">
+      <div className="relative w-full max-w-2xl bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col transition-all max-h-[80vh]">
         {/* Header */}
-        <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/80 dark:bg-slate-900/80">
+        <div className="p-4 border-b border-zinc-300 dark:border-zinc-800 flex items-center justify-between bg-zinc-100/80 dark:bg-zinc-900/80">
           <div className="flex items-center space-x-2.5">
             <div className="w-8 h-8 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
               <Bell className="w-4 h-4" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <h2 className="font-bold text-sm text-slate-900 dark:text-white">
+                <h2 className="font-bold text-sm text-zinc-900 dark:text-white">
                   Buzón de Notificaciones
                 </h2>
                 {unreadCount > 0 && (
@@ -111,28 +111,28 @@ export const NotificationsDrawer: React.FC<NotificationsDrawerProps> = ({
                   </span>
                 )}
               </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
                 Historial de alertas y acciones realizadas por tus Agentes IA
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Toolbar & Filters */}
-        <div className="px-4 py-2.5 bg-slate-100/60 dark:bg-slate-950/40 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2">
+        <div className="px-4 py-2.5 bg-zinc-200/60 dark:bg-zinc-950/40 border-b border-zinc-300 dark:border-zinc-800 flex items-center justify-between gap-2">
           <div className="flex items-center space-x-1">
             <button
               onClick={() => setFilter("all")}
               className={`px-2.5 py-1 rounded text-xs font-semibold transition-all cursor-pointer ${
                 filter === "all"
-                  ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs border border-slate-200 dark:border-slate-700"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
+                  ? "bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-xs border border-zinc-300 dark:border-zinc-700"
+                  : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200"
               }`}
             >
               Todas ({notifications.length})
@@ -141,8 +141,8 @@ export const NotificationsDrawer: React.FC<NotificationsDrawerProps> = ({
               onClick={() => setFilter("unread")}
               className={`px-2.5 py-1 rounded text-xs font-semibold transition-all cursor-pointer ${
                 filter === "unread"
-                  ? "bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 shadow-xs border border-slate-200 dark:border-slate-700"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
+                  ? "bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-800 text-emerald-600 dark:text-emerald-400 shadow-xs border border-zinc-300 dark:border-zinc-700"
+                  : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200"
               }`}
             >
               No leídas ({unreadCount})
@@ -155,7 +155,7 @@ export const NotificationsDrawer: React.FC<NotificationsDrawerProps> = ({
                 onClick={handleMarkAllRead}
                 disabled={isProcessing}
                 title="Marcar todas como leídas"
-                className="inline-flex items-center space-x-1 px-2 py-1 text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded transition-all cursor-pointer disabled:opacity-50"
+                className="inline-flex items-center space-x-1 px-2 py-1 text-[11px] font-medium text-zinc-600 dark:text-zinc-300 hover:text-emerald-600 dark:hover:text-emerald-400 bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-slate-700 border border-zinc-300 dark:border-zinc-700 rounded transition-all cursor-pointer disabled:opacity-50"
               >
                 <CheckCheck className="w-3.5 h-3.5 text-emerald-500" />
                 <span className="hidden sm:inline">Leer todas</span>
@@ -178,16 +178,16 @@ export const NotificationsDrawer: React.FC<NotificationsDrawerProps> = ({
         {/* List of Notifications */}
         <div className="flex-1 overflow-y-auto p-3 space-y-2">
           {filteredNotifs.length === 0 ? (
-            <div className="py-10 flex flex-col items-center justify-center text-center px-4 text-slate-400 dark:text-slate-500">
-              <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3">
-                <Inbox className="w-6 h-6 text-slate-400" />
+            <div className="py-10 flex flex-col items-center justify-center text-center px-4 text-zinc-400 dark:text-zinc-500">
+              <div className="w-12 h-12 rounded-full bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center mb-3">
+                <Inbox className="w-6 h-6 text-zinc-400" />
               </div>
-              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
                 {filter === "unread"
                   ? "¡No tienes notificaciones pendientes!"
                   : "Tu buzón está vacío"}
               </p>
-              <p className="text-xs max-w-xs text-slate-500 dark:text-slate-400">
+              <p className="text-xs max-w-xs text-zinc-500 dark:text-zinc-400">
                 Cuando tus Agentes IA creen proyectos o completen tareas, aparecerán registradas aquí permanentemente.
               </p>
             </div>
@@ -202,7 +202,7 @@ export const NotificationsDrawer: React.FC<NotificationsDrawerProps> = ({
                   className={`p-3.5 rounded-xl border transition-all relative ${
                     !n.read
                       ? "bg-emerald-50/40 dark:bg-emerald-950/20 border-emerald-500/30 dark:border-emerald-500/30 shadow-xs"
-                      : "bg-white dark:bg-slate-800/60 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
+                      : "bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-800/60 border-zinc-300 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700"
                   }`}
                 >
                   {/* Top line: Agent & Date */}
@@ -221,7 +221,7 @@ export const NotificationsDrawer: React.FC<NotificationsDrawerProps> = ({
                       )}
                     </div>
                     <div className="flex items-center space-x-1.5">
-                      <div className="flex items-center space-x-1 text-[11px] text-slate-400 dark:text-slate-500 font-medium">
+                      <div className="flex items-center space-x-1 text-[11px] text-zinc-400 dark:text-zinc-500 font-medium">
                         <Clock className="w-3 h-3" />
                         <span>{formatTime(n.createdAt)}</span>
                       </div>
@@ -232,7 +232,7 @@ export const NotificationsDrawer: React.FC<NotificationsDrawerProps> = ({
                             onDeleteNotification(n.id);
                           }}
                           title="Eliminar notificación"
-                          className="p-1 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded transition-colors cursor-pointer ml-1"
+                          className="p-1 text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded transition-colors cursor-pointer ml-1"
                         >
                           <Trash2 className="w-3 h-3" />
                         </button>
@@ -241,15 +241,15 @@ export const NotificationsDrawer: React.FC<NotificationsDrawerProps> = ({
                   </div>
 
                   {/* Title & Message */}
-                  <h3 className="font-bold text-xs text-slate-900 dark:text-white mb-1">
+                  <h3 className="font-bold text-xs text-zinc-900 dark:text-white mb-1">
                     {n.title}
                   </h3>
-                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
+                  <p className="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap">
                     {n.message}
                   </p>
 
                   {/* Bottom Footer: Project badge & Read action */}
-                  <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between gap-2">
+                  <div className="mt-3 pt-2.5 border-t border-zinc-200 dark:border-zinc-700/60 flex items-center justify-between gap-2">
                     {n.projectId ? (
                       <button
                         onClick={() => {
@@ -271,7 +271,7 @@ export const NotificationsDrawer: React.FC<NotificationsDrawerProps> = ({
                     {!n.read && (
                       <button
                         onClick={() => onMarkAsRead(n.id)}
-                        className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer inline-flex items-center space-x-1"
+                        className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer inline-flex items-center space-x-1"
                       >
                         <CheckCircle2 className="w-3 h-3 text-emerald-500" />
                         <span>Marcar como leída</span>

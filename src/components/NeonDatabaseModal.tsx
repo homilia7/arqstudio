@@ -148,11 +148,11 @@ export const NeonDatabaseModal: React.FC<NeonDatabaseModalProps> = ({
     >
       <div
         id="neon-database-modal-card"
-        className="relative w-full max-w-2xl bg-slate-900 border border-slate-700 rounded-xl shadow-2xl overflow-hidden my-8"
+        className="relative w-full max-w-2xl bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl overflow-hidden my-8"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-slate-800 bg-slate-950/60">
+        <div className="flex items-center justify-between p-5 border-b border-zinc-800 bg-zinc-950/60">
           <div className="flex items-center space-x-3">
             <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
               <Database className="w-5 h-5" />
@@ -170,7 +170,7 @@ export const NeonDatabaseModal: React.FC<NeonDatabaseModalProps> = ({
                   </span>
                 )}
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-zinc-400">
                 Almacenamiento persistente en la nube Serverless PostgreSQL para Antigravity
               </p>
             </div>
@@ -178,7 +178,7 @@ export const NeonDatabaseModal: React.FC<NeonDatabaseModalProps> = ({
           <button
             id="close-neon-modal-btn"
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+            className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition"
           >
             <X className="w-5 h-5" />
           </button>
@@ -191,7 +191,7 @@ export const NeonDatabaseModal: React.FC<NeonDatabaseModalProps> = ({
             className={`p-4 rounded-xl border ${
               status?.isConnected
                 ? "bg-emerald-950/20 border-emerald-800/40 text-emerald-300"
-                : "bg-slate-800/60 border-slate-700 text-slate-300"
+                : "bg-zinc-800/60 border-zinc-700 text-zinc-300"
             }`}
           >
             <div className="flex items-start justify-between">
@@ -202,7 +202,7 @@ export const NeonDatabaseModal: React.FC<NeonDatabaseModalProps> = ({
                     ? "Base de datos Neon conectada y sincronizada"
                     : "Esperando credenciales de Neon"}
                 </div>
-                <p className="text-xs text-slate-400 leading-relaxed">
+                <p className="text-xs text-zinc-400 leading-relaxed">
                   {status?.message || "Cargando estado de la conexión..."}
                 </p>
               </div>
@@ -210,7 +210,7 @@ export const NeonDatabaseModal: React.FC<NeonDatabaseModalProps> = ({
               <button
                 onClick={handleReconnect}
                 disabled={isLoading}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 rounded-lg transition disabled:opacity-50 shrink-0 ml-3"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-zinc-800 hover:bg-slate-700 text-zinc-200 border border-slate-600 rounded-lg transition disabled:opacity-50 shrink-0 ml-3"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} />
                 Reconectar
@@ -220,8 +220,8 @@ export const NeonDatabaseModal: React.FC<NeonDatabaseModalProps> = ({
 
           {/* Metric Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="p-3 bg-slate-950/70 border border-slate-800 rounded-lg">
-              <div className="text-[11px] font-medium text-slate-400 flex items-center gap-1">
+            <div className="p-3 bg-zinc-950/70 border border-zinc-800 rounded-lg">
+              <div className="text-[11px] font-medium text-zinc-400 flex items-center gap-1">
                 <Server className="w-3.5 h-3.5 text-emerald-400" />
                 Modo
               </div>
@@ -234,8 +234,8 @@ export const NeonDatabaseModal: React.FC<NeonDatabaseModalProps> = ({
               </div>
             </div>
 
-            <div className="p-3 bg-slate-950/70 border border-slate-800 rounded-lg">
-              <div className="text-[11px] font-medium text-slate-400 flex items-center gap-1">
+            <div className="p-3 bg-zinc-950/70 border border-zinc-800 rounded-lg">
+              <div className="text-[11px] font-medium text-zinc-400 flex items-center gap-1">
                 <Zap className="w-3.5 h-3.5 text-cyan-400" />
                 Latencia Ping
               </div>
@@ -244,8 +244,8 @@ export const NeonDatabaseModal: React.FC<NeonDatabaseModalProps> = ({
               </div>
             </div>
 
-            <div className="p-3 bg-slate-950/70 border border-slate-800 rounded-lg">
-              <div className="text-[11px] font-medium text-slate-400 flex items-center gap-1">
+            <div className="p-3 bg-zinc-950/70 border border-zinc-800 rounded-lg">
+              <div className="text-[11px] font-medium text-zinc-400 flex items-center gap-1">
                 <Database className="w-3.5 h-3.5 text-purple-400" />
                 Base de Datos
               </div>
@@ -254,12 +254,12 @@ export const NeonDatabaseModal: React.FC<NeonDatabaseModalProps> = ({
               </div>
             </div>
 
-            <div className="p-3 bg-slate-950/70 border border-slate-800 rounded-lg">
-              <div className="text-[11px] font-medium text-slate-400 flex items-center gap-1">
+            <div className="p-3 bg-zinc-950/70 border border-zinc-800 rounded-lg">
+              <div className="text-[11px] font-medium text-zinc-400 flex items-center gap-1">
                 <HardDrive className="w-3.5 h-3.5 text-amber-400" />
                 Último Sync
               </div>
-              <div className="mt-1 text-[11px] font-medium text-slate-300 truncate">
+              <div className="mt-1 text-[11px] font-medium text-zinc-300 truncate">
                 {status?.lastSyncAt
                   ? new Date(status.lastSyncAt).toLocaleTimeString([], {
                       hour: "2-digit",
@@ -272,23 +272,23 @@ export const NeonDatabaseModal: React.FC<NeonDatabaseModalProps> = ({
           </div>
 
           {/* Tablas activas en Neon */}
-          <div className="p-4 bg-slate-950/50 border border-slate-800 rounded-xl space-y-3">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+          <div className="p-4 bg-zinc-950/50 border border-zinc-800 rounded-xl space-y-3">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 flex items-center gap-2">
               <Layers className="w-4 h-4 text-emerald-400" />
               Tablas PostgreSQL Creadas & Sincronizadas
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              <div className="p-2.5 bg-slate-900/90 border border-slate-800 rounded-lg text-xs">
+              <div className="p-2.5 bg-zinc-900/90 border border-zinc-800 rounded-lg text-xs">
                 <span className="font-mono font-bold text-emerald-400">antigravity_store</span>
-                <p className="text-[11px] text-slate-400 mt-0.5">Persistencia y JSONB snapshot</p>
+                <p className="text-[11px] text-zinc-400 mt-0.5">Persistencia y JSONB snapshot</p>
               </div>
-              <div className="p-2.5 bg-slate-900/90 border border-slate-800 rounded-lg text-xs">
+              <div className="p-2.5 bg-zinc-900/90 border border-zinc-800 rounded-lg text-xs">
                 <span className="font-mono font-bold text-cyan-400">antigravity_projects</span>
-                <p className="text-[11px] text-slate-400 mt-0.5">Blueprints, URLs y API keys</p>
+                <p className="text-[11px] text-zinc-400 mt-0.5">Blueprints, URLs y API keys</p>
               </div>
-              <div className="p-2.5 bg-slate-900/90 border border-slate-800 rounded-lg text-xs">
+              <div className="p-2.5 bg-zinc-900/90 border border-zinc-800 rounded-lg text-xs">
                 <span className="font-mono font-bold text-purple-400">antigravity_tasks</span>
-                <p className="text-[11px] text-slate-400 mt-0.5">Tareas, estados y memorias</p>
+                <p className="text-[11px] text-zinc-400 mt-0.5">Tareas, estados y memorias</p>
               </div>
             </div>
           </div>
@@ -309,7 +309,7 @@ export const NeonDatabaseModal: React.FC<NeonDatabaseModalProps> = ({
               id="sync-to-neon-btn"
               onClick={handleSyncToNeon}
               disabled={isSyncing}
-              className="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition disabled:opacity-50 cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg bg-zinc-800 hover:bg-slate-700 text-zinc-200 border border-zinc-700 transition disabled:opacity-50 cursor-pointer"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? "animate-spin" : ""}`} />
               {isSyncing ? "Sincronizando..." : "Sincronizar Local ➔ Neon"}
@@ -319,7 +319,7 @@ export const NeonDatabaseModal: React.FC<NeonDatabaseModalProps> = ({
               id="sync-from-neon-btn"
               onClick={handleSyncFromNeon}
               disabled={isSyncing}
-              className="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition disabled:opacity-50 cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg bg-zinc-800 hover:bg-slate-700 text-zinc-200 border border-zinc-700 transition disabled:opacity-50 cursor-pointer"
             >
               <Database className="w-3.5 h-3.5 text-purple-400" />
               Descargar Datos desde Neon
@@ -338,7 +338,7 @@ export const NeonDatabaseModal: React.FC<NeonDatabaseModalProps> = ({
 
           {/* Feedback messages */}
           {syncFeedback && (
-            <div className="p-3 rounded-lg bg-slate-800/80 border border-slate-700 text-xs text-slate-200 flex items-center gap-2">
+            <div className="p-3 rounded-lg bg-zinc-800/80 border border-zinc-700 text-xs text-zinc-200 flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
               <span>{syncFeedback}</span>
             </div>
@@ -360,7 +360,7 @@ export const NeonDatabaseModal: React.FC<NeonDatabaseModalProps> = ({
                   </div>
                   <div>Base de datos: {testResult.result?.database}</div>
                   <div>Fecha servidor: {testResult.result?.now}</div>
-                  <div className="text-[10px] text-slate-400 truncate">
+                  <div className="text-[10px] text-zinc-400 truncate">
                     Versión: {testResult.result?.version}
                   </div>
                 </div>
@@ -374,14 +374,14 @@ export const NeonDatabaseModal: React.FC<NeonDatabaseModalProps> = ({
           )}
 
           {/* Configuración Secrets Guide */}
-          <div className="p-4 bg-slate-950/60 border border-slate-800 rounded-xl space-y-2 text-xs text-slate-400">
-            <div className="font-semibold text-slate-200 flex items-center gap-2">
+          <div className="p-4 bg-zinc-950/60 border border-zinc-800 rounded-xl space-y-2 text-xs text-zinc-400">
+            <div className="font-semibold text-zinc-200 flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
               Configuración de la API de Neon en Secrets
             </div>
             <p className="leading-relaxed">
               El servidor lee automáticamente las credenciales desde el panel de{" "}
-              <strong className="text-slate-200">Settings &gt; Secrets</strong> de Google AI Studio:
+              <strong className="text-zinc-200">Settings &gt; Secrets</strong> de Google AI Studio:
             </p>
             <ul className="list-disc list-inside space-y-1 pl-1 text-[11px]">
               <li>
@@ -401,7 +401,7 @@ export const NeonDatabaseModal: React.FC<NeonDatabaseModalProps> = ({
                 <strong className="text-cyan-400">DATABASE_URL</strong> o{" "}
                 <strong className="text-cyan-400">NEON_DATABASE_URL</strong>: Cadena de conexión
                 directa PostgreSQL de Neon (ejemplo:{" "}
-                <code className="bg-slate-900 px-1 py-0.5 rounded text-slate-300">
+                <code className="bg-zinc-900 px-1 py-0.5 rounded text-zinc-300">
                   postgresql://user:pass@ep-xyz.neon.tech/neondb?sslmode=require
                 </code>
                 ).
@@ -411,21 +411,21 @@ export const NeonDatabaseModal: React.FC<NeonDatabaseModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-slate-800 bg-slate-950/80 flex items-center justify-between">
-          <div className="text-xs text-slate-400">
+        <div className="p-4 border-t border-zinc-800 bg-zinc-950/80 flex items-center justify-between">
+          <div className="text-xs text-zinc-400">
             {status?.isConnected ? (
               <span className="text-emerald-400 flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5" /> Conexión Neon activa
               </span>
             ) : (
-              <span className="text-slate-400">
+              <span className="text-zinc-400">
                 Los cambios se guardan localmente y se replicarán al conectar Neon.
               </span>
             )}
           </div>
           <button
             onClick={onClose}
-            className="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-white transition"
+            className="px-4 py-2 text-xs font-semibold rounded-lg bg-zinc-800 hover:bg-slate-700 text-white transition"
           >
             Cerrar
           </button>

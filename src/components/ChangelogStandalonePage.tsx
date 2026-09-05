@@ -185,19 +185,19 @@ export const ChangelogStandalonePage: React.FC<ChangelogStandalonePageProps> = (
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans antialiased">
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans antialiased">
       {/* Top Header Independiente de la Página de Historial */}
-      <header className="bg-slate-900/90 border-b border-slate-800 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-between shadow-xl">
+      <header className="bg-zinc-900/90 border-b border-zinc-800 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-between shadow-xl">
         <div className="flex items-center space-x-2.5">
           <button
             onClick={onBackToBoard}
-            className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-[11px] font-bold transition-all flex items-center space-x-1.5 border border-slate-700 cursor-pointer"
+            className="px-2.5 py-1 bg-zinc-800 hover:bg-slate-700 text-zinc-200 rounded-lg text-[11px] font-bold transition-all flex items-center space-x-1.5 border border-zinc-700 cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5 text-indigo-400" />
             <span>Volver al Área de Trabajo</span>
           </button>
 
-          <div className="h-4 w-px bg-slate-800 hidden sm:block" />
+          <div className="h-4 w-px bg-zinc-800 hidden sm:block" />
 
           <div className="flex items-center space-x-2">
             <div className="w-6 h-6 rounded-md bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center font-bold">
@@ -210,7 +210,7 @@ export const ChangelogStandalonePage: React.FC<ChangelogStandalonePageProps> = (
                   Exclusivo Aprobados
                 </span>
               </h1>
-              <p className="text-[10px] text-slate-400 hidden sm:block leading-tight">
+              <p className="text-[10px] text-zinc-400 hidden sm:block leading-tight">
                 Registro independiente de funcionalidades construidas por IA y aprobadas por el humano.
               </p>
             </div>
@@ -222,7 +222,7 @@ export const ChangelogStandalonePage: React.FC<ChangelogStandalonePageProps> = (
             <>
               <button
                 onClick={() => window.print()}
-                className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-[11px] font-bold transition-all shadow-sm flex items-center space-x-1.5 border border-slate-700 cursor-pointer"
+                className="px-2.5 py-1 bg-zinc-800 hover:bg-slate-700 text-zinc-200 rounded-lg text-[11px] font-bold transition-all shadow-sm flex items-center space-x-1.5 border border-zinc-700 cursor-pointer"
                 title="Imprimir o Guardar como PDF Reporte Ejecutivo Visual"
               >
                 <Printer className="w-3.5 h-3.5 text-emerald-400" />
@@ -251,9 +251,9 @@ export const ChangelogStandalonePage: React.FC<ChangelogStandalonePageProps> = (
       {/* Main Content Page Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-3 space-y-3">
         {/* Selector de Proyecto de Historial & Información */}
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-3 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
           <div className="space-y-1">
-            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            <label className="block text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
               Seleccionar Proyecto de Historial de Cambios:
             </label>
             <div className="flex flex-wrap items-center gap-2">
@@ -264,7 +264,7 @@ export const ChangelogStandalonePage: React.FC<ChangelogStandalonePageProps> = (
                     const found = projects.find((p) => p.id === e.target.value);
                     if (found) onSelectProject(found);
                   }}
-                  className="bg-slate-950 border border-slate-700 text-white text-xs rounded-lg px-2.5 py-1 focus:ring-1 focus:ring-indigo-500 focus:outline-none font-bold cursor-pointer w-full sm:w-auto min-w-0 sm:min-w-[200px] truncate"
+                  className="bg-zinc-950 border border-zinc-700 text-white text-xs rounded-lg px-2.5 py-1 focus:ring-1 focus:ring-indigo-500 focus:outline-none font-bold cursor-pointer w-full sm:w-auto min-w-0 sm:min-w-[200px] truncate"
                 >
                   {projects.map((p) => (
                     <option key={p.id} value={p.id}>
@@ -300,14 +300,14 @@ export const ChangelogStandalonePage: React.FC<ChangelogStandalonePageProps> = (
         </div>
 
         {!activeProject ? (
-          <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-8 text-center space-y-3">
+          <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-8 text-center space-y-3">
             <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mx-auto">
               <Layers className="w-6 h-6" />
             </div>
             <h3 className="text-base font-bold text-white">
               Crea o Selecciona un Proyecto para Ver su Historial de Cambios
             </h3>
-            <p className="text-xs text-slate-400 max-w-md mx-auto">
+            <p className="text-xs text-zinc-400 max-w-md mx-auto">
               Haz clic en el botón superior "+ Crear Proyecto de Historial" para dar un nombre a tu proyecto y empezar a acumular las funcionalidades construidas y aprobadas.
             </p>
             <button
@@ -321,24 +321,24 @@ export const ChangelogStandalonePage: React.FC<ChangelogStandalonePageProps> = (
         ) : (
           <>
             {/* Barra de Filtros & Búsqueda */}
-            <div className="bg-slate-900/80 border border-slate-800 rounded-lg p-2 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <div className="bg-zinc-900/80 border border-zinc-800 rounded-lg p-2 flex flex-col sm:flex-row items-center justify-between gap-2">
               <div className="relative w-full sm:w-72">
-                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2" />
+                <Search className="w-3.5 h-3.5 text-zinc-400 absolute left-2.5 top-2" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Buscar en funcionalidades aprobadas..."
-                  className="w-full pl-8 pr-2.5 py-1 bg-slate-950 border border-slate-700 rounded text-xs text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full pl-8 pr-2.5 py-1 bg-zinc-950 border border-zinc-700 rounded text-xs text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 />
               </div>
 
               <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
-                <span className="text-xs text-slate-400 font-medium">Filtrar Creador:</span>
+                <span className="text-xs text-zinc-400 font-medium">Filtrar Creador:</span>
                 <select
                   value={filterAuthor}
                   onChange={(e) => setFilterAuthor(e.target.value)}
-                  className="bg-slate-950 border border-slate-700 rounded px-2.5 py-1 text-xs text-white focus:outline-none"
+                  className="bg-zinc-950 border border-zinc-700 rounded px-2.5 py-1 text-xs text-white focus:outline-none"
                 >
                   <option value="all">Todos los Registros</option>
                   <option value="agent">🤖 Agente IA</option>
@@ -350,22 +350,22 @@ export const ChangelogStandalonePage: React.FC<ChangelogStandalonePageProps> = (
             {/* Stream Cronológico de Funcionalidades Aprobadas (Top to Bottom) */}
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
-                <h2 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-1.5">
+                <h2 className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 flex items-center space-x-1.5">
                   <Award className="w-3.5 h-3.5 text-emerald-400" />
                   <span>Lista Cronológica de Cambios Aprobados ({filteredHistory.length})</span>
                 </h2>
-                <span className="text-[10px] text-slate-500">Orden de Construcción (Más Reciente Primero)</span>
+                <span className="text-[10px] text-zinc-500">Orden de Construcción (Más Reciente Primero)</span>
               </div>
 
               {filteredHistory.length === 0 ? (
-                <div className="bg-slate-900/40 border border-slate-800/80 rounded-xl p-6 text-center space-y-2">
-                  <div className="w-10 h-10 rounded-lg bg-slate-800 text-slate-400 flex items-center justify-center mx-auto">
+                <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-xl p-6 text-center space-y-2">
+                  <div className="w-10 h-10 rounded-lg bg-zinc-800 text-zinc-400 flex items-center justify-center mx-auto">
                     <FileText className="w-5 h-5" />
                   </div>
                   <h4 className="text-xs font-bold text-white">
                     Aún no hay cambios aprobados en "{activeProject.name}"
                   </h4>
-                  <p className="text-[11px] text-slate-400 max-w-md mx-auto">
+                  <p className="text-[11px] text-zinc-400 max-w-md mx-auto">
                     Conforme le des la orden a la IA de guardar en el historial o apruebes tareas completadas, irán apareciendo en esta lista de arriba hacia abajo.
                   </p>
                   <button
@@ -395,7 +395,7 @@ export const ChangelogStandalonePage: React.FC<ChangelogStandalonePageProps> = (
                   return (
                     <div
                       key={item.id}
-                      className="bg-slate-900 border border-slate-800 hover:border-indigo-500/50 rounded-xl p-4 transition-all shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-3 relative overflow-hidden group"
+                      className="bg-zinc-900 border border-zinc-800 hover:border-indigo-500/50 rounded-xl p-4 transition-all shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-3 relative overflow-hidden group"
                     >
                       {/* Botón X de eliminación prominente en la esquina superior derecha */}
                       <button
@@ -427,7 +427,7 @@ export const ChangelogStandalonePage: React.FC<ChangelogStandalonePageProps> = (
                           >
                             {isAgent ? <Bot className="w-4 h-4" /> : <User className="w-4 h-4" />}
                           </div>
-                          <span className="text-[9px] font-mono text-slate-500 mt-0.5">#{filteredHistory.length - index}</span>
+                          <span className="text-[9px] font-mono text-zinc-500 mt-0.5">#{filteredHistory.length - index}</span>
                         </div>
 
                         <div className="space-y-1.5 min-w-0">
@@ -447,8 +447,8 @@ export const ChangelogStandalonePage: React.FC<ChangelogStandalonePageProps> = (
                               {item.author || "Sistema"}
                             </span>
 
-                            <span className="text-[10px] text-slate-400 flex items-center space-x-1">
-                              <Clock className="w-2.5 h-2.5 text-slate-500" />
+                            <span className="text-[10px] text-zinc-400 flex items-center space-x-1">
+                              <Clock className="w-2.5 h-2.5 text-zinc-500" />
                               <span>{dateStr}</span>
                             </span>
                           </div>
@@ -458,7 +458,7 @@ export const ChangelogStandalonePage: React.FC<ChangelogStandalonePageProps> = (
                           </h3>
 
                           {item.details && (
-                            <p className="text-xs text-slate-300 leading-relaxed bg-slate-950 p-2.5 rounded-lg border border-slate-800/80">
+                            <p className="text-xs text-zinc-300 leading-relaxed bg-zinc-950 p-2.5 rounded-lg border border-zinc-800/80">
                               {item.details}
                             </p>
                           )}
@@ -489,19 +489,19 @@ export const ChangelogStandalonePage: React.FC<ChangelogStandalonePageProps> = (
 
       {/* Modal Crear Nuevo Proyecto de Historial */}
       {showCreateProjectModal && (
-        <div className="fixed inset-0 z-[9999] bg-slate-950/80 backdrop-blur-md flex items-start justify-center p-4 pt-12 sm:pt-16 overflow-y-auto animate-fadeIn">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+        <div className="fixed inset-0 z-[9999] bg-zinc-950/80 backdrop-blur-md flex items-start justify-center p-4 pt-12 sm:pt-16 overflow-y-auto animate-fadeIn">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
             <h3 className="text-base font-bold text-white flex items-center space-x-2">
               <FolderPlus className="w-5 h-5 text-emerald-400" />
               <span>Crear Nuevo Proyecto de Historial</span>
             </h3>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-zinc-400">
               Asigna un nombre a este proyecto para agrupar y llevar el registro exclusivo de todos los cambios aprobados que la IA vaya construyendo.
             </p>
 
             <form onSubmit={handleCreateProjectSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
                   Nombre del Proyecto de Historial *
                 </label>
                 <input
@@ -509,14 +509,14 @@ export const ChangelogStandalonePage: React.FC<ChangelogStandalonePageProps> = (
                   value={newProjName}
                   onChange={(e) => setNewProjName(e.target.value)}
                   placeholder="Ej: Historial Sistema ERP, App Movil V2, Módulo Pagos..."
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                   required
                   autoFocus
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
                   Descripción o Propósito del Historial
                 </label>
                 <textarea
@@ -524,15 +524,15 @@ export const ChangelogStandalonePage: React.FC<ChangelogStandalonePageProps> = (
                   value={newProjDesc}
                   onChange={(e) => setNewProjDesc(e.target.value)}
                   placeholder="Descripción de qué funcionalidades se registran en este proyecto de historial..."
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none resize-none"
+                  className="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none resize-none"
                 />
               </div>
 
-              <div className="flex justify-end space-x-2 pt-3 border-t border-slate-800">
+              <div className="flex justify-end space-x-2 pt-3 border-t border-zinc-800">
                 <button
                   type="button"
                   onClick={() => setShowCreateProjectModal(false)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-400 bg-slate-800 rounded-xl hover:bg-slate-700 transition-colors cursor-pointer"
+                  className="px-4 py-2 text-xs font-semibold text-zinc-400 bg-zinc-800 rounded-xl hover:bg-slate-700 transition-colors cursor-pointer"
                 >
                   Cancelar
                 </button>
@@ -551,8 +551,8 @@ export const ChangelogStandalonePage: React.FC<ChangelogStandalonePageProps> = (
 
       {/* Modal Registrar Nuevo Cambio Aprobado */}
       {showAddChangeModal && activeProject && (
-        <div className="fixed inset-0 z-[9999] bg-slate-950/80 backdrop-blur-md flex items-start justify-center p-4 pt-12 sm:pt-16 overflow-y-auto animate-fadeIn">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+        <div className="fixed inset-0 z-[9999] bg-zinc-950/80 backdrop-blur-md flex items-start justify-center p-4 pt-12 sm:pt-16 overflow-y-auto animate-fadeIn">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
             <h3 className="text-base font-bold text-white flex items-center space-x-2">
               <CheckCircle2 className="w-5 h-5 text-emerald-400" />
               <span>Registrar Cambio Aprobado en '{activeProject.name}'</span>
@@ -560,7 +560,7 @@ export const ChangelogStandalonePage: React.FC<ChangelogStandalonePageProps> = (
 
             <form onSubmit={handleAddChangeSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
                   Funcionalidad Construida y Aprobada *
                 </label>
                 <input
@@ -568,14 +568,14 @@ export const ChangelogStandalonePage: React.FC<ChangelogStandalonePageProps> = (
                   value={changeTitle}
                   onChange={(e) => setChangeTitle(e.target.value)}
                   placeholder="Ej: Módulo de Autenticación con Google, Slider de Productos..."
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                  className="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                   required
                   autoFocus
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
                   Explicación Técnica / Detalles del Trabajo Aprobado
                 </label>
                 <textarea
@@ -583,12 +583,12 @@ export const ChangelogStandalonePage: React.FC<ChangelogStandalonePageProps> = (
                   value={changeDetails}
                   onChange={(e) => setChangeDetails(e.target.value)}
                   placeholder="Describe los cambios específicos realizados por la IA y aprobados por el humano..."
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none resize-none"
+                  className="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none resize-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
                   URL de Vista / Demostración (Opcional)
                 </label>
                 <input
@@ -596,15 +596,15 @@ export const ChangelogStandalonePage: React.FC<ChangelogStandalonePageProps> = (
                   value={changeWorkUrl}
                   onChange={(e) => setChangeWorkUrl(e.target.value)}
                   placeholder="https://staging.app.com/preview"
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white font-mono focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                  className="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-3.5 py-2.5 text-xs text-white font-mono focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                 />
               </div>
 
-              <div className="flex justify-end space-x-2 pt-3 border-t border-slate-800">
+              <div className="flex justify-end space-x-2 pt-3 border-t border-zinc-800">
                 <button
                   type="button"
                   onClick={() => setShowAddChangeModal(false)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-400 bg-slate-800 rounded-xl hover:bg-slate-700 transition-colors cursor-pointer"
+                  className="px-4 py-2 text-xs font-semibold text-zinc-400 bg-zinc-800 rounded-xl hover:bg-slate-700 transition-colors cursor-pointer"
                 >
                   Cancelar
                 </button>
