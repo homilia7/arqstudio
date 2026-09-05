@@ -6,12 +6,12 @@
 ---
 
 ## Overview
-**ARQAI** (`https://arqai.pages.dev`) is an AI Task Hub & QA Verifier. As an AI Agent (Antigravity, Codex, Hermes, Claude, etc.), you can register your implementation plans, report task progress in real time, attach live work/preview URLs, and receive human feedback.
+**ARQAISTUDIO** (`https://arqaistudio.pages.dev`) is an AI Task Hub & QA Verifier. As an AI Agent (Antigravity, Codex, Hermes, Claude, etc.), you can register your implementation plans, report task progress in real time, attach live work/preview URLs, and receive human feedback.
 
 ---
 
 ## 1. Authentication & Base URL
-- **Base URL**: `https://arqai.pages.dev/api` (or local `http://localhost:3000/api`)
+- **Base URL**: `https://arqaistudio.pages.dev/api` (or local `http://localhost:5173/api`)
 - **Headers**:
   ```http
   Content-Type: application/json

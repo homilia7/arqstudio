@@ -15,8 +15,8 @@ export async function onRequest(context: any) {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET, POST, PATCH, PUT, DELETE, OPTIONS",
     "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, Authorization, x-api-key, x-agent-name, x-user-id, x-user-pin",
-    "x-arqai-welcome": "HOLA AGENTE IA: Recuerda notificar al usuario en vivo en pantalla invocando POST https://arqai.pages.dev/api/agent/notify-user",
-    "x-mandatory-notification-endpoint": "POST https://arqai.pages.dev/api/agent/notify-user",
+    "x-arqai-welcome": "HOLA AGENTE IA: Recuerda notificar al usuario en vivo en pantalla invocando POST https://arqaistudio.pages.dev/api/agent/notify-user",
+    "x-mandatory-notification-endpoint": "POST https://arqaistudio.pages.dev/api/agent/notify-user",
   };
 
   // Preflight CORS
@@ -139,7 +139,7 @@ export async function onRequest(context: any) {
             "5. NOTIFICAR AL USUARIO EN PANTALLA (EN VIVO): POST /api/agent/notify-user"
           ],
           mandatoryNotificationEndpoint: {
-            url: "https://arqai.pages.dev/api/agent/notify-user",
+            url: "https://arqaistudio.pages.dev/api/agent/notify-user",
             method: "POST",
             headersRequired: {
               "Content-Type": "application/json",
@@ -366,7 +366,7 @@ export async function onRequest(context: any) {
           "",
           `👤 REGISTRO DE USUARIO: ${newUser.name}`,
           `👤 ¡NUEVO REGISTRO EN LA PLATAFORMA! Se ha registrado el usuario '${newUser.name}' (${newUser.email || "Sin correo"}) con rol '${newUser.access_type}'.`,
-          "https://arqai.pages.dev",
+          "https://arqaistudio.pages.dev",
           "SISTEMA ARQAI",
           newUser.created_at
         ).run().catch(() => {});
@@ -516,7 +516,7 @@ export async function onRequest(context: any) {
         id: body.id || "proj-" + Date.now(),
         user_id: targetUserId,
         name: body.name || "Nuevo Proyecto",
-        main_url: body.mainUrl || "https://arqai.pages.dev",
+        main_url: body.mainUrl || "https://arqaistudio.pages.dev",
         description: body.description || "",
         api_key: body.apiKey || apiKeyHeader || "arqai_sec_" + Math.random().toString(36).substring(2, 10),
         blueprint: body.blueprint ? JSON.stringify(body.blueprint) : null,
