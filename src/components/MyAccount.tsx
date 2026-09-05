@@ -213,7 +213,7 @@ export const MyAccount: React.FC<MyAccountProps> = ({ isOpen, onClose, user, onU
                 type="button"
                 onClick={() => {
                   onClose();
-                  onLogout();
+                  if (onLogout) onLogout();
                 }}
                 className="w-full py-1.5 px-3 rounded-md border border-red-500/30 hover:border-red-500/60 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
               >

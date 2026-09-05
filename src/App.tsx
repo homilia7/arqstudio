@@ -316,6 +316,7 @@ export default function App() {
         onOpenD1Modal={() => setD1ModalOpen(true)}
         onOpenAuditHistory={() => setIsLeftSidebarOpen(!isLeftSidebarOpen)}
         onRefresh={() => loadData(false)}
+        onLogout={() => handleUpdateCurrentUser(null)}
         isRefreshing={isRefreshing}
         unreadNotificationsCount={notifications.filter((n) => !n.read).length}
       />

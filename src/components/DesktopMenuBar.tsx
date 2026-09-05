@@ -39,6 +39,7 @@ interface DesktopMenuBarProps {
   onOpenGatekeeper?: () => void;
   onRefresh: () => void;
   isRefreshing: boolean;
+  onLogout?: () => void;
   unreadNotificationsCount: number;
 }
 
@@ -61,6 +62,7 @@ export const DesktopMenuBar: React.FC<DesktopMenuBarProps> = ({
   onOpenGatekeeper,
   onRefresh,
   isRefreshing,
+  onLogout,
   unreadNotificationsCount,
 }) => {
   const { theme, toggleTheme } = useTheme();
@@ -109,6 +111,13 @@ export const DesktopMenuBar: React.FC<DesktopMenuBarProps> = ({
                   className="w-full text-left px-3 py-1.5 hover:bg-[#21262d] flex items-center gap-2 cursor-pointer"
                 >
                   <Key className="w-3.5 h-3.5 text-amber-400" /> Mi Cuenta & PIN
+                </button>
+                <div className="h-px bg-[#30363d] my-1" />
+                <button
+                  onClick={() => { onLogout?.(); closeDropdown(); }}
+                  className="w-full text-left px-3 py-1.5 hover:bg-rose-950/50 text-rose-400 hover:text-rose-300 flex items-center gap-2 cursor-pointer"
+                >
+                  <ShieldAlert className="w-3.5 h-3.5" /> Cerrar Sesión
                 </button>
               </div>
             )}
@@ -304,12 +313,12 @@ export const DesktopMenuBar: React.FC<DesktopMenuBarProps> = ({
           <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-emerald-400' : ''}`} />
         </button>
 
-        {/* Perfil de Usuario Compacto y Alineado */}
-        <div className="flex items-center pl-1.5 border-l border-[#21262d] shrink-0">
+        {/* Perfil de Usuario con Menú Desplegable */}
+        <div className="relative pl-1.5 border-l border-[#21262d] shrink-0">
           <button
-            onClick={onOpenMyAccount}
-            className="flex items-center gap-1.5 px-2 py-1 rounded bg-[#161b22] hover:bg-[#21262d] border border-[#30363d] transition-all cursor-pointer max-w-[140px]"
-            title="Mi Cuenta y Perfil"
+            onClick={() => toggleDropdown('user-profile')}
+            className="flex items-center gap-1.5 px-2 py-1 rounded bg-[#161b22] hover:bg-[#21262d] border border-[#30363d] transition-all cursor-pointer max-w-[150px]"
+            title="Opciones de Cuenta"
           >
             <div className="w-4.5 h-4.5 rounded-full bg-[#1f6feb] border border-[#388bfd] flex items-center justify-center font-bold text-[9px] text-white shrink-0">
               {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : 'E'}
@@ -317,7 +326,36 @@ export const DesktopMenuBar: React.FC<DesktopMenuBarProps> = ({
             <span className="font-semibold text-[11px] text-[#f0f6fc] truncate">
               {currentUser?.name || 'Elena Rostova'}
             </span>
+            <ChevronDown className="w-3 h-3 opacity-60 shrink-0" />
           </button>
+
+          {activeDropdown === 'user-profile' && (
+            <div className="absolute right-0 mt-1 w-48 bg-[#161b22] border border-[#30363d] rounded-md shadow-2xl py-1 z-50 text-[#c9d1d9]">
+              <div className="px-3 py-1.5 border-b border-[#30363d] text-[11px]">
+                <p className="font-bold text-white truncate">{currentUser?.name || 'Elena Rostova'}</p>
+                <p className="text-[10px] text-zinc-400 font-mono capitalize">{currentUser?.accessType || 'superadmin'}</p>
+              </div>
+              <button
+                onClick={() => { onOpenMyAccount(); closeDropdown(); }}
+                className="w-full text-left px-3 py-1.5 hover:bg-[#21262d] flex items-center gap-2 cursor-pointer text-xs"
+              >
+                <Key className="w-3.5 h-3.5 text-amber-400" /> Mi Cuenta & PIN
+              </button>
+              <button
+                onClick={() => { onOpenAdminUsers(); closeDropdown(); }}
+                className="w-full text-left px-3 py-1.5 hover:bg-[#21262d] flex items-center gap-2 cursor-pointer text-xs"
+              >
+                <Users className="w-3.5 h-3.5 text-indigo-400" /> Gestionar Usuarios
+              </button>
+              <div className="h-px bg-[#30363d] my-1" />
+              <button
+                onClick={() => { closeDropdown(); onLogout?.(); }}
+                className="w-full text-left px-3 py-1.5 hover:bg-rose-950/50 text-rose-400 hover:text-rose-300 flex items-center gap-2 cursor-pointer text-xs font-semibold"
+              >
+                <ShieldAlert className="w-3.5 h-3.5" /> Cerrar Sesión
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </header>
