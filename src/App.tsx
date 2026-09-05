@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { DesktopMenuBar } from "./components/DesktopMenuBar";
 import { ProjectCommandBar } from "./components/ProjectCommandBar";
-import { CreateProjectModal } from "./components/CreateProjectModal";
+import { CascadingHeader } from "./components/CascadingHeader";
+import { AuditSidebar } from "./components/AuditSidebar";
+import { MemoryLockfileSidebar } from "./components/MemoryLockfileSidebar";
 import { AgentSupervisorView } from "./components/AgentSupervisorView";
 import { MemoryRagView } from "./components/MemoryRagView";
 import { SemanticGitView } from "./components/SemanticGitView";
@@ -17,7 +19,7 @@ import { PlanGeneratorModal } from "./components/PlanGeneratorModal";
 import { ManualArchitecturePanel } from "./components/ManualArchitecturePanel";
 import { NeonDatabaseModal } from "./components/NeonDatabaseModal";
 import { AgentConnectionsModal } from "./components/AgentConnectionsModal";
-import { LoginScreen } from "./components/LoginScreen";
+import { CreateProjectModal } from "./components/CreateProjectModal";
 import { MyAccount } from "./components/MyAccount";
 import { AdminUsersPanel } from "./components/AdminUsersPanel";
 import { NotificationsDrawer } from "./components/NotificationsDrawer";
@@ -33,6 +35,7 @@ import {
   User,
   AgentNotification,
   WorkspaceTab,
+  AgentCommit,
 } from "./types";
 import * as api from "./services/api";
 import {
@@ -60,6 +63,26 @@ export default function App() {
   const [isAgentRunning, setIsAgentRunning] = useState<boolean>(false);
   const [activeModelName, setActiveModelName] = useState<string>("gemini-3.8-flash");
 
+  // Dockable sidebars state (matching AgentOS screenshot)
+  const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState<boolean>(true);
+  const [isRightSidebarOpen, setIsRightSidebarOpen] = useState<boolean>(true);
+
+  const [commits, setCommits] = useState<AgentCommit[]>([
+    {
+      id: "c-1",
+      projectId: "default",
+      agentName: "Antigravity AI",
+      commitHash: "a8f1b2c",
+      commitMessage: "feat: Arquitectura y persistencia Cloudflare D1",
+      diffContent: "+ export async function init() {}",
+      additions: 14,
+      deletions: 0,
+      tokensUsed: 620,
+      isReverted: false,
+      timestamp: "2026-09-05 11:45",
+    }
+  ]);
+
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
     try {
       const isLoggedOut = localStorage.getItem("antigravity_logged_out") === "true";
@@ -71,11 +94,11 @@ export default function App() {
       const savedSession = sessionStorage.getItem("antigravity_current_user");
       if (savedSession) return JSON.parse(savedSession);
     } catch (e) {
-      console.warn("Error al recuperar sesión:", e);
+      console.warn("Error sesión:", e);
     }
     return {
       id: "usr-admin",
-      name: "Andrés",
+      name: "Elena Rostova",
       pin: "1234",
       accessType: "superadmin",
       role: "superadmin",
@@ -116,7 +139,7 @@ export default function App() {
   const [notifications, setNotifications] = useState<AgentNotification[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Toast notifications
+  // Toast
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
 
   const showToast = (message: string, type: "success" | "error" | "info" = "info") => {
@@ -161,14 +184,13 @@ export default function App() {
     loadData(true);
   }, []);
 
-  // Handlers para Tareas y Proyectos
   const handleSelectProject = (proj: Project) => {
     setActiveProject(proj);
     localStorage.setItem("antigravity_active_project_id", proj.id);
     loadData(false);
   };
 
-    const handleCreateProjectModalSubmit = async (data: { name: string; description?: string; mainUrl?: string }) => {
+  const handleCreateProjectModalSubmit = async (data: { name: string; description?: string; mainUrl?: string }) => {
     try {
       const created = await api.createProject({
         name: data.name,
@@ -220,7 +242,7 @@ export default function App() {
         gitBranch: branch || "main"
       });
       setTasks((prev) => [created, ...prev]);
-      showToast("Tarea creada y lista para el agente.", "success");
+      showToast("Tarea agregada al flujo.", "success");
     } catch (e) {
       showToast("Error al crear tarea", "error");
     }
@@ -230,7 +252,7 @@ export default function App() {
     try {
       await api.verifyAndLockTask(taskId, currentUser?.id);
       setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, status: "verified", locked: true } : t)));
-      showToast("Tarea verificada y bloqueada exitosamente.", "success");
+      showToast("Tarea aprobada y bloqueada en historial.md.", "success");
       setReviewTask(null);
     } catch (e) {
       showToast("Error al verificar tarea", "error");
@@ -241,7 +263,7 @@ export default function App() {
     try {
       await api.rejectTask(taskId, feedback, currentUser?.id);
       setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, status: "needs_revision", humanFeedback: feedback } : t)));
-      showToast("Tarea devuelta al agente con feedback.", "info");
+      showToast("Tarea devuelta al agente para ajustes.", "info");
       setReviewTask(null);
     } catch (e) {
       showToast("Error al rechazar tarea", "error");
@@ -253,7 +275,7 @@ export default function App() {
     showToast("Ejecutando bucle agéntico...", "info");
     setTimeout(() => {
       setIsAgentRunning(false);
-      showToast("Bucle completado. Nueva entrega lista para revisión.", "success");
+      showToast("Bucle completado con éxito.", "success");
       loadData(true);
     }, 3800);
   };
@@ -262,10 +284,11 @@ export default function App() {
   const activeTasks = tasks.filter((t) => !activeProject || t.projectId === activeProject.id);
   const approvedTasksCount = activeTasks.filter((t) => t.status === "verified" || t.locked).length;
   const pendingReviewCount = activeTasks.filter((t) => t.status === "ready_for_review").length;
+  const pendingWaitCount = activeTasks.filter((t) => t.status === "pending").length;
 
   return (
-    <div className="min-h-screen flex flex-col bg-zinc-100 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 transition-colors pb-8">
-      {/* 1. Barra de Menús Estilo Desktop IDE */}
+    <div className="min-h-screen flex flex-col bg-[#07090c] dark:bg-[#07090c] text-[#c9d1d9] font-sans selection:bg-emerald-600 selection:text-white pb-6">
+      {/* 1. Header Desktop Superior */}
       <DesktopMenuBar
         currentUser={currentUser}
         activeProject={activeProject}
@@ -278,32 +301,55 @@ export default function App() {
         onOpenAgentConnections={() => setAgentConnectionsOpen(true)}
         onOpenNotifications={() => setNotificationsDrawerOpen(true)}
         onOpenNeonModal={() => setNeonModalOpen(true)}
-        onOpenAuditHistory={() => setHistoryOpen(true)}
+        onOpenAuditHistory={() => setIsLeftSidebarOpen(!isLeftSidebarOpen)}
         onRefresh={() => loadData(false)}
         isRefreshing={isRefreshing}
         unreadNotificationsCount={notifications.filter((n) => !n.read).length}
       />
 
-      {/* 2. Barra de Comandos y Pestañas */}
+      {/* 2. Barra de Comandos y Badges de Estado */}
       <ProjectCommandBar
         activeProject={activeProject}
         allProjects={projects}
         onSelectProject={handleSelectProject}
         onOpenNewProject={() => setCreateProjectModalOpen(true)}
-        onCloneProject={handleCloneProject}
-        onDeleteProject={handleDeleteProject}
-        activeTab={activeTab}
-        onSelectTab={setActiveTab}
         approvedTasksCount={approvedTasksCount}
         onRunAgentLoop={handleRunAgentLoop}
         isAgentRunning={isAgentRunning}
         activeModelName={activeModelName}
+        onToggleLeftSidebar={() => setIsLeftSidebarOpen(!isLeftSidebarOpen)}
+        onToggleRightSidebar={() => setIsRightSidebarOpen(!isRightSidebarOpen)}
+        isLeftSidebarOpen={isLeftSidebarOpen}
+        isRightSidebarOpen={isRightSidebarOpen}
       />
 
-      {/* 3. Área Principal según Modo de Trabajo */}
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-4 space-y-4">
-        {activeTab === "qa_hub" && (
-          <div className="space-y-4">
+      {/* 3. Layout Principal 3 Columnas Dockable */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Columna 1: Panel Izquierdo de Auditoría */}
+        <AuditSidebar
+          isOpen={isLeftSidebarOpen}
+          onClose={() => setIsLeftSidebarOpen(false)}
+          commits={commits}
+          onRollback={(c) => {
+            showToast(`Rollback completado para ${c.commitHash}`, "info");
+          }}
+        />
+
+        {/* Columna 2: Panel Central de Flujo en Cascada / QA Hub */}
+        <main className="flex-1 flex flex-col overflow-y-auto bg-[#07090c] border-x border-[#1e222d]">
+          {/* Cabecera del Flujo en Cascada */}
+          <CascadingHeader
+            approvedCount={approvedTasksCount}
+            reviewCount={pendingReviewCount}
+            pendingCount={pendingWaitCount}
+            onOpenNewTask={() => {
+              const el = document.getElementById("instruction-input");
+              if (el) el.focus();
+            }}
+          />
+
+          {/* Contenido Central */}
+          <div className="p-4 space-y-4 max-w-5xl w-full mx-auto">
             {/* Formulario de Entrada */}
             <TaskInputForm
               activeProject={activeProject}
@@ -311,32 +357,7 @@ export default function App() {
               onOpenApiDocs={() => setApiDocsOpen(true)}
             />
 
-            {/* Banner Flujo de Calidad HITL */}
-            <div className="bg-zinc-200/80 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-lg p-3.5 flex items-center justify-between shadow-sm">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800/60 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
-                  <ShieldCheck className="w-4 h-4" />
-                </div>
-                <div>
-                  <h4 className="font-bold text-xs text-zinc-900 dark:text-zinc-100">
-                    Flujo de Calidad HITL: Requerimientos, Memoria de Contexto & Candado
-                  </h4>
-                  <p className="text-[11px] text-zinc-600 dark:text-zinc-400">
-                    Las tareas aprobadas se bloquean de forma inmutable. Los agentes reportan su trabajo vía API y solicitan revisión humana.
-                  </p>
-                </div>
-              </div>
-
-              <button
-                onClick={() => setApiDocsOpen(true)}
-                className="px-3 py-1.5 bg-zinc-300 dark:bg-zinc-800 hover:bg-zinc-400 dark:hover:bg-zinc-700 text-violet-700 dark:text-violet-300 font-semibold rounded text-xs border border-zinc-400 dark:border-zinc-700 transition-colors flex items-center gap-1.5 shadow-sm"
-              >
-                <Zap className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
-                <span>Skill API para Agentes</span>
-              </button>
-            </div>
-
-            {/* Lista de Tareas */}
+            {/* Lista de Tareas y Quality Gates */}
             <TaskList
               tasks={activeTasks}
               modules={modules}
@@ -363,63 +384,27 @@ export default function App() {
               onRejectTask={handleRejectTask}
             />
           </div>
-        )}
+        </main>
 
-        {activeTab === "agent_supervisor" && (
-          <AgentSupervisorView
-            activeProject={activeProject}
-            tasks={activeTasks}
-            isAgentRunning={isAgentRunning}
-            onRunAgentLoop={handleRunAgentLoop}
-          />
-        )}
+        {/* Columna 3: Panel Derecho de Memoria y Lockfile */}
+        <MemoryLockfileSidebar
+          isOpen={isRightSidebarOpen}
+          onClose={() => setIsRightSidebarOpen(false)}
+          activeProject={activeProject}
+          ragCount={2}
+          activeTokens={0}
+        />
+      </div>
 
-        {activeTab === "memory_rag" && (
-          <MemoryRagView activeProject={activeProject} />
-        )}
-
-        {activeTab === "semantic_git" && (
-          <SemanticGitView activeProject={activeProject} />
-        )}
-
-        {activeTab === "changelog" && (
-          <ProjectChangelogView
-            activeProject={activeProject}
-            history={history}
-            onAddChangelogEntry={async (entry) => {
-              if (!activeProject) return;
-              await api.addChangelogEntry({
-                projectId: activeProject.id,
-                title: entry.title,
-                details: entry.details,
-                action: entry.action,
-                author: currentUser?.name || "USUARIO",
-              });
-              await loadData(false);
-              showToast("Cambio registrado.", "success");
-            }}
-            onDeleteChangelogEntry={(id) => api.deleteHistoryEntry(id).then(() => loadData(true))}
-          />
-        )}
-      </main>
-
-      {/* 4. Barra de Estado Inferior Inmóvil */}
+      {/* 4. Barra de Estado Inferior Inmóvil (Footer) */}
       <IdeStatusBar
         approvedCount={approvedTasksCount}
         pendingReviewCount={pendingReviewCount}
-        activeTokens={1070}
-        ragDocsCount={2}
+        activeTokens={0}
+        ragDocsCount={0}
       />
 
-      {/* Toast Notification */}
-      {toast && (
-        <div className="fixed bottom-10 right-4 z-50 px-4 py-2.5 rounded-lg bg-zinc-900 border border-zinc-700 text-zinc-100 text-xs shadow-2xl flex items-center gap-2 animate-bounce">
-          <Sparkles className="w-4 h-4 text-emerald-400" />
-          <span>{toast.message}</span>
-        </div>
-      )}
-
-      {/* Modals */}
+      {/* Modales */}
       <CreateProjectModal
         isOpen={createProjectModalOpen}
         onClose={() => setCreateProjectModalOpen(false)}

@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
 import { 
-  Bot, 
-  Terminal, 
-  Database, 
   BookOpen, 
   Key, 
+  Shield, 
+  Users, 
+  Cloud, 
   Bell, 
-  ShieldCheck, 
-  Moon, 
-  Sun, 
-  RefreshCw, 
-  Cpu, 
-  CheckCircle2, 
-  UserCheck, 
+  ChevronDown,
   Sparkles,
-  ChevronDown
+  RefreshCw,
+  Sun,
+  Moon,
+  Database,
+  Terminal,
+  Cpu,
+  FolderGit2
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { User, Project } from '../types';
@@ -64,162 +64,160 @@ export const DesktopMenuBar: React.FC<DesktopMenuBarProps> = ({
   const closeDropdown = () => setActiveDropdown(null);
 
   return (
-    <header className="h-10 bg-zinc-950 dark:bg-black border-b border-zinc-800 dark:border-zinc-800 flex items-center justify-between px-3 text-xs select-none relative z-50 text-zinc-300">
+    <header className="h-10 bg-[#0d0f12] dark:bg-[#0d0f12] border-b border-[#21262d] flex items-center justify-between px-3 text-xs select-none relative z-50 text-[#c9d1d9] font-sans">
       {/* Lado Izquierdo: Marca de Sistema + Menús Desktop */}
       <div className="flex items-center gap-3">
-        {/* Logo & Version */}
-        <div className="flex items-center gap-2 font-bold text-zinc-100 dark:text-white pr-2 border-r border-zinc-800">
-          <div className="w-5 h-5 rounded bg-gradient-to-tr from-emerald-600 via-indigo-600 to-violet-500 flex items-center justify-center shadow-sm">
-            <Bot className="w-3.5 h-3.5 text-white" />
-          </div>
-          <span className="tracking-tight font-mono text-[13px]">ARQSTUDIO<span className="text-emerald-400 font-sans">.OS</span></span>
-          <span className="text-[9px] px-1.5 py-0.2 rounded bg-zinc-900 border border-zinc-700 text-zinc-400 font-mono">v2.5</span>
+        {/* Brand */}
+        <div className="flex items-center gap-2 font-bold text-white pr-2 border-r border-[#21262d]">
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
+          <span className="tracking-tight font-semibold text-[13px] text-white">AgenteOS</span>
+          <span className="text-[10px] px-1.5 py-0.2 rounded bg-[#1c2128] border border-[#30363d] text-[#8b949e] font-mono">v2.4</span>
         </div>
 
         {/* Menús de Escritorio */}
-        <nav className="flex items-center gap-0.5 text-zinc-300">
-          {/* Menú Archivo */}
+        <nav className="flex items-center gap-0.5 text-[#c9d1d9]">
+          {/* Archivo */}
           <div className="relative">
             <button
               onClick={() => toggleDropdown('archivo')}
-              className="px-2 py-1 rounded hover:bg-zinc-800 hover:text-white flex items-center gap-1 transition-colors"
+              className="px-2 py-1 rounded hover:bg-[#21262d] hover:text-white flex items-center gap-1 transition-colors"
             >
               Archivo <ChevronDown className="w-3 h-3 opacity-60" />
             </button>
             {activeDropdown === 'archivo' && (
-              <div className="absolute left-0 mt-1 w-48 bg-zinc-900 border border-zinc-700 rounded-md shadow-2xl py-1 z-50 text-zinc-200">
+              <div className="absolute left-0 mt-1 w-48 bg-[#161b22] border border-[#30363d] rounded-md shadow-2xl py-1 z-50 text-[#c9d1d9]">
                 <button
                   onClick={() => { onOpenNewProject(); closeDropdown(); }}
-                  className="w-full text-left px-3 py-1.5 hover:bg-zinc-800 flex items-center gap-2"
+                  className="w-full text-left px-3 py-1.5 hover:bg-[#21262d] flex items-center gap-2"
                 >
                   <Sparkles className="w-3.5 h-3.5 text-emerald-400" /> Nuevo Proyecto
                 </button>
                 <button
                   onClick={() => { onOpenMyAccount(); closeDropdown(); }}
-                  className="w-full text-left px-3 py-1.5 hover:bg-zinc-800 flex items-center gap-2"
+                  className="w-full text-left px-3 py-1.5 hover:bg-[#21262d] flex items-center gap-2"
                 >
-                  <UserCheck className="w-3.5 h-3.5 text-indigo-400" /> Mi Cuenta & PIN
+                  <Key className="w-3.5 h-3.5 text-amber-400" /> Mi Cuenta & PIN
                 </button>
-                <div className="my-1 border-t border-zinc-800" />
+                <div className="my-1 border-t border-[#21262d]" />
                 <button
                   onClick={() => { onRefresh(); closeDropdown(); }}
-                  className="w-full text-left px-3 py-1.5 hover:bg-zinc-800 flex items-center gap-2"
+                  className="w-full text-left px-3 py-1.5 hover:bg-[#21262d] flex items-center gap-2"
                 >
-                  <RefreshCw className="w-3.5 h-3.5 text-cyan-400" /> Recargar Datos
+                  <RefreshCw className="w-3.5 h-3.5 text-cyan-400" /> Sincronizar D1
                 </button>
               </div>
             )}
           </div>
 
-          {/* Menú Proyecto */}
-          <div className="relative">
-            <button
-              onClick={() => toggleDropdown('proyecto')}
-              className="px-2 py-1 rounded hover:bg-zinc-800 hover:text-white flex items-center gap-1 transition-colors"
-            >
-              Proyecto <ChevronDown className="w-3 h-3 opacity-60" />
-            </button>
-            {activeDropdown === 'proyecto' && (
-              <div className="absolute left-0 mt-1 w-56 bg-zinc-900 border border-zinc-700 rounded-md shadow-2xl py-1 z-50 text-zinc-200">
-                <div className="px-3 py-1 text-[10px] text-zinc-400 font-mono uppercase tracking-wider">Seleccionar Activo:</div>
-                <div className="max-h-48 overflow-y-auto">
-                  {allProjects.map((p) => (
-                    <button
-                      key={p.id}
-                      onClick={() => { onSelectProject(p); closeDropdown(); }}
-                      className={'w-full text-left px-3 py-1.5 hover:bg-zinc-800 flex items-center justify-between ' + (activeProject?.id === p.id ? 'bg-zinc-800/80 text-emerald-400 font-semibold' : '')}
-                    >
-                      <span className="truncate">{p.name}</span>
-                      {activeProject?.id === p.id && <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />}
-                    </button>
-                  ))}
-                </div>
-                <div className="my-1 border-t border-zinc-800" />
-                <button
-                  onClick={() => { onOpenNewProject(); closeDropdown(); }}
-                  className="w-full text-left px-3 py-1.5 hover:bg-zinc-800 flex items-center gap-2 text-emerald-400"
-                >
-                  <span>+</span> Crear Otro Proyecto
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Menú Agente */}
+          {/* Agente */}
           <div className="relative">
             <button
               onClick={() => toggleDropdown('agente')}
-              className="px-2 py-1 rounded hover:bg-zinc-800 hover:text-white flex items-center gap-1 transition-colors"
+              className="px-2 py-1 rounded hover:bg-[#21262d] hover:text-white flex items-center gap-1 transition-colors"
             >
               Agente <ChevronDown className="w-3 h-3 opacity-60" />
             </button>
             {activeDropdown === 'agente' && (
-              <div className="absolute left-0 mt-1 w-52 bg-zinc-900 border border-zinc-700 rounded-md shadow-2xl py-1 z-50 text-zinc-200">
+              <div className="absolute left-0 mt-1 w-52 bg-[#161b22] border border-[#30363d] rounded-md shadow-2xl py-1 z-50 text-[#c9d1d9]">
                 <button
                   onClick={() => { onOpenAgentConnections(); closeDropdown(); }}
-                  className="w-full text-left px-3 py-1.5 hover:bg-zinc-800 flex items-center gap-2"
+                  className="w-full text-left px-3 py-1.5 hover:bg-[#21262d] flex items-center gap-2"
                 >
                   <Cpu className="w-3.5 h-3.5 text-violet-400" /> Conexiones de Agentes
                 </button>
                 <button
                   onClick={() => { onOpenApiDocs(); closeDropdown(); }}
-                  className="w-full text-left px-3 py-1.5 hover:bg-zinc-800 flex items-center gap-2"
+                  className="w-full text-left px-3 py-1.5 hover:bg-[#21262d] flex items-center gap-2"
                 >
-                  <Terminal className="w-3.5 h-3.5 text-cyan-400" /> Skill & Endpoints API
+                  <Terminal className="w-3.5 h-3.5 text-cyan-400" /> Skill & API Antigravity
                 </button>
               </div>
             )}
           </div>
 
-          {/* Menú Infraestructura */}
+          {/* Memoria y RAG */}
           <div className="relative">
             <button
-              onClick={() => toggleDropdown('infra')}
-              className="px-2 py-1 rounded hover:bg-zinc-800 hover:text-white flex items-center gap-1 transition-colors"
+              onClick={() => toggleDropdown('memoria')}
+              className="px-2 py-1 rounded hover:bg-[#21262d] hover:text-white flex items-center gap-1 transition-colors"
             >
-              Infraestructura <ChevronDown className="w-3 h-3 opacity-60" />
+              Memoria y RAG <ChevronDown className="w-3 h-3 opacity-60" />
             </button>
-            {activeDropdown === 'infra' && (
-              <div className="absolute left-0 mt-1 w-52 bg-zinc-900 border border-zinc-700 rounded-md shadow-2xl py-1 z-50 text-zinc-200">
+            {activeDropdown === 'memoria' && (
+              <div className="absolute left-0 mt-1 w-52 bg-[#161b22] border border-[#30363d] rounded-md shadow-2xl py-1 z-50 text-[#c9d1d9]">
                 <button
                   onClick={() => { onOpenNeonModal(); closeDropdown(); }}
-                  className="w-full text-left px-3 py-1.5 hover:bg-zinc-800 flex items-center gap-2"
+                  className="w-full text-left px-3 py-1.5 hover:bg-[#21262d] flex items-center gap-2"
                 >
-                  <Database className="w-3.5 h-3.5 text-emerald-400" /> Cloudflare D1 & Neon DB
+                  <Database className="w-3.5 h-3.5 text-emerald-400" /> Cloudflare D1 SQL
                 </button>
                 <button
                   onClick={() => { onOpenAuditHistory(); closeDropdown(); }}
-                  className="w-full text-left px-3 py-1.5 hover:bg-zinc-800 flex items-center gap-2"
+                  className="w-full text-left px-3 py-1.5 hover:bg-[#21262d] flex items-center gap-2"
                 >
-                  <ShieldCheck className="w-3.5 h-3.5 text-amber-400" /> Auditoría & Eventos
+                  <BookOpen className="w-3.5 h-3.5 text-amber-400" /> Lockfile historial.md
                 </button>
-                {currentUser?.role === 'superadmin' && (
-                  <button
-                    onClick={() => { onOpenAdminUsers(); closeDropdown(); }}
-                    className="w-full text-left px-3 py-1.5 hover:bg-zinc-800 flex items-center gap-2"
-                  >
-                    <UserCheck className="w-3.5 h-3.5 text-indigo-400" /> Gestión de Usuarios
-                  </button>
-                )}
               </div>
             )}
           </div>
 
-          {/* Menú Ayuda */}
+          {/* Agentes Git */}
+          <div className="relative">
+            <button
+              onClick={() => toggleDropdown('git')}
+              className="px-2 py-1 rounded hover:bg-[#21262d] hover:text-white flex items-center gap-1.5 text-cyan-400 hover:text-cyan-300 transition-colors"
+            >
+              <FolderGit2 className="w-3 h-3" />
+              <span>Agentes Git</span> <ChevronDown className="w-3 h-3 opacity-60" />
+            </button>
+            {activeDropdown === 'git' && (
+              <div className="absolute left-0 mt-1 w-48 bg-[#161b22] border border-[#30363d] rounded-md shadow-2xl py-1 z-50 text-[#c9d1d9]">
+                <button
+                  onClick={() => { onOpenAuditHistory(); closeDropdown(); }}
+                  className="w-full text-left px-3 py-1.5 hover:bg-[#21262d] flex items-center gap-2"
+                >
+                  <FolderGit2 className="w-3.5 h-3.5 text-cyan-400" /> Commits Semánticos
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Colaboración */}
+          <div className="relative">
+            <button
+              onClick={() => toggleDropdown('colab')}
+              className="px-2 py-1 rounded hover:bg-[#21262d] hover:text-white flex items-center gap-1.5 text-indigo-400 hover:text-indigo-300 transition-colors"
+            >
+              <Users className="w-3 h-3" />
+              <span>Colaboración</span> <ChevronDown className="w-3 h-3 opacity-60" />
+            </button>
+          </div>
+
+          {/* Vista */}
+          <div className="relative">
+            <button
+              onClick={() => toggleDropdown('vista')}
+              className="px-2 py-1 rounded hover:bg-[#21262d] hover:text-white flex items-center gap-1 transition-colors"
+            >
+              Vista <ChevronDown className="w-3 h-3 opacity-60" />
+            </button>
+          </div>
+
+          {/* Ayuda */}
           <div className="relative">
             <button
               onClick={() => toggleDropdown('ayuda')}
-              className="px-2 py-1 rounded hover:bg-zinc-800 hover:text-white flex items-center gap-1 transition-colors"
+              className="px-2 py-1 rounded hover:bg-[#21262d] hover:text-white flex items-center gap-1 transition-colors"
             >
               Ayuda <ChevronDown className="w-3 h-3 opacity-60" />
             </button>
             {activeDropdown === 'ayuda' && (
-              <div className="absolute left-0 mt-1 w-48 bg-zinc-900 border border-zinc-700 rounded-md shadow-2xl py-1 z-50 text-zinc-200">
+              <div className="absolute left-0 mt-1 w-48 bg-[#161b22] border border-[#30363d] rounded-md shadow-2xl py-1 z-50 text-[#c9d1d9]">
                 <button
                   onClick={() => { onOpenApiDocs(); closeDropdown(); }}
-                  className="w-full text-left px-3 py-1.5 hover:bg-zinc-800 flex items-center gap-2"
+                  className="w-full text-left px-3 py-1.5 hover:bg-[#21262d] flex items-center gap-2"
                 >
-                  <BookOpen className="w-3.5 h-3.5 text-cyan-400" /> Guía de Integración
+                  <BookOpen className="w-3.5 h-3.5 text-cyan-400" /> Documentación
                 </button>
               </div>
             )}
@@ -227,58 +225,89 @@ export const DesktopMenuBar: React.FC<DesktopMenuBarProps> = ({
         </nav>
       </div>
 
-      {/* Lado Derecho: Acciones rápidas + Perfil de Usuario */}
-      <div className="flex items-center gap-2">
-        {/* Conmutador de Tema Claro / Oscuro */}
+      {/* Lado Derecho: Iconos de Acción Encapsulados en Píldoras */}
+      <div className="flex items-center gap-1.5">
+        {/* Píldora Verde: Documentación */}
         <button
-          onClick={toggleTheme}
-          title={theme === 'dark' ? 'Cambiar a Tema Claro Técnico' : 'Cambiar a Modo Oscuro'}
-          className="p-1.5 rounded hover:bg-zinc-800 text-zinc-400 hover:text-zinc-100 transition-colors flex items-center gap-1"
+          onClick={onOpenApiDocs}
+          title="Documentación de la Skill"
+          className="p-1.5 rounded-md bg-[#063b27] border border-[#0e6245] text-emerald-400 hover:bg-[#084c32] transition-colors"
         >
-          {theme === 'dark' ? (
-            <Sun className="w-3.5 h-3.5 text-amber-400" />
-          ) : (
-            <Moon className="w-3.5 h-3.5 text-indigo-300" />
-          )}
+          <BookOpen className="w-3.5 h-3.5" />
         </button>
 
-        {/* Botón Recargar */}
+        {/* Píldora Amarilla: Keys / PIN */}
+        <button
+          onClick={onOpenMyAccount}
+          title="Gestión de PIN & API Key"
+          className="p-1.5 rounded-md bg-[#3b2d06] border border-[#6b500c] text-amber-400 hover:bg-[#4d3a08] transition-colors"
+        >
+          <Key className="w-3.5 h-3.5" />
+        </button>
+
+        {/* Píldora Verde-Azul: Seguridad */}
+        <button
+          onClick={onOpenNeonModal}
+          title="Cloudflare D1 & Seguridad"
+          className="p-1.5 rounded-md bg-[#09353b] border border-[#115b63] text-teal-400 hover:bg-[#0c444c] transition-colors"
+        >
+          <Shield className="w-3.5 h-3.5" />
+        </button>
+
+        {/* Píldora Azul: Multiplayer */}
+        <button
+          onClick={onOpenAgentConnections}
+          title="Enjambre y Conexiones"
+          className="p-1.5 rounded-md bg-[#0c2d48] border border-[#144f7d] text-blue-400 hover:bg-[#103a5c] transition-colors"
+        >
+          <Users className="w-3.5 h-3.5" />
+        </button>
+
+        {/* Píldora Naranja: Cloudflare Edge */}
         <button
           onClick={onRefresh}
-          disabled={isRefreshing}
-          title="Sincronizar con Cloudflare D1"
-          className="p-1.5 rounded hover:bg-zinc-800 text-zinc-400 hover:text-zinc-100 transition-colors"
+          title="Cloudflare Edge Deployment"
+          className="p-1.5 rounded-md bg-[#3b1d06] border border-[#6b350c] text-orange-400 hover:bg-[#4d2608] transition-colors"
         >
-          <RefreshCw className={'w-3.5 h-3.5 ' + (isRefreshing ? 'animate-spin text-emerald-400' : '')} />
+          <Cloud className="w-3.5 h-3.5" />
         </button>
 
-        {/* Notificaciones */}
+        {/* Campana de Notificaciones */}
         <button
           onClick={onOpenNotifications}
-          title="Buzón de Eventos de Agentes"
-          className="p-1.5 rounded hover:bg-zinc-800 text-zinc-400 hover:text-zinc-100 transition-colors relative"
+          title="Notificaciones"
+          className="p-1.5 rounded-md hover:bg-[#21262d] text-amber-400 hover:text-amber-300 transition-colors relative"
         >
           <Bell className="w-3.5 h-3.5" />
           {unreadNotificationsCount > 0 && (
-            <span className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
           )}
         </button>
 
-        {/* Perfil de Usuario con PIN */}
-        <div className="flex items-center gap-2 pl-2 border-l border-zinc-800">
+        {/* Conmutador Tema Claro/Oscuro */}
+        <button
+          onClick={toggleTheme}
+          title={theme === 'dark' ? 'Modo Claro Técnico' : 'Modo Oscuro AgentOS'}
+          className="p-1.5 rounded-md hover:bg-[#21262d] text-zinc-400 hover:text-white transition-colors"
+        >
+          {theme === 'dark' ? <Sun className="w-3.5 h-3.5 text-amber-400" /> : <Moon className="w-3.5 h-3.5 text-indigo-300" />}
+        </button>
+
+        {/* Perfil de Usuario Elena Rostova / Andrés */}
+        <div className="flex items-center gap-2 pl-2 border-l border-[#21262d]">
           <button
             onClick={onOpenMyAccount}
-            className="flex items-center gap-2 px-2 py-1 rounded bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 transition-all"
+            className="flex items-center gap-2 px-2 py-1 rounded bg-[#161b22] hover:bg-[#21262d] border border-[#30363d] transition-all"
           >
-            <div className="w-5 h-5 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-[10px] text-white">
-              {currentUser?.name?.charAt(0).toUpperCase() || 'A'}
+            <div className="w-5 h-5 rounded-full bg-[#21262d] border border-[#30363d] flex items-center justify-center font-bold text-[9px] text-[#58a6ff]">
+              mi
             </div>
             <div className="text-left leading-tight hidden sm:block">
-              <p className="font-semibold text-[11px] text-zinc-200 truncate max-w-[90px]">
-                {currentUser?.name || 'Andrés'}
+              <p className="font-semibold text-[11px] text-[#f0f6fc]">
+                {currentUser?.name || 'Elena Rostova'}
               </p>
-              <p className="text-[9px] text-emerald-400 font-mono">
-                {currentUser?.role === 'superadmin' ? 'SuperAdmin' : 'QA Lead'}
+              <p className="text-[9px] text-[#8b949e]">
+                Laboratorio de Agentes Autónomos (Sede Central)
               </p>
             </div>
           </button>
