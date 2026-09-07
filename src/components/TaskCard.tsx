@@ -198,11 +198,11 @@ export const TaskCard: React.FC<TaskCardProps> = ({
       <div className="p-3 sm:p-3.5 space-y-2">
         {/* DESPLEGABLE DE OBSERVACIONES PARA REPORTAR NO FUNCIONA (ARRIBA DE TODO) */}
         {showReportModal && (
-          <div ref={reportBoxRef} className="p-3 bg-rose-950/90 border border-rose-800/90 rounded-lg space-y-2 mb-2 animate-fadeIn scroll-mt-16">
+          <div ref={reportBoxRef} className="p-3 bg-rose-50 dark:bg-rose-950/90 border border-rose-200 dark:border-rose-800/90 rounded-lg space-y-2 mb-2 animate-fadeIn scroll-mt-16 text-rose-900 dark:text-white">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-1.5">
                 <AlertTriangle className="w-3.5 h-3.5 text-rose-400 shrink-0" />
-                <h4 className="text-xs font-bold text-white">
+                <h4 className="text-xs font-bold text-rose-900 dark:text-white">
                   Reportar que NO Funciona (Enviar a Corrección Urgente IA)
                 </h4>
               </div>
@@ -214,7 +214,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               </button>
             </div>
 
-            <p className="text-[11px] text-rose-200">
+            <p className="text-[11px] text-rose-700 dark:text-rose-200">
               Escribe detalladamente qué falló o no funciona para que Antigravity aplique los ajustes.
             </p>
 
@@ -223,7 +223,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               value={reportComment}
               onChange={(e) => setReportComment(e.target.value)}
               placeholder="Ej: El botón de login no responde al hacer clic, o el cálculo de horarios libres no se muestra en pantalla..."
-              className="w-full bg-zinc-900 border border-rose-900/80 rounded-lg p-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-rose-500 min-h-[60px]"
+              className="w-full bg-white dark:bg-zinc-900 border border-rose-300 dark:border-rose-900/80 rounded-lg p-2 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-slate-500 focus:outline-none focus:border-rose-500 min-h-[60px]"
             />
 
             <div className="flex items-center justify-end space-x-2">
@@ -261,7 +261,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
         {/* DESPLEGABLE DE OBSERVACIONES PARA MEJORAR (ARRIBA DE TODO) */}
         {showImproveModal && (
-          <div ref={improveBoxRef} className="p-3 bg-purple-950/90 border border-purple-800/90 rounded-lg space-y-2 mb-2 animate-fadeIn scroll-mt-16">
+          <div ref={improveBoxRef} className="p-3 bg-purple-50 dark:bg-purple-950/90 border border-purple-200 dark:border-purple-800/90 rounded-lg space-y-2 mb-2 animate-fadeIn scroll-mt-16 text-purple-900 dark:text-white">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-purple-400 shrink-0" />
@@ -277,7 +277,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               </button>
             </div>
 
-            <p className="text-[11px] text-purple-200">
+            <p className="text-[11px] text-purple-700 dark:text-purple-200">
               Indica qué aspectos o funcionalidades deseas que la IA optimice o perfeccione.
             </p>
 
@@ -286,7 +286,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               value={improveComment}
               onChange={(e) => setImproveComment(e.target.value)}
               placeholder="Ej: Añadir animaciones de carga más suaves, agregar un botón de copiar al portapapeles o mejorar los colores..."
-              className="w-full bg-zinc-900 border border-purple-900/80 rounded-lg p-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 min-h-[60px]"
+              className="w-full bg-white dark:bg-zinc-900 border border-purple-300 dark:border-purple-900/80 rounded-lg p-2 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-slate-500 focus:outline-none focus:border-purple-500 min-h-[60px]"
             />
 
             <div className="flex items-center justify-end space-x-2">
@@ -377,7 +377,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         </div>
 
         {/* Instrucción solicitada a la IA */}
-        <div className="bg-zinc-100 dark:bg-zinc-800/70 rounded px-2.5 py-1.5 border border-zinc-300 dark:border-zinc-700/80 text-xs text-zinc-800 dark:text-zinc-200">
+        <div className="bg-zinc-50 dark:bg-zinc-800/70 rounded px-2.5 py-1.5 border border-zinc-200 dark:border-zinc-700/80 text-xs text-zinc-800 dark:text-zinc-200">
           <div className="flex items-baseline space-x-2">
             <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider shrink-0">
               Instrucción:
@@ -390,7 +390,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
         {/* Subtareas Progress Bar & Drawer */}
         {subtasks.length > 0 && (
-          <div className="bg-zinc-100 dark:bg-zinc-800/70 rounded px-2.5 py-1.5 border border-zinc-300 dark:border-zinc-700/80 text-xs space-y-1">
+          <div className="bg-zinc-50 dark:bg-zinc-800/70 rounded px-2.5 py-1.5 border border-zinc-200 dark:border-zinc-700/80 text-xs space-y-1">
             <div
               onClick={() => setShowSubtasks(!showSubtasks)}
               className="flex items-center justify-between cursor-pointer select-none"
@@ -507,7 +507,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             {/* Botón para ver Ficha de Memoria de Contexto */}
             <button
               onClick={() => onOpenContextMemory(task)}
-              className="inline-flex items-center space-x-1 px-2 py-1 bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-slate-700 text-indigo-600 dark:text-indigo-400 text-[11px] font-semibold rounded border border-zinc-300 dark:border-zinc-700 shadow-2xs transition-colors cursor-pointer"
+              className="inline-flex items-center space-x-1 px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-indigo-400 text-[11px] font-semibold rounded border border-indigo-200 dark:border-zinc-700 shadow-2xs transition-colors cursor-pointer"
               title="Ficha de Memoria de Contexto Técnico para la IA"
             >
               <BrainCircuit className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
@@ -520,7 +520,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                 setShowReportModal(!showReportModal);
                 setShowImproveModal(false);
               }}
-              className="inline-flex items-center space-x-1 px-2.5 py-1 bg-rose-950/90 hover:bg-rose-900 text-rose-300 text-[11px] font-bold rounded border border-rose-800/80 shadow-2xs transition-all cursor-pointer"
+              className="inline-flex items-center space-x-1 px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/90 dark:hover:bg-rose-900 dark:text-rose-300 text-[11px] font-bold rounded border border-rose-200 dark:border-rose-800/80 shadow-2xs transition-all cursor-pointer"
               title="Reportar que esta entrega NO funciona"
             >
               <AlertTriangle className="w-3 h-3 text-rose-400" />
@@ -533,7 +533,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                 setShowImproveModal(!showImproveModal);
                 setShowReportModal(false);
               }}
-              className="inline-flex items-center space-x-1 px-2.5 py-1 bg-purple-950/90 hover:bg-purple-900 text-purple-300 text-[11px] font-bold rounded border border-purple-800/80 shadow-2xs transition-all cursor-pointer"
+              className="inline-flex items-center space-x-1 px-2.5 py-1 bg-purple-50 hover:bg-purple-100 text-purple-700 dark:bg-purple-950/90 dark:hover:bg-purple-900 dark:text-purple-300 text-[11px] font-bold rounded border border-purple-200 dark:border-purple-800/80 shadow-2xs transition-all cursor-pointer"
               title="Solicitar mejoras a la IA"
             >
               <Sparkles className="w-3 h-3 text-purple-400" />

@@ -78,7 +78,7 @@ export const SimulateAgentModal: React.FC<SimulateAgentModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1 text-zinc-400 hover:text-zinc-700 rounded transition-colors"
+            className="p-1 text-zinc-600 dark:text-zinc-400 hover:text-zinc-700 rounded transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -102,7 +102,7 @@ export const SimulateAgentModal: React.FC<SimulateAgentModalProps> = ({
                 onClick={() => setActionType("start")}
                 className={`py-1.5 px-2.5 text-xs rounded font-semibold border transition-all ${
                   actionType === "start"
-                    ? "bg-indigo-600 text-white border-indigo-600"
+                    ? "bg-indigo-600 text-zinc-900 dark:text-white border-indigo-600"
                     : "bg-zinc-100 dark:bg-zinc-900 text-zinc-700 border-zinc-300 hover:bg-zinc-100"
                 }`}
               >
@@ -113,7 +113,7 @@ export const SimulateAgentModal: React.FC<SimulateAgentModalProps> = ({
                 onClick={() => setActionType("complete")}
                 className={`py-1.5 px-2.5 text-xs rounded font-semibold border transition-all ${
                   actionType === "complete"
-                    ? "bg-amber-600 text-white border-amber-600 font-bold"
+                    ? "bg-amber-600 text-zinc-900 dark:text-white border-amber-600 font-bold"
                     : "bg-zinc-100 dark:bg-zinc-900 text-zinc-700 border-zinc-300 hover:bg-zinc-100"
                 }`}
               >
@@ -134,7 +134,7 @@ export const SimulateAgentModal: React.FC<SimulateAgentModalProps> = ({
                   value={workUrl}
                   onChange={(e) => setWorkUrl(e.target.value)}
                   placeholder="https://preview-mi-app.run.app"
-                  className="w-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-300 rounded px-2.5 py-1.5 text-xs font-mono text-zinc-800 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-300 rounded px-2.5 py-1.5 text-xs font-mono text-zinc-800 placeholder:text-zinc-600 dark:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   required
                 />
               </div>
@@ -148,7 +148,7 @@ export const SimulateAgentModal: React.FC<SimulateAgentModalProps> = ({
                   rows={2}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="w-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-300 rounded p-2 text-xs text-zinc-800 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-300 rounded p-2 text-xs text-zinc-800 placeholder:text-zinc-600 dark:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 />
               </div>
             </>
@@ -165,7 +165,7 @@ export const SimulateAgentModal: React.FC<SimulateAgentModalProps> = ({
             <button
               type="submit"
               disabled={isSimulating}
-              className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded shadow-sm transition-colors cursor-pointer"
+              className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-zinc-900 dark:text-white text-xs font-bold rounded shadow-sm transition-colors cursor-pointer"
             >
               <Play className="w-3.5 h-3.5" />
               <span>{isSimulating ? "Ejecutando..." : "Ejecutar Simulación"}</span>

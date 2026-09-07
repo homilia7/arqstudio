@@ -300,7 +300,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#07090c] dark:bg-[#07090c] text-[#c9d1d9] font-sans selection:bg-emerald-600 selection:text-white pb-6">
+    <div className="min-h-screen flex flex-col bg-zinc-100 dark:bg-[#07090c] text-zinc-900 dark:text-[#c9d1d9] font-sans selection:bg-emerald-600 selection:text-white pb-6">
       {/* 1. Header Desktop Superior */}
       <DesktopMenuBar
         currentUser={currentUser}
@@ -354,7 +354,7 @@ export default function App() {
         />
 
         {/* Columna 2: Panel Central de Flujo en Cascada / QA Hub */}
-        <main className="flex-1 flex flex-col overflow-y-auto bg-[#07090c] border-x border-[#1e222d]">
+        <main className="flex-1 flex flex-col overflow-y-auto bg-zinc-50 dark:bg-[#07090c] border-x border-zinc-200 dark:border-[#1e222d]">
           {/* Cabecera del Flujo en Cascada */}
           <CascadingHeader
             approvedCount={approvedTasksCount}

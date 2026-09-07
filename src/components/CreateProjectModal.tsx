@@ -48,9 +48,9 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fadeIn">
-      <div className="bg-zinc-100 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-xl max-w-lg w-full shadow-2xl overflow-hidden text-zinc-900 dark:text-zinc-100 transition-colors">
+      <div className="bg-zinc-100 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-200 dark:border-zinc-800 rounded-xl max-w-lg w-full shadow-2xl overflow-hidden text-zinc-900 dark:text-zinc-100 transition-colors">
         {/* Cabecera del Modal */}
-        <div className="h-12 bg-zinc-200/90 dark:bg-zinc-950 px-4 flex items-center justify-between border-b border-zinc-300 dark:border-zinc-800">
+        <div className="h-12 bg-zinc-200/90 dark:bg-zinc-950 px-4 flex items-center justify-between border-b border-zinc-300 dark:border-zinc-200 dark:border-zinc-800">
           <div className="flex items-center gap-2 font-bold text-xs">
             <div className="w-6 h-6 rounded bg-emerald-600/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/40 flex items-center justify-center">
               <FolderPlus className="w-3.5 h-3.5" />
@@ -121,7 +121,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
           </div>
 
           {/* Footer de Acciones */}
-          <div className="flex items-center justify-end gap-2 pt-2 border-t border-zinc-300 dark:border-zinc-800">
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-zinc-300 dark:border-zinc-200 dark:border-zinc-800">
             <button
               type="button"
               onClick={onClose}
@@ -132,7 +132,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold flex items-center gap-1.5 shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+              className="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-zinc-900 dark:text-white font-semibold flex items-center gap-1.5 shadow-sm transition-all disabled:opacity-50 cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>{isSubmitting ? "Creando..." : "Crear Proyecto"}</span>

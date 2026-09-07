@@ -102,16 +102,16 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
 
   return createPortal(
     <div className="fixed inset-0 z-[99999] bg-zinc-950/80 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4">
-      <div className="bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-lg max-w-2xl w-full shadow-2xl overflow-hidden flex flex-col transition-colors">
+      <div className="bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-200 dark:border-zinc-800 rounded-lg max-w-2xl w-full shadow-2xl overflow-hidden flex flex-col transition-colors">
         {/* Header */}
-        <div className="px-4 py-2.5 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-800/60 flex items-center justify-between">
+        <div className="px-4 py-2.5 border-b border-zinc-200 dark:border-zinc-200 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-800/60 flex items-center justify-between">
           <div className="flex items-center space-x-2.5">
             <div className="w-7 h-7 rounded bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 flex items-center justify-center text-amber-700 dark:text-amber-400 shrink-0">
               <FileCheck className="w-3.5 h-3.5" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <h2 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white tracking-tight">
+                <h2 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-zinc-900 dark:text-white tracking-tight">
                   Revisión y Control de Calidad
                 </h2>
                 {task.locked && (
@@ -121,7 +121,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                   </span>
                 )}
               </div>
-              <p className="text-[10px] text-zinc-500 dark:text-zinc-400 truncate max-w-md">
+              <p className="text-[10px] text-zinc-500 dark:text-zinc-600 dark:text-zinc-400 truncate max-w-md">
                 Tarea: "{task.title}"
               </p>
             </div>
@@ -129,7 +129,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-1 text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded transition-colors cursor-pointer"
+            className="p-1 text-zinc-600 dark:text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -149,7 +149,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                   Pendiente Corrección
                 </span>
               </div>
-              <p className="text-white text-xs font-semibold whitespace-pre-wrap bg-zinc-900/80 p-2 rounded border border-rose-900/80 font-mono">
+              <p className="text-zinc-900 dark:text-white text-xs font-semibold whitespace-pre-wrap bg-zinc-900/80 p-2 rounded border border-rose-900/80 font-mono">
                 {task.humanFeedback}
               </p>
             </div>
@@ -169,7 +169,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                 href={task.workUrl.startsWith("http") ? task.workUrl : `https://${task.workUrl}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center space-x-1 px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-[11px] rounded shadow-2xs transition-colors shrink-0 cursor-pointer"
+                className="inline-flex items-center space-x-1 px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-zinc-900 dark:text-white font-semibold text-[11px] rounded shadow-2xs transition-colors shrink-0 cursor-pointer"
               >
                 <span>Abrir Web</span>
                 <ExternalLink className="w-2.5 h-2.5" />
@@ -182,7 +182,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
             <div className="flex items-center justify-between pb-1 border-b border-zinc-300 dark:border-zinc-700">
               <div className="flex items-center space-x-1.5">
                 <CheckSquare className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                <span className="text-[10px] font-bold text-zinc-900 dark:text-white uppercase tracking-wider">
+                <span className="text-[10px] font-bold text-zinc-900 dark:text-zinc-900 dark:text-white uppercase tracking-wider">
                   Checklist Rápido de Calidad
                 </span>
               </div>
@@ -203,7 +203,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                   }`}
                 >
                   <button type="button" className="text-emerald-600 dark:text-emerald-400 shrink-0">
-                    {item.checked ? <CheckSquare className="w-3.5 h-3.5" /> : <Square className="w-3.5 h-3.5 text-zinc-400" />}
+                    {item.checked ? <CheckSquare className="w-3.5 h-3.5" /> : <Square className="w-3.5 h-3.5 text-zinc-600 dark:text-zinc-400" />}
                   </button>
                   <span className={`text-[11px] truncate ${item.checked ? "line-through opacity-80" : "font-medium"}`}>
                     {item.label}
@@ -250,7 +250,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                 onChange={(e) => setFeedback(e.target.value)}
                 rows={2}
                 placeholder="Indica qué falló o falta por ajustar..."
-                className="w-full bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-800 border border-rose-300 dark:border-rose-700 rounded p-2 text-xs text-zinc-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-rose-500"
+                className="w-full bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-800 border border-rose-300 dark:border-rose-700 rounded p-2 text-xs text-zinc-900 dark:text-zinc-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-rose-500"
                 required
               />
               <div className="flex justify-end space-x-2">
@@ -264,7 +264,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                 <button
                   type="submit"
                   disabled={isProcessing}
-                  className="px-3 py-1 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white rounded shadow-2xs transition-colors cursor-pointer"
+                  className="px-3 py-1 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-zinc-900 dark:text-white rounded shadow-2xs transition-colors cursor-pointer"
                 >
                   {isProcessing ? "Enviando..." : "Enviar a la IA"}
                 </button>
@@ -274,7 +274,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
         </div>
 
         {/* Footer Actions */}
-        <div className="px-4 py-2.5 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-800/60 flex items-center justify-between gap-2">
+        <div className="px-4 py-2.5 border-t border-zinc-200 dark:border-zinc-200 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-800/60 flex items-center justify-between gap-2">
           <div>
             {!showRejectForm && (
               <button
@@ -301,7 +301,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
               type="button"
               onClick={handleApprove}
               disabled={isProcessing}
-              className="inline-flex items-center space-x-1.5 px-3.5 py-1 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded shadow-2xs transition-colors cursor-pointer"
+              className="inline-flex items-center space-x-1.5 px-3.5 py-1 text-xs font-bold text-zinc-900 dark:text-white bg-emerald-600 hover:bg-emerald-700 rounded shadow-2xs transition-colors cursor-pointer"
             >
               <CheckCircle2 className="w-3.5 h-3.5" />
               <span>{isProcessing ? "Bloqueando..." : "Marcar como Completado & Bloquear"}</span>

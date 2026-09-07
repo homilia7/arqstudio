@@ -45,10 +45,10 @@ export const ProjectChangelogView: React.FC<ProjectChangelogViewProps> = ({
         <div className="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto mb-4 border border-indigo-100 dark:border-indigo-900">
           <History className="w-8 h-8" />
         </div>
-        <h3 className="text-lg font-bold text-zinc-900 dark:text-white">
+        <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-900 dark:text-white">
           No hay ningún proyecto activo seleccionado
         </h3>
-        <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+        <p className="text-xs text-zinc-500 dark:text-zinc-600 dark:text-zinc-400 mt-1">
           Selecciona o crea un proyecto arriba para consultar su Historial de Cambios registrado por la IA.
         </p>
       </div>
@@ -133,7 +133,7 @@ export const ProjectChangelogView: React.FC<ProjectChangelogViewProps> = ({
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 animate-fadeIn">
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-indigo-900 via-slate-900 to-slate-900 border border-indigo-500/30 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden">
+      <div className="bg-gradient-to-r from-indigo-900 via-slate-900 to-slate-900 border border-indigo-500/30 rounded-2xl p-6 text-zinc-900 dark:text-white shadow-xl relative overflow-hidden">
         <div className="absolute right-0 top-0 translate-x-4 -translate-y-4 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
@@ -142,7 +142,7 @@ export const ProjectChangelogView: React.FC<ProjectChangelogViewProps> = ({
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
                 PROYECTO: {activeProject.name}
               </span>
-              <span className="text-xs text-zinc-400 font-mono">ID: {activeProject.id}</span>
+              <span className="text-xs text-zinc-600 dark:text-zinc-400 font-mono">ID: {activeProject.id}</span>
             </div>
             <h1 className="text-xl sm:text-2xl font-bold flex items-center space-x-2">
               <History className="w-6 h-6 text-indigo-400" />
@@ -164,7 +164,7 @@ export const ProjectChangelogView: React.FC<ProjectChangelogViewProps> = ({
             </button>
             <button
               onClick={handleExportMarkdown}
-              className="px-3.5 py-2 bg-indigo-600/80 hover:bg-indigo-600 text-white rounded-xl text-xs font-bold transition-all shadow-sm border border-indigo-400/30 flex items-center space-x-2 cursor-pointer"
+              className="px-3.5 py-2 bg-indigo-600/80 hover:bg-indigo-600 text-zinc-900 dark:text-white rounded-xl text-xs font-bold transition-all shadow-sm border border-indigo-400/30 flex items-center space-x-2 cursor-pointer"
             >
               <Download className="w-4 h-4" />
               <span>Exportar .MD</span>
@@ -172,7 +172,7 @@ export const ProjectChangelogView: React.FC<ProjectChangelogViewProps> = ({
             {onAddChangelogEntry && (
               <button
                 onClick={() => setShowAddModal(true)}
-                className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center space-x-2 cursor-pointer"
+                className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-zinc-900 dark:text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center space-x-2 cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>Registrar Cambio</span>
@@ -183,24 +183,24 @@ export const ProjectChangelogView: React.FC<ProjectChangelogViewProps> = ({
       </div>
 
       {/* Control Bar: Search & Filter */}
-      <div className="bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xs">
+      <div className="bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-200 dark:border-zinc-800 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-2xs">
         <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-2.5" />
+          <Search className="w-4 h-4 text-zinc-600 dark:text-zinc-400 absolute left-3 top-2.5" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Buscar en el historial de cambios..."
-            className="w-full pl-9 pr-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-lg text-xs text-zinc-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="w-full pl-9 pr-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-lg text-xs text-zinc-900 dark:text-zinc-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
           />
         </div>
 
         <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
-          <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">Autor:</span>
+          <span className="text-xs text-zinc-500 dark:text-zinc-600 dark:text-zinc-400 font-medium">Autor:</span>
           <select
             value={filterAuthor}
             onChange={(e) => setFilterAuthor(e.target.value)}
-            className="bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-lg px-2.5 py-1.5 text-xs text-zinc-900 dark:text-white focus:outline-none"
+            className="bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-lg px-2.5 py-1.5 text-xs text-zinc-900 dark:text-zinc-900 dark:text-white focus:outline-none"
           >
             <option value="all">Todos los Autores</option>
             <option value="agent">🤖 Agentes IA</option>
@@ -216,14 +216,14 @@ export const ProjectChangelogView: React.FC<ProjectChangelogViewProps> = ({
       {/* List of Changelog Entries */}
       <div className="space-y-3">
         {filteredHistory.length === 0 ? (
-          <div className="bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-2xl p-8 text-center space-y-3">
-            <div className="w-12 h-12 rounded-xl bg-zinc-200 dark:bg-zinc-800 text-zinc-400 flex items-center justify-center mx-auto">
+          <div className="bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-200 dark:border-zinc-800 rounded-2xl p-8 text-center space-y-3">
+            <div className="w-12 h-12 rounded-xl bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 flex items-center justify-center mx-auto">
               <FileText className="w-6 h-6" />
             </div>
-            <h4 className="text-sm font-bold text-zinc-900 dark:text-white">
+            <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-900 dark:text-white">
               No se encontraron cambios registrados para "{activeProject.name}"
             </h4>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 max-w-md mx-auto">
+            <p className="text-xs text-zinc-500 dark:text-zinc-600 dark:text-zinc-400 max-w-md mx-auto">
               Los avances que realice la IA o que tú registres aparecerán en esta lista en tiempo real y quedarán guardados de forma permanente.
             </p>
           </div>
@@ -241,7 +241,7 @@ export const ProjectChangelogView: React.FC<ProjectChangelogViewProps> = ({
             return (
               <div
                 key={item.id}
-                className="bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 hover:border-indigo-300 dark:hover:border-indigo-800/80 rounded-xl p-4 transition-all shadow-2xs hover:shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden group"
+                className="bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-200 dark:border-zinc-800 hover:border-indigo-300 dark:hover:border-indigo-800/80 rounded-xl p-4 transition-all shadow-2xs hover:shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative overflow-hidden group"
               >
                 {/* Botón X de eliminación prominente en la esquina superior derecha */}
                 <button
@@ -257,7 +257,7 @@ export const ProjectChangelogView: React.FC<ProjectChangelogViewProps> = ({
                   }}
                   title="Eliminar este cambio del historial"
                   aria-label="Eliminar cambio"
-                  className="absolute top-3 right-3 text-white bg-rose-600 hover:bg-rose-700 active:bg-rose-800 p-1.5 rounded-lg transition-all cursor-pointer font-black text-sm z-30 flex items-center justify-center shadow-lg border border-rose-500 hover:scale-105"
+                  className="absolute top-3 right-3 text-zinc-900 dark:text-white bg-rose-600 hover:bg-rose-700 active:bg-rose-800 p-1.5 rounded-lg transition-all cursor-pointer font-black text-sm z-30 flex items-center justify-center shadow-lg border border-rose-500 hover:scale-105"
                 >
                   <X className="w-4 h-4 stroke-[3]" />
                 </button>
@@ -286,22 +286,22 @@ export const ProjectChangelogView: React.FC<ProjectChangelogViewProps> = ({
                         <span>{item.author || "Sistema"}</span>
                       </span>
 
-                      <span className="px-2 py-0.5 bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-mono text-[10px] rounded border border-zinc-300 dark:border-zinc-700">
+                      <span className="px-2 py-0.5 bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-600 dark:text-zinc-400 font-mono text-[10px] rounded border border-zinc-300 dark:border-zinc-700">
                         {item.action || "actualización"}
                       </span>
 
-                      <span className="text-[11px] text-zinc-400 dark:text-zinc-500 flex items-center space-x-1">
+                      <span className="text-[11px] text-zinc-600 dark:text-zinc-400 dark:text-zinc-500 flex items-center space-x-1">
                         <Clock className="w-3 h-3" />
                         <span>{dateStr}</span>
                       </span>
                     </div>
 
-                    <h3 className="text-sm font-bold text-zinc-900 dark:text-white leading-snug">
+                    <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-900 dark:text-white leading-snug">
                       {item.taskTitle || "Cambio Registrado"}
                     </h3>
 
                     {item.details && (
-                      <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed bg-zinc-100 dark:bg-zinc-800/50 p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-800/80">
+                      <p className="text-xs text-zinc-600 dark:text-zinc-600 dark:text-zinc-400 leading-relaxed bg-zinc-100 dark:bg-zinc-800/50 p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-200 dark:border-zinc-800/80">
                         {item.details}
                       </p>
                     )}
@@ -330,8 +330,8 @@ export const ProjectChangelogView: React.FC<ProjectChangelogViewProps> = ({
       {/* Modal Registrar Cambio Manual */}
       {showAddModal && (
         <div className="fixed inset-0 z-[9999] bg-zinc-950/60 backdrop-blur-sm flex items-start justify-center p-4 pt-12 sm:pt-16 overflow-y-auto animate-fadeIn">
-          <div className="bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
-            <h3 className="text-sm font-bold text-zinc-900 dark:text-white flex items-center space-x-2">
+          <div className="bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-200 dark:border-zinc-800 rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
+            <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-900 dark:text-white flex items-center space-x-2">
               <GitCommit className="w-4 h-4 text-emerald-600" />
               <span>Registrar Nuevo Cambio en {activeProject.name}</span>
             </h3>
@@ -346,7 +346,7 @@ export const ProjectChangelogView: React.FC<ProjectChangelogViewProps> = ({
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
                   placeholder="Ej: Corrección de interfaz, integración de API, nuevo módulo..."
-                  className="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-900 dark:text-white focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-900 dark:text-zinc-900 dark:text-white focus:ring-1 focus:ring-indigo-500 focus:outline-none"
                   required
                   autoFocus
                 />
@@ -361,22 +361,22 @@ export const ProjectChangelogView: React.FC<ProjectChangelogViewProps> = ({
                   value={newDetails}
                   onChange={(e) => setNewDetails(e.target.value)}
                   placeholder="Describe qué cambios se realizaron en el código o en la plataforma..."
-                  className="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-lg px-3 py-2 text-xs text-zinc-900 dark:text-white focus:ring-1 focus:ring-indigo-500 focus:outline-none resize-none"
+                  className="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-lg px-3 py-2 text-xs text-zinc-900 dark:text-zinc-900 dark:text-white focus:ring-1 focus:ring-indigo-500 focus:outline-none resize-none"
                 />
               </div>
 
-              <div className="flex justify-end space-x-2 pt-2 border-t border-zinc-200 dark:border-zinc-800">
+              <div className="flex justify-end space-x-2 pt-2 border-t border-zinc-200 dark:border-zinc-200 dark:border-zinc-800">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-3.5 py-1.5 text-xs font-semibold text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-lg hover:bg-zinc-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                  className="px-3.5 py-1.5 text-xs font-semibold text-zinc-600 dark:text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-lg hover:bg-zinc-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-4 py-1.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-sm transition-colors cursor-pointer"
+                  className="px-4 py-1.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-zinc-900 dark:text-white rounded-lg shadow-sm transition-colors cursor-pointer"
                 >
                   {isSubmitting ? "Guardando..." : "Guardar Cambio"}
                 </button>

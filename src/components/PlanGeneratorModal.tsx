@@ -50,28 +50,28 @@ export const PlanGeneratorModal: React.FC<PlanGeneratorModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-start justify-center p-2 sm:p-4 pt-2 sm:pt-4 bg-zinc-950/70 backdrop-blur-xs overflow-y-auto">
-      <div className="bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-xl w-full max-w-xl overflow-hidden shadow-2xl flex flex-col transition-colors my-0">
+      <div className="bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-200 dark:border-zinc-800 rounded-xl w-full max-w-xl overflow-hidden shadow-2xl flex flex-col transition-colors my-0">
         {/* Header */}
-        <div className="px-4 py-3.5 bg-zinc-100/80 dark:bg-zinc-950/70 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+        <div className="px-4 py-3.5 bg-zinc-100/80 dark:bg-zinc-950/70 border-b border-zinc-200 dark:border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 rounded bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-800/80 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shadow-2xs">
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-xs font-bold text-zinc-900 dark:text-white tracking-tight flex items-center space-x-2">
+              <h2 className="text-xs font-bold text-zinc-900 dark:text-zinc-900 dark:text-white tracking-tight flex items-center space-x-2">
                 <span>Generador Inteligente de Blueprint & Plan de Trabajo</span>
                 <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
                   IA Architecture
                 </span>
               </h2>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              <p className="text-xs text-zinc-500 dark:text-zinc-600 dark:text-zinc-400">
                 Genera un Blueprint estructurado y un plan de módulos específicos del dominio
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded transition-colors cursor-pointer"
+            className="p-1.5 text-zinc-600 dark:text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -121,7 +121,7 @@ export const PlanGeneratorModal: React.FC<PlanGeneratorModalProps> = ({
             />
           </div>
 
-          <div className="flex items-center justify-between pt-3 border-t border-zinc-200 dark:border-zinc-800">
+          <div className="flex items-center justify-between pt-3 border-t border-zinc-200 dark:border-zinc-200 dark:border-zinc-800">
             <button
               type="button"
               onClick={onClose}
@@ -132,11 +132,11 @@ export const PlanGeneratorModal: React.FC<PlanGeneratorModalProps> = ({
             <button
               type="submit"
               disabled={isGenerating || !promptText.trim()}
-              className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded transition-colors shadow-sm flex items-center space-x-1.5 disabled:opacity-50 cursor-pointer"
+              className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-zinc-900 dark:text-white text-xs font-bold rounded transition-colors shadow-sm flex items-center space-x-1.5 disabled:opacity-50 cursor-pointer"
             >
               {isGenerating ? (
                 <>
-                  <Bot className="w-3.5 h-3.5 animate-spin text-white" />
+                  <Bot className="w-3.5 h-3.5 animate-spin text-zinc-900 dark:text-white" />
                   <span>Desglosando Módulos...</span>
                 </>
               ) : (

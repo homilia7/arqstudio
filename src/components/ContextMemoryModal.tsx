@@ -131,21 +131,21 @@ export const ContextMemoryModal: React.FC<ContextMemoryModalProps> = ({
 
   return createPortal(
     <div className="fixed inset-0 z-[99999] flex items-center justify-center p-2 sm:p-4 bg-zinc-950/70 backdrop-blur-xs">
-      <div className="bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-lg w-full max-w-3xl overflow-hidden shadow-2xl flex flex-col transition-colors">
+      <div className="bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-200 dark:border-zinc-800 rounded-lg w-full max-w-3xl overflow-hidden shadow-2xl flex flex-col transition-colors">
         {/* Header */}
-        <div className="px-4 py-2.5 bg-zinc-100 dark:bg-zinc-800/60 border-b border-zinc-300 dark:border-zinc-800 flex items-center justify-between">
+        <div className="px-4 py-2.5 bg-zinc-100 dark:bg-zinc-800/60 border-b border-zinc-300 dark:border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
           <div className="flex items-center space-x-2.5">
             <div className="w-7 h-7 rounded-md bg-indigo-50 dark:bg-indigo-950/70 border border-indigo-100 dark:border-indigo-800/80 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
               <BrainCircuit className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white tracking-tight flex items-center space-x-1.5">
+              <h2 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-zinc-900 dark:text-white tracking-tight flex items-center space-x-1.5">
                 <span>Memoria de Contexto Técnico</span>
                 <span className="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
                   Antigravity Memory
                 </span>
               </h2>
-              <p className="text-[10px] text-zinc-500 dark:text-zinc-400 truncate max-w-md">
+              <p className="text-[10px] text-zinc-500 dark:text-zinc-600 dark:text-zinc-400 truncate max-w-md">
                 Tarea: "{task.title}"
               </p>
             </div>
@@ -170,7 +170,7 @@ export const ContextMemoryModal: React.FC<ContextMemoryModalProps> = ({
             </button>
             <button
               onClick={onClose}
-              className="p-1 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded transition-colors cursor-pointer"
+              className="p-1 text-zinc-600 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded transition-colors cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -189,7 +189,7 @@ export const ContextMemoryModal: React.FC<ContextMemoryModalProps> = ({
                     <Layers className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
                     <span>Requerimientos del Sistema:</span>
                   </span>
-                  <span className="text-[9px] text-zinc-400">({techReqs.length})</span>
+                  <span className="text-[9px] text-zinc-600 dark:text-zinc-400">({techReqs.length})</span>
                 </label>
                 <div className="flex space-x-1">
                   <input
@@ -201,12 +201,12 @@ export const ContextMemoryModal: React.FC<ContextMemoryModalProps> = ({
                       addItem(techReqs, setTechReqs, newReq, setNewReq)
                     }
                     placeholder="Ej: Contraste WCAG AA, responsivo..."
-                    className="flex-1 px-2 py-1 bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded text-xs text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="flex-1 px-2 py-1 bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded text-xs text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-600 dark:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
                   <button
                     type="button"
                     onClick={() => addItem(techReqs, setTechReqs, newReq, setNewReq)}
-                    className="px-2 py-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded flex items-center space-x-0.5 cursor-pointer"
+                    className="px-2 py-1 bg-indigo-600 hover:bg-indigo-700 text-zinc-900 dark:text-white text-xs font-semibold rounded flex items-center space-x-0.5 cursor-pointer"
                   >
                     <Plus className="w-3 h-3" />
                   </button>
@@ -221,14 +221,14 @@ export const ContextMemoryModal: React.FC<ContextMemoryModalProps> = ({
                       <button
                         type="button"
                         onClick={() => removeItem(techReqs, setTechReqs, idx)}
-                        className="text-zinc-400 hover:text-rose-500 cursor-pointer"
+                        className="text-zinc-600 dark:text-zinc-400 hover:text-rose-500 cursor-pointer"
                       >
                         <X className="w-2.5 h-2.5" />
                       </button>
                     </span>
                   ))}
                   {techReqs.length === 0 && (
-                    <span className="text-[10px] text-zinc-400 italic">Sin requerimientos</span>
+                    <span className="text-[10px] text-zinc-600 dark:text-zinc-400 italic">Sin requerimientos</span>
                   )}
                 </div>
               </div>
@@ -240,7 +240,7 @@ export const ContextMemoryModal: React.FC<ContextMemoryModalProps> = ({
                     <FileCode className="w-3 h-3 text-amber-600 dark:text-amber-400" />
                     <span>Archivos / Rutas Afectadas:</span>
                   </span>
-                  <span className="text-[9px] text-zinc-400">({affectedFiles.length})</span>
+                  <span className="text-[9px] text-zinc-600 dark:text-zinc-400">({affectedFiles.length})</span>
                 </label>
                 <div className="flex space-x-1">
                   <input
@@ -252,12 +252,12 @@ export const ContextMemoryModal: React.FC<ContextMemoryModalProps> = ({
                       addItem(affectedFiles, setAffectedFiles, newFile, setNewFile)
                     }
                     placeholder="Ej: src/components/Navbar.tsx..."
-                    className="flex-1 px-2 py-1 bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded text-xs text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-mono"
+                    className="flex-1 px-2 py-1 bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded text-xs text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-600 dark:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-mono"
                   />
                   <button
                     type="button"
                     onClick={() => addItem(affectedFiles, setAffectedFiles, newFile, setNewFile)}
-                    className="px-2 py-1 bg-zinc-800 dark:bg-slate-700 hover:bg-slate-700 text-white text-xs font-semibold rounded flex items-center space-x-0.5 cursor-pointer"
+                    className="px-2 py-1 bg-zinc-800 dark:bg-slate-700 hover:bg-slate-700 text-zinc-900 dark:text-white text-xs font-semibold rounded flex items-center space-x-0.5 cursor-pointer"
                   >
                     <Plus className="w-3 h-3" />
                   </button>
@@ -279,7 +279,7 @@ export const ContextMemoryModal: React.FC<ContextMemoryModalProps> = ({
                     </span>
                   ))}
                   {affectedFiles.length === 0 && (
-                    <span className="text-[10px] text-zinc-400 italic">Sin archivos asignados</span>
+                    <span className="text-[10px] text-zinc-600 dark:text-zinc-400 italic">Sin archivos asignados</span>
                   )}
                 </div>
               </div>
@@ -294,7 +294,7 @@ export const ContextMemoryModal: React.FC<ContextMemoryModalProps> = ({
                     <ShieldAlert className="w-3 h-3 text-rose-600 dark:text-rose-400" />
                     <span>Reglas y Restricciones:</span>
                   </span>
-                  <span className="text-[9px] text-zinc-400">({rules.length})</span>
+                  <span className="text-[9px] text-zinc-600 dark:text-zinc-400">({rules.length})</span>
                 </label>
                 <div className="flex space-x-1">
                   <input
@@ -306,12 +306,12 @@ export const ContextMemoryModal: React.FC<ContextMemoryModalProps> = ({
                       addItem(rules, setRules, newRule, setNewRule)
                     }
                     placeholder="Ej: No modificar server.ts..."
-                    className="flex-1 px-2 py-1 bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded text-xs text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="flex-1 px-2 py-1 bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded text-xs text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-600 dark:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
                   <button
                     type="button"
                     onClick={() => addItem(rules, setRules, newRule, setNewRule)}
-                    className="px-2 py-1 bg-zinc-800 dark:bg-slate-700 hover:bg-slate-700 text-white text-xs font-semibold rounded flex items-center space-x-0.5 cursor-pointer"
+                    className="px-2 py-1 bg-zinc-800 dark:bg-slate-700 hover:bg-slate-700 text-zinc-900 dark:text-white text-xs font-semibold rounded flex items-center space-x-0.5 cursor-pointer"
                   >
                     <Plus className="w-3 h-3" />
                   </button>
@@ -333,7 +333,7 @@ export const ContextMemoryModal: React.FC<ContextMemoryModalProps> = ({
                     </span>
                   ))}
                   {rules.length === 0 && (
-                    <span className="text-[10px] text-zinc-400 italic">Sin reglas declaradas</span>
+                    <span className="text-[10px] text-zinc-600 dark:text-zinc-400 italic">Sin reglas declaradas</span>
                   )}
                 </div>
               </div>
@@ -345,7 +345,7 @@ export const ContextMemoryModal: React.FC<ContextMemoryModalProps> = ({
                     <Package className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
                     <span>Dependencias & Librerías:</span>
                   </span>
-                  <span className="text-[9px] text-zinc-400">({deps.length})</span>
+                  <span className="text-[9px] text-zinc-600 dark:text-zinc-400">({deps.length})</span>
                 </label>
                 <div className="flex space-x-1">
                   <input
@@ -357,12 +357,12 @@ export const ContextMemoryModal: React.FC<ContextMemoryModalProps> = ({
                       addItem(deps, setDeps, newDep, setNewDep)
                     }
                     placeholder="Ej: lucide-react, motion..."
-                    className="flex-1 px-2 py-1 bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded text-xs text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-mono"
+                    className="flex-1 px-2 py-1 bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded text-xs text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-600 dark:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-mono"
                   />
                   <button
                     type="button"
                     onClick={() => addItem(deps, setDeps, newDep, setNewDep)}
-                    className="px-2 py-1 bg-zinc-800 dark:bg-slate-700 hover:bg-slate-700 text-white text-xs font-semibold rounded flex items-center space-x-0.5 cursor-pointer"
+                    className="px-2 py-1 bg-zinc-800 dark:bg-slate-700 hover:bg-slate-700 text-zinc-900 dark:text-white text-xs font-semibold rounded flex items-center space-x-0.5 cursor-pointer"
                   >
                     <Plus className="w-3 h-3" />
                   </button>
@@ -384,7 +384,7 @@ export const ContextMemoryModal: React.FC<ContextMemoryModalProps> = ({
                     </span>
                   ))}
                   {deps.length === 0 && (
-                    <span className="text-[10px] text-zinc-400 italic">Sin dependencias</span>
+                    <span className="text-[10px] text-zinc-600 dark:text-zinc-400 italic">Sin dependencias</span>
                   )}
                 </div>
               </div>
@@ -402,13 +402,13 @@ export const ContextMemoryModal: React.FC<ContextMemoryModalProps> = ({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Notas clave para que Antigravity recuerde decisiones de arquitectura..."
-              className="w-full px-2.5 py-1.5 bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded text-xs text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 leading-tight resize-none font-mono"
+              className="w-full px-2.5 py-1.5 bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded text-xs text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-600 dark:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 leading-tight resize-none font-mono"
             />
           </div>
         </div>
 
         {/* Footer */}
-        <div className="px-4 py-2.5 bg-zinc-100 dark:bg-zinc-800/60 border-t border-zinc-300 dark:border-zinc-800 flex items-center justify-between">
+        <div className="px-4 py-2.5 bg-zinc-100 dark:bg-zinc-800/60 border-t border-zinc-300 dark:border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
           <button
             type="button"
             onClick={onClose}
@@ -420,7 +420,7 @@ export const ContextMemoryModal: React.FC<ContextMemoryModalProps> = ({
             type="button"
             onClick={handleSave}
             disabled={isSaving}
-            className="px-3.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded transition-colors shadow-2xs flex items-center space-x-1.5 cursor-pointer disabled:opacity-50"
+            className="px-3.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-zinc-900 dark:text-white text-xs font-bold rounded transition-colors shadow-2xs flex items-center space-x-1.5 cursor-pointer disabled:opacity-50"
           >
             <Save className="w-3 h-3" />
             <span>{isSaving ? "Guardando..." : "Guardar Ficha"}</span>

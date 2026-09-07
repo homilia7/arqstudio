@@ -96,9 +96,9 @@ export const TaskList: React.FC<TaskListProps> = ({
   return (
     <div className="space-y-3.5">
       {/* Selector de Modo de Vista & Filtro Destacado de Corrección */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-zinc-200/90 dark:bg-zinc-900 border border-zinc-300/80 dark:border-zinc-800 p-2.5 rounded-lg shadow-sm transition-colors">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-2.5 rounded-lg shadow-sm transition-colors">
         {/* Toggle de Modo de Vista */}
-        <div className="flex items-center space-x-1 bg-zinc-200 dark:bg-zinc-800 p-0.5 rounded border border-zinc-300 dark:border-zinc-700 w-full sm:w-auto overflow-x-auto">
+        <div className="flex items-center space-x-1 bg-zinc-100 dark:bg-zinc-800 p-0.5 rounded border border-zinc-200 dark:border-zinc-700 w-full sm:w-auto overflow-x-auto">
           <button
             onClick={() => setViewMode("tasks")}
             className={`flex-1 sm:flex-none px-3 py-1.5 rounded text-xs font-semibold transition-all flex items-center justify-center space-x-1.5 cursor-pointer whitespace-nowrap ${
@@ -165,7 +165,7 @@ export const TaskList: React.FC<TaskListProps> = ({
       ) : (
         <>
           {/* Barra de Filtros y Búsqueda */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-zinc-200 dark:bg-zinc-900 p-2.5 rounded-lg border border-zinc-300 dark:border-zinc-800 shadow-sm transition-colors">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white dark:bg-zinc-900 p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-800 shadow-sm transition-colors">
             {/* Pestañas de Filtro */}
             <div className="flex items-center space-x-1 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
               <button

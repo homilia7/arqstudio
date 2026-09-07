@@ -133,7 +133,7 @@ export const ModulePlanView: React.FC<ModulePlanViewProps> = ({
         );
       default:
         return (
-          <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded text-[10px] font-medium bg-zinc-800 text-zinc-400 border border-zinc-700">
+          <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded text-[10px] font-medium bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-700">
             <span>Pendiente</span>
           </span>
         );
@@ -143,13 +143,13 @@ export const ModulePlanView: React.FC<ModulePlanViewProps> = ({
   return (
     <div className="space-y-4">
       {/* Top Bar for Modules */}
-      <div className="flex items-center justify-between bg-[#0e1117] border border-zinc-800 p-3.5 rounded-lg shadow-sm">
+      <div className="flex items-center justify-between bg-white dark:bg-[#0e1117] border border-zinc-200 dark:border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-200 p-3.5 rounded-lg shadow-sm">
         <div>
-          <h2 className="text-sm font-bold text-white flex items-center space-x-2">
+          <h2 className="text-sm font-bold text-zinc-900 dark:text-white flex items-center space-x-2">
             <Layers className="w-4 h-4 text-emerald-400" />
             <span>Desglose Jerárquico: Módulos, Etapas, Tareas y Pasos</span>
           </h2>
-          <p className="text-xs text-zinc-400 mt-0.5">
+          <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">
             {modules.length} Módulo(s), {stages.length} Etapa(s) y {tasks.length} Tarea(s) registradas en el proyecto
           </p>
         </div>
@@ -174,18 +174,18 @@ export const ModulePlanView: React.FC<ModulePlanViewProps> = ({
               value={newModuleTitle}
               onChange={(e) => setNewModuleTitle(e.target.value)}
               placeholder="Nombre del Módulo (ej: Módulo 3: Pasarela de Pago)"
-              className="px-3 py-1.5 bg-[#090b0e] border border-zinc-800 rounded text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-emerald-500"
+              className="px-3 py-1.5 bg-[#090b0e] border border-zinc-200 dark:border-zinc-800 rounded text-xs text-zinc-900 dark:text-white placeholder:text-zinc-500 focus:outline-none focus:border-emerald-500"
             />
             <button
               type="submit"
-              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded shadow-sm cursor-pointer"
+              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-zinc-900 dark:text-white text-xs font-semibold rounded shadow-sm cursor-pointer"
             >
               Guardar
             </button>
             <button
               type="button"
               onClick={() => setIsAddingModule(false)}
-              className="px-2.5 py-1.5 bg-zinc-800 text-zinc-300 hover:text-white text-xs rounded border border-zinc-700 cursor-pointer"
+              className="px-2.5 py-1.5 bg-zinc-800 text-zinc-300 hover:text-zinc-900 dark:text-white text-xs rounded border border-zinc-700 cursor-pointer"
             >
               Cancelar
             </button>
@@ -205,14 +205,14 @@ export const ModulePlanView: React.FC<ModulePlanViewProps> = ({
         return (
           <div
             key={mod.id}
-            className="bg-[#0e1117] border border-zinc-800 rounded-lg overflow-hidden shadow-sm transition-all"
+            className="bg-white dark:bg-[#0e1117] border border-zinc-200 dark:border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-200 rounded-lg overflow-hidden shadow-sm transition-all"
           >
             {/* Module Header */}
-            <div className="bg-[#12151b] px-4 py-3 border-b border-zinc-800 flex items-center justify-between">
+            <div className="bg-zinc-50 dark:bg-[#12151b] px-4 py-3 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
               <div className="flex items-center space-x-2.5">
                 <button
                   onClick={() => toggleModule(mod.id)}
-                  className="p-1 text-zinc-400 hover:text-white rounded transition-colors cursor-pointer"
+                  className="p-1 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white rounded transition-colors cursor-pointer"
                 >
                   {isCollapsed ? (
                     <ChevronRight className="w-4 h-4" />
@@ -224,11 +224,11 @@ export const ModulePlanView: React.FC<ModulePlanViewProps> = ({
                   {modIdx + 1}
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-white flex items-center space-x-2">
+                  <h3 className="text-sm font-bold text-zinc-900 dark:text-white flex items-center space-x-2">
                     <span>{mod.title}</span>
                   </h3>
                   {mod.description && (
-                    <p className="text-xs text-zinc-400">{mod.description}</p>
+                    <p className="text-xs text-zinc-600 dark:text-zinc-400">{mod.description}</p>
                   )}
                 </div>
               </div>
@@ -243,7 +243,7 @@ export const ModulePlanView: React.FC<ModulePlanViewProps> = ({
                 <button
                   onClick={() => onDeleteModule(mod.id)}
                   title="Eliminar Módulo"
-                  className="p-1.5 text-zinc-400 hover:text-rose-400 rounded transition-colors cursor-pointer"
+                  className="p-1.5 text-zinc-600 dark:text-zinc-400 hover:text-rose-400 rounded transition-colors cursor-pointer"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
@@ -260,7 +260,7 @@ export const ModulePlanView: React.FC<ModulePlanViewProps> = ({
                   return (
                     <div
                       key={stage.id}
-                      className="bg-[#12151b]/80 border border-zinc-800 rounded-lg p-3.5 space-y-2.5"
+                      className="bg-zinc-50 dark:bg-[#12151b]/80 border border-zinc-200 dark:border-zinc-800 rounded-lg p-3.5 space-y-2.5"
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
@@ -269,12 +269,12 @@ export const ModulePlanView: React.FC<ModulePlanViewProps> = ({
                             {stage.title}
                           </h4>
                           {stage.description && (
-                            <span className="text-[11px] text-zinc-400">
+                            <span className="text-[11px] text-zinc-600 dark:text-zinc-400">
                               • {stage.description}
                             </span>
                           )}
                         </div>
-                        <span className="text-[10px] text-zinc-400 font-mono">
+                        <span className="text-[10px] text-zinc-600 dark:text-zinc-400 font-mono">
                           {stageTasks.length} Tarea(s)
                         </span>
                       </div>
@@ -296,7 +296,7 @@ export const ModulePlanView: React.FC<ModulePlanViewProps> = ({
                                   ? "bg-[#16191f] border-amber-800/80 shadow-xs"
                                   : task.status === "needs_revision"
                                   ? "bg-[#180f12] border-rose-800/80 shadow-xs"
-                                  : "bg-[#0e1117] border-zinc-800"
+                                  : "bg-[#0e1117] border-zinc-200 dark:border-zinc-800"
                               }`}
                             >
                               <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
@@ -304,17 +304,17 @@ export const ModulePlanView: React.FC<ModulePlanViewProps> = ({
                                   <div className="flex items-center space-x-2">
                                     <button
                                       onClick={() => toggleTaskExpanded(task.id)}
-                                      className="text-zinc-400 hover:text-white cursor-pointer"
+                                      className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white cursor-pointer"
                                       title={isExpanded ? "Ocultar pasos" : "Ver pasos de la tarea"}
                                     >
                                       {isExpanded ? <ChevronDown className="w-3.5 h-3.5 text-emerald-400" /> : <ChevronRight className="w-3.5 h-3.5" />}
                                     </button>
-                                    <h5 className="text-xs font-bold text-white truncate">
+                                    <h5 className="text-xs font-bold text-zinc-900 dark:text-white truncate">
                                       {task.title}
                                     </h5>
                                     {getStatusBadge(task.status, task.locked)}
                                   </div>
-                                  <p className="text-[11px] text-zinc-400 line-clamp-1 font-mono pl-5">
+                                  <p className="text-[11px] text-zinc-600 dark:text-zinc-400 line-clamp-1 font-mono pl-5">
                                     {task.instruction}
                                   </p>
 
@@ -327,7 +327,7 @@ export const ModulePlanView: React.FC<ModulePlanViewProps> = ({
                                           style={{ width: `${(completedSub / subtasks.length) * 100}%` }}
                                         />
                                       </div>
-                                      <span className="text-[10px] font-mono text-zinc-400">
+                                      <span className="text-[10px] font-mono text-zinc-600 dark:text-zinc-400">
                                         {completedSub}/{subtasks.length} Pasos Completados
                                       </span>
                                     </div>
@@ -374,15 +374,15 @@ export const ModulePlanView: React.FC<ModulePlanViewProps> = ({
 
                               {/* Checklist Desplegable de Pasos (Subtasks) */}
                               {isExpanded && subtasks.length > 0 && (
-                                <div className="p-2.5 mt-2 bg-[#090b0e] border border-zinc-800 rounded space-y-1.5 animate-in fade-in duration-150">
-                                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
+                                <div className="p-2.5 mt-2 bg-[#090b0e] border border-zinc-200 dark:border-zinc-800 rounded space-y-1.5 animate-in fade-in duration-150">
+                                  <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider block">
                                     Checklist de Pasos Agénticos:
                                   </span>
                                   <div className="space-y-1">
                                     {subtasks.map((st) => (
                                       <div key={st.id} className="flex items-center space-x-2 text-xs">
                                         <div className={`w-3.5 h-3.5 rounded flex items-center justify-center text-[9px] ${
-                                          st.completed ? "bg-emerald-500 text-white" : "border border-zinc-700 bg-zinc-900"
+                                          st.completed ? "bg-emerald-500 text-zinc-900 dark:text-white" : "border border-zinc-700 bg-zinc-900"
                                         }`}>
                                           {st.completed && <Check className="w-2.5 h-2.5" />}
                                         </div>
@@ -410,7 +410,7 @@ export const ModulePlanView: React.FC<ModulePlanViewProps> = ({
 
                 {/* Tareas sin Etapa explícita pero asignadas al módulo */}
                 {moduleTasks.filter((t) => !t.stageId).length > 0 && (
-                  <div className="bg-[#12151b]/60 border border-zinc-800 rounded-lg p-3 space-y-2">
+                  <div className="bg-zinc-50 dark:bg-[#12151b]/60 border border-zinc-200 dark:border-zinc-800 rounded-lg p-3 space-y-2">
                     <span className="text-xs font-bold text-zinc-300">
                       Otras tareas del Módulo:
                     </span>
@@ -420,9 +420,9 @@ export const ModulePlanView: React.FC<ModulePlanViewProps> = ({
                         .map((task) => (
                           <div
                             key={task.id}
-                            className="p-2 rounded bg-[#0e1117] border border-zinc-800 flex items-center justify-between text-xs"
+                            className="p-2 rounded bg-white dark:bg-[#0e1117] border border-zinc-200 dark:border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-200 flex items-center justify-between text-xs"
                           >
-                            <span className="text-white font-medium">{task.title}</span>
+                            <span className="text-zinc-900 dark:text-white font-medium">{task.title}</span>
                             <button
                               onClick={() => onReviewTask(task)}
                               className="px-2 py-0.5 rounded bg-zinc-800 text-zinc-200 text-[11px]"
@@ -441,10 +441,10 @@ export const ModulePlanView: React.FC<ModulePlanViewProps> = ({
       })}
 
       {modules.length === 0 && (
-        <div className="p-8 text-center bg-[#0e1117] border border-zinc-800 rounded-xl space-y-2">
+        <div className="p-8 text-center bg-white dark:bg-[#0e1117] border border-zinc-200 dark:border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-200 rounded-xl space-y-2">
           <Layers className="w-8 h-8 text-zinc-600 mx-auto" />
-          <h3 className="text-sm font-bold text-white">No hay módulos creados aún</h3>
-          <p className="text-xs text-zinc-400">
+          <h3 className="text-sm font-bold text-zinc-900 dark:text-white">No hay módulos creados aún</h3>
+          <p className="text-xs text-zinc-600 dark:text-zinc-400">
             Haz clic en "Desglosar con IA" o "Agregar Módulo Manual" para estructurar tu proyecto.
           </p>
         </div>
