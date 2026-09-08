@@ -17,6 +17,8 @@ export const ApiKeyOnboardingModal: React.FC<ApiKeyOnboardingModalProps> = ({
   apiKey = "arqai_sec_1234_main"
 }) => {
   const [copiedKey, setCopiedKey] = useState(false);
+  const [copiedEndpoint, setCopiedEndpoint] = useState(false);
+  const [copiedBoth, setCopiedBoth] = useState(false);
   const [copiedPrompt, setCopiedPrompt] = useState(false);
 
   if (!isOpen) return null;
@@ -32,15 +34,29 @@ export const ApiKeyOnboardingModal: React.FC<ApiKeyOnboardingModalProps> = ({
 4. NUNCA toques ningún archivo que aparezca en 'security.lockedFiles' (.arqai.json). Tienen Quality Gate inmutable.
 5. Cada vez que completes una instrucción del usuario, registra el diálogo en POST ${baseUrl}/agent/chat-log con el prompt del humano, tu resumen técnico y la URL de prueba.`;
 
-  const copyToClipboard = (text: string, isPrompt = false) => {
-    navigator.clipboard.writeText(text);
-    if (isPrompt) {
-      setCopiedPrompt(true);
-      setTimeout(() => setCopiedPrompt(false), 2000);
-    } else {
-      setCopiedKey(true);
-      setTimeout(() => setCopiedKey(false), 2000);
-    }
+  const copyKey = () => {
+    navigator.clipboard.writeText(apiKey);
+    setCopiedKey(true);
+    setTimeout(() => setCopiedKey(false), 2000);
+  };
+
+  const copyEndpoint = () => {
+    navigator.clipboard.writeText(baseUrl);
+    setCopiedEndpoint(true);
+    setTimeout(() => setCopiedEndpoint(false), 2000);
+  };
+
+  const copyBoth = () => {
+    const combinedText = `Endpoint: ${baseUrl}\nClave API: ${apiKey}\nID Proyecto: ${projectId}`;
+    navigator.clipboard.writeText(combinedText);
+    setCopiedBoth(true);
+    setTimeout(() => setCopiedBoth(false), 2000);
+  };
+
+  const copyPrompt = () => {
+    navigator.clipboard.writeText(systemPrompt);
+    setCopiedPrompt(true);
+    setTimeout(() => setCopiedPrompt(false), 2000);
   };
 
   return (
@@ -77,23 +93,51 @@ export const ApiKeyOnboardingModal: React.FC<ApiKeyOnboardingModalProps> = ({
         <div className="p-4 sm:p-5 space-y-4 overflow-y-auto text-xs text-zinc-800 dark:text-zinc-300">
           
           {/* Key Box */}
-          <div className="p-3.5 rounded-lg bg-amber-50/30 dark:bg-[#12151b] border border-amber-200 dark:border-zinc-800 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-zinc-700 dark:text-zinc-400 uppercase tracking-wider">Tu Clave API de Proyecto</span>
-              <button
-                onClick={() => copyToClipboard(apiKey)}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 border border-zinc-300 dark:border-transparent text-xs font-semibold transition-colors cursor-pointer"
-              >
-                {copiedKey ? <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copiedKey ? "¡Copiada!" : "Copiar Clave"}</span>
-              </button>
+          <div className="p-3.5 rounded-lg bg-amber-50/30 dark:bg-[#12151b] border border-amber-200 dark:border-zinc-800 space-y-2.5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
+                <Key className="w-3.5 h-3.5 text-amber-500" />
+                Copiar clave
+              </span>
+              <div className="flex flex-wrap items-center gap-2">
+                {/* Botón Individual: Copiar Clave */}
+                <button
+                  onClick={copyKey}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 border border-zinc-300 dark:border-zinc-700 text-xs font-semibold transition-colors cursor-pointer shadow-2xs"
+                  title="Copiar únicamente la clave API"
+                >
+                  {copiedKey ? <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-zinc-500" />}
+                  <span>{copiedKey ? "¡Clave Copiada!" : "Copiar Clave"}</span>
+                </button>
+
+                {/* Botón Conjunto: Copiar Clave y Endpoint Juntos */}
+                <button
+                  onClick={copyBoth}
+                  className="flex items-center gap-1.5 px-3 py-1 rounded bg-amber-500 hover:bg-amber-600 text-white dark:bg-amber-600 dark:hover:bg-amber-500 border border-amber-600 text-xs font-bold transition-colors cursor-pointer shadow-xs"
+                  title="Copiar la clave API y el endpoint juntos en el portapapeles"
+                >
+                  {copiedBoth ? <Check className="w-3.5 h-3.5 text-white" /> : <Copy className="w-3.5 h-3.5 text-white" />}
+                  <span>{copiedBoth ? "¡Clave + Endpoint Copiados!" : "Copiar Clave y Endpoint (Juntos)"}</span>
+                </button>
+              </div>
             </div>
-            <div className="p-2.5 rounded bg-white dark:bg-[#090b0e] border border-amber-200 dark:border-zinc-800 font-mono text-xs text-amber-800 dark:text-amber-300 font-bold select-all break-all shadow-2xs">
-              {apiKey}
+
+            <div className="p-2.5 rounded bg-white dark:bg-[#090b0e] border border-amber-200 dark:border-zinc-800 font-mono text-xs text-amber-800 dark:text-amber-300 font-bold select-all break-all shadow-2xs flex items-center justify-between">
+              <span>{apiKey}</span>
             </div>
-            <div className="flex items-center justify-between text-[11px] text-zinc-600 dark:text-zinc-500 font-mono">
-              <span>Endpoint Base: <code className="text-zinc-800 dark:text-zinc-400 font-semibold">{baseUrl}</code></span>
-              <span>Project ID: <code className="text-zinc-800 dark:text-zinc-400 font-semibold">{projectId}</code></span>
+
+            <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-zinc-600 dark:text-zinc-400 font-mono pt-1 border-t border-amber-200/50 dark:border-zinc-800/60">
+              <div className="flex items-center gap-1.5">
+                <span>Endpoint Base: <code className="text-zinc-800 dark:text-zinc-200 font-semibold">{baseUrl}</code></span>
+                <button
+                  onClick={copyEndpoint}
+                  className="p-1 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 cursor-pointer rounded transition-colors"
+                  title="Copiar solo el Endpoint"
+                >
+                  {copiedEndpoint ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
+                </button>
+              </div>
+              <span>Project ID: <code className="text-zinc-800 dark:text-zinc-200 font-semibold">{projectId}</code></span>
             </div>
           </div>
 
@@ -105,7 +149,7 @@ export const ApiKeyOnboardingModal: React.FC<ApiKeyOnboardingModalProps> = ({
                 Prompt de Conexión para Agentes IA
               </span>
               <button
-                onClick={() => copyToClipboard(systemPrompt, true)}
+                onClick={copyPrompt}
                 className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:hover:bg-emerald-900/80 dark:border-emerald-800/80 dark:text-emerald-300 text-xs transition-colors cursor-pointer font-bold shadow-2xs"
               >
                 {copiedPrompt ? <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}

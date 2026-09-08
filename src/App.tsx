@@ -542,7 +542,7 @@ export default function App() {
         onClose={() => setApiKeyOnboardingOpen(false)}
         projectId={activeProject?.id || "proj-default"}
         projectName={activeProject?.name || "ARQAISTUDIO Core"}
-        apiKey={activeProject?.api_key || "arqai_sec_1234_main"}
+        apiKey={activeProject?.apiKey || (activeProject as any)?.api_key || currentUser?.apiKey || "arqai_sec_1234_main"}
       />
 
       <CloudflareEdgeModal
@@ -633,41 +633,6 @@ export default function App() {
         isOpen={d1ModalOpen}
         onClose={() => setD1ModalOpen(false)}
         onRefreshData={() => loadData(true)}
-      />
-
-      <UserManualModal
-        isOpen={userManualOpen}
-        onClose={() => setUserManualOpen(false)}
-        onOpenApiKey={() => {
-          setUserManualOpen(false);
-          setApiKeyOnboardingOpen(true);
-        }}
-        onOpenCloudflare={() => {
-          setUserManualOpen(false);
-          setCloudflareEdgeOpen(true);
-        }}
-        onOpenGatekeeper={() => {
-          setUserManualOpen(false);
-          setGatekeeperOpen(true);
-        }}
-      />
-
-      <ApiKeyOnboardingModal
-        isOpen={apiKeyOnboardingOpen}
-        onClose={() => setApiKeyOnboardingOpen(false)}
-        projectId={activeProject?.id || "proj-default"}
-        projectName={activeProject?.name || "ARQAISTUDIO Core"}
-        apiKey={activeProject?.apiKey || "arqai_sec_1234_main"}
-      />
-
-      <CloudflareEdgeModal
-        isOpen={cloudflareEdgeOpen}
-        onClose={() => setCloudflareEdgeOpen(false)}
-      />
-
-      <GatekeeperModal
-        isOpen={gatekeeperOpen}
-        onClose={() => setGatekeeperOpen(false)}
       />
 
       {agentConnectionsOpen && (
