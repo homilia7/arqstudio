@@ -150,7 +150,7 @@ export const CloudflareD1Modal: React.FC<CloudflareD1ModalProps> = ({
     >
       <div
         id="cloudflare-d1-modal-card"
-        className="relative w-full max-w-2xl bg-white dark:bg-[#0e1117] border border-zinc-200 dark:border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl text-zinc-800 dark:text-zinc-200 p-6 text-zinc-100 overflow-hidden my-8"
+        className="relative w-full max-w-2xl bg-white dark:bg-[#0e1117] border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl text-zinc-800 dark:text-zinc-200 p-6 overflow-hidden my-8"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Glow Header */}
@@ -159,7 +159,7 @@ export const CloudflareD1Modal: React.FC<CloudflareD1ModalProps> = ({
         {/* Header Modal */}
         <div className="flex items-center justify-between pb-4 mb-4 border-b border-zinc-200 dark:border-zinc-800">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-orange-950/40 border border-orange-800/60 text-orange-400">
+            <div className="p-2.5 rounded-xl bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800/60 text-orange-600 dark:text-orange-400">
               <Database className="w-5 h-5" />
             </div>
             <div>
@@ -167,7 +167,7 @@ export const CloudflareD1Modal: React.FC<CloudflareD1ModalProps> = ({
                 <h3 className="text-base font-bold text-zinc-900 dark:text-white tracking-tight">
                   Base de Datos Cloudflare D1
                 </h3>
-                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-950/70 border border-emerald-800/80 text-emerald-300">
+                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200 dark:border-emerald-800/80 text-emerald-700 dark:text-emerald-300">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                   Conectado en Vivo
                 </span>
@@ -186,66 +186,66 @@ export const CloudflareD1Modal: React.FC<CloudflareD1ModalProps> = ({
         </div>
 
         {/* Status Box */}
-        <div className="p-4 rounded-xl bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 space-y-3 mb-5">
+        <div className="p-4 rounded-xl bg-emerald-50/40 dark:bg-zinc-900/60 border border-emerald-200 dark:border-zinc-800 space-y-3 mb-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Activity className="w-4 h-4 text-emerald-400" />
-              <span className="text-xs font-bold text-emerald-400">
+              <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">
                 Base de datos Cloudflare D1 conectada y sincronizada
               </span>
             </div>
             <button
               onClick={handleReconnect}
               disabled={isLoading}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs transition-colors cursor-pointer disabled:opacity-50"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 border border-zinc-300 dark:border-transparent text-xs transition-colors cursor-pointer disabled:opacity-50"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-orange-400" : ""}`} />
               <span>Reconectar</span>
             </button>
           </div>
           <p className="text-xs text-zinc-600 dark:text-zinc-400">
-            Base de Datos Activa: <span className="text-zinc-200 font-medium">Cloudflare D1 (SQLite Serverless Edge)</span>
+            Base de Datos Activa: <span className="text-zinc-900 dark:text-zinc-200 font-semibold">Cloudflare D1 (SQLite Serverless Edge)</span>
           </p>
 
           {/* Metric Badges */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-zinc-200 dark:border-zinc-800/80 text-xs">
-            <div className="p-2 rounded bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/80">
+            <div className="p-2 rounded bg-white dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/80 shadow-2xs">
               <span className="text-[10px] text-zinc-500 uppercase tracking-wider block">Modo</span>
-              <span className="font-semibold text-emerald-400">Cloudflare D1 SQL</span>
+              <span className="font-semibold text-emerald-700 dark:text-emerald-400">Cloudflare D1 SQL</span>
             </div>
-            <div className="p-2 rounded bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/80">
+            <div className="p-2 rounded bg-white dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/80 shadow-2xs">
               <span className="text-[10px] text-zinc-500 uppercase tracking-wider block">Latencia Edge</span>
-              <span className="font-semibold text-cyan-400">1 ms</span>
+              <span className="font-semibold text-cyan-700 dark:text-cyan-400">1 ms</span>
             </div>
-            <div className="p-2 rounded bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/80">
+            <div className="p-2 rounded bg-white dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/80 shadow-2xs">
               <span className="text-[10px] text-zinc-500 uppercase tracking-wider block">Base de Datos</span>
-              <span className="font-semibold text-purple-300">arqai-db (D1)</span>
+              <span className="font-semibold text-purple-700 dark:text-purple-300">arqai-db (D1)</span>
             </div>
-            <div className="p-2 rounded bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/80">
+            <div className="p-2 rounded bg-white dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800/80 shadow-2xs">
               <span className="text-[10px] text-zinc-500 uppercase tracking-wider block">Estado</span>
-              <span className="font-semibold text-amber-300">En Línea (Edge)</span>
+              <span className="font-semibold text-amber-700 dark:text-amber-300">En Línea (Edge)</span>
             </div>
           </div>
         </div>
 
         {/* SQL Tables Section */}
-        <div className="p-3.5 rounded-xl bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800 space-y-2.5 mb-5">
+        <div className="p-3.5 rounded-xl bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800 space-y-2.5 mb-5">
           <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
             <Table className="w-3.5 h-3.5 text-orange-400" />
             <span>Tablas Cloudflare D1 Creadas & Sincronizadas</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
-            <div className="p-2.5 rounded-lg bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800 space-y-0.5">
-              <div className="font-mono text-emerald-400 font-bold text-[11px]">antigravity_projects</div>
+            <div className="p-2.5 rounded-lg bg-white dark:bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800 space-y-0.5 shadow-2xs">
+              <div className="font-mono text-emerald-700 dark:text-emerald-400 font-bold text-[11px]">antigravity_projects</div>
               <div className="text-[10px] text-zinc-600 dark:text-zinc-400">Blueprints, URLs y API keys</div>
             </div>
-            <div className="p-2.5 rounded-lg bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800 space-y-0.5">
-              <div className="font-mono text-cyan-400 font-bold text-[11px]">antigravity_tasks</div>
+            <div className="p-2.5 rounded-lg bg-white dark:bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800 space-y-0.5 shadow-2xs">
+              <div className="font-mono text-cyan-700 dark:text-cyan-400 font-bold text-[11px]">antigravity_tasks</div>
               <div className="text-[10px] text-zinc-600 dark:text-zinc-400">Tareas, estados y memorias RAG</div>
             </div>
-            <div className="p-2.5 rounded-lg bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800 space-y-0.5">
-              <div className="font-mono text-purple-400 font-bold text-[11px]">antigravity_users</div>
+            <div className="p-2.5 rounded-lg bg-white dark:bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800 space-y-0.5 shadow-2xs">
+              <div className="font-mono text-purple-700 dark:text-purple-400 font-bold text-[11px]">antigravity_users</div>
               <div className="text-[10px] text-zinc-600 dark:text-zinc-400">Usuarios, PINs y roles RBAC</div>
             </div>
           </div>
@@ -256,7 +256,7 @@ export const CloudflareD1Modal: React.FC<CloudflareD1ModalProps> = ({
           <button
             onClick={handleTestConnection}
             disabled={isTesting}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-zinc-900 dark:text-white text-xs font-medium transition-colors cursor-pointer disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-sm transition-colors cursor-pointer disabled:opacity-50"
           >
             <Zap className={`w-3.5 h-3.5 ${isTesting ? "animate-spin" : ""}`} />
             <span>{isTesting ? "Probando..." : "Probar Consulta D1 SQL (Ping)"}</span>
@@ -265,7 +265,7 @@ export const CloudflareD1Modal: React.FC<CloudflareD1ModalProps> = ({
           <button
             onClick={handleSyncToD1}
             disabled={isSyncing}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium border border-zinc-700 transition-colors cursor-pointer disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-800 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 text-xs font-semibold border border-zinc-300 dark:border-zinc-700 transition-colors cursor-pointer disabled:opacity-50"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? "animate-spin text-orange-400" : ""}`} />
             <span>Sincronizar Local ➔ Cloudflare D1</span>
@@ -274,7 +274,7 @@ export const CloudflareD1Modal: React.FC<CloudflareD1ModalProps> = ({
           <button
             onClick={handleSyncFromD1}
             disabled={isSyncing}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium border border-zinc-700 transition-colors cursor-pointer disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-800 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 text-xs font-semibold border border-zinc-300 dark:border-zinc-700 transition-colors cursor-pointer disabled:opacity-50"
           >
             <HardDrive className="w-3.5 h-3.5 text-purple-400" />
             <span>Descargar Datos desde D1</span>
@@ -283,7 +283,7 @@ export const CloudflareD1Modal: React.FC<CloudflareD1ModalProps> = ({
           <button
             onClick={handleRecreateDatabase}
             disabled={isRecreating}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-orange-950/60 hover:bg-orange-900/80 text-orange-300 text-xs font-medium border border-orange-800/80 transition-colors cursor-pointer disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-800 dark:bg-orange-950/60 dark:hover:bg-orange-900/80 dark:text-orange-300 text-xs font-semibold border border-orange-200 dark:border-orange-800/80 transition-colors cursor-pointer disabled:opacity-50"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isRecreating ? "animate-spin text-orange-400" : ""}`} />
             <span>Verificar Esquema D1</span>
@@ -312,13 +312,13 @@ export const CloudflareD1Modal: React.FC<CloudflareD1ModalProps> = ({
 
         {/* Footer */}
         <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800/80 flex items-center justify-between text-xs">
-          <div className="flex items-center gap-1.5 text-emerald-400 font-medium text-[11px]">
+          <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-medium text-[11px]">
             <CheckCircle2 className="w-3.5 h-3.5" />
             <span>Conexión Cloudflare D1 activa en el Borde</span>
           </div>
           <button
             onClick={onClose}
-            className="px-4 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium transition-colors cursor-pointer"
+            className="px-4 py-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-zinc-800 border border-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 dark:border-transparent text-xs font-semibold transition-colors cursor-pointer"
           >
             Cerrar
           </button>

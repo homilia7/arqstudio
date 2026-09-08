@@ -35,7 +35,7 @@ export const GatekeeperModal: React.FC<GatekeeperModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-[#0e1117] border border-zinc-200 dark:border-zinc-200 dark:border-zinc-800 rounded-xl shadow-2xl text-zinc-800 dark:text-zinc-200 w-full max-w-2xl flex flex-col overflow-hidden text-zinc-200">
+      <div className="bg-white dark:bg-[#0e1117] border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-2xl text-zinc-800 dark:text-zinc-200 w-full max-w-2xl flex flex-col overflow-hidden">
         
         {/* Header */}
         <div className="px-4 py-3 bg-zinc-50 dark:bg-[#16191f] border-b border-zinc-200 dark:border-zinc-200 dark:border-zinc-800 flex items-center justify-between shrink-0">
@@ -66,12 +66,12 @@ export const GatekeeperModal: React.FC<GatekeeperModalProps> = ({
         </div>
 
         {/* Body */}
-        <div className="p-4 sm:p-5 space-y-4 overflow-y-auto text-xs text-zinc-300">
+        <div className="p-4 sm:p-5 space-y-4 overflow-y-auto text-xs text-zinc-800 dark:text-zinc-300">
           
           {/* Emergency Kill Switch Button */}
-          <div className="p-3.5 rounded-lg bg-rose-950/20 border border-rose-900/50 flex items-center justify-between">
+          <div className="p-3.5 rounded-lg bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/50 flex items-center justify-between">
             <div className="space-y-0.5">
-              <div className="font-bold text-rose-300 flex items-center gap-1.5 text-xs">
+              <div className="font-bold text-rose-800 dark:text-rose-300 flex items-center gap-1.5 text-xs">
                 <AlertOctagon className="w-4 h-4 text-rose-400" />
                 Kill Switch Global de Emergencia
               </div>
@@ -84,7 +84,7 @@ export const GatekeeperModal: React.FC<GatekeeperModalProps> = ({
               className={`px-3 py-1.5 rounded font-bold text-xs transition-colors cursor-pointer ${
                 killSwitchActive
                   ? "bg-rose-600 hover:bg-rose-700 text-zinc-900 dark:text-white"
-                  : "bg-zinc-800 hover:bg-rose-950 text-zinc-300 hover:text-rose-300 border border-zinc-700"
+                  : "bg-white hover:bg-rose-50 text-rose-700 border border-rose-300 dark:bg-zinc-800 dark:hover:bg-rose-950 dark:text-zinc-300 dark:border-zinc-700 font-semibold"
               }`}
             >
               {killSwitchActive ? "Desactivar Freno" : "Activar Kill Switch"}
@@ -102,11 +102,11 @@ export const GatekeeperModal: React.FC<GatekeeperModalProps> = ({
                 value={agentInput}
                 onChange={(e) => setAgentInput(e.target.value)}
                 placeholder="Ej: ROGUE_AGENT_AI"
-                className="flex-1 bg-zinc-50 dark:bg-[#12151b] border border-zinc-200 dark:border-zinc-200 dark:border-zinc-800 rounded px-3 py-1.5 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-hidden focus:border-rose-500 font-mono"
+                className="flex-1 bg-white dark:bg-[#12151b] border border-zinc-300 dark:border-zinc-800 rounded px-3 py-1.5 text-xs text-zinc-900 dark:text-zinc-200 placeholder-zinc-400 focus:outline-none focus:border-rose-500 font-mono"
               />
               <button
                 type="submit"
-                className="px-3 py-1.5 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium border border-zinc-700 transition-colors cursor-pointer"
+                className="px-3 py-1.5 rounded bg-zinc-100 hover:bg-zinc-200 text-zinc-800 border border-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 dark:border-zinc-700 text-xs font-semibold transition-colors cursor-pointer"
               >
                 Bloquear
               </button>
@@ -114,14 +114,14 @@ export const GatekeeperModal: React.FC<GatekeeperModalProps> = ({
           </div>
 
           {/* Blocked List */}
-          <div className="p-3 rounded bg-zinc-50 dark:bg-[#12151b] border border-zinc-200 dark:border-zinc-200 dark:border-zinc-800 space-y-2">
+          <div className="p-3 rounded bg-zinc-50 dark:bg-[#12151b] border border-zinc-200 dark:border-zinc-800 space-y-2">
             <span className="text-[11px] font-bold text-zinc-600 dark:text-zinc-400 block">Agentes Bloqueados ({blockedAgents.length}):</span>
             {blockedAgents.length === 0 ? (
               <p className="text-[11px] text-zinc-500 italic">No hay agentes bloqueados. Todos los agentes autorizados pueden operar.</p>
             ) : (
               <div className="space-y-1.5">
                 {blockedAgents.map((agent) => (
-                  <div key={agent} className="flex items-center justify-between p-1.5 rounded bg-zinc-50 dark:bg-[#090b0e] border border-zinc-200 dark:border-zinc-800 text-xs font-mono">
+                  <div key={agent} className="flex items-center justify-between p-1.5 rounded bg-white dark:bg-[#090b0e] border border-zinc-200 dark:border-zinc-800 shadow-2xs text-xs font-mono">
                     <span className="text-rose-400 flex items-center gap-1.5">
                       <UserX className="w-3.5 h-3.5" />
                       {agent}
@@ -141,10 +141,10 @@ export const GatekeeperModal: React.FC<GatekeeperModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="px-4 py-3 bg-[#16191f] border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-end">
+        <div className="px-4 py-3 bg-zinc-50 dark:bg-[#16191f] border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-1.5 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium transition-colors cursor-pointer"
+            className="px-4 py-1.5 rounded bg-zinc-100 hover:bg-zinc-200 text-zinc-800 border border-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 dark:border-transparent text-xs font-semibold transition-colors cursor-pointer"
           >
             Cerrar
           </button>

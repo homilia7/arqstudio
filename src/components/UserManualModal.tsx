@@ -46,15 +46,15 @@ export const UserManualModal: React.FC<UserManualModalProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-[11px]">
             <div className="p-3 rounded bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 space-y-1">
               <span className="text-emerald-400 font-bold block">1. Propuesta de Tareas</span>
-              <p className="text-zinc-600 dark:text-zinc-400">El agente genera planes estructurados derivados de un Blueprint específico del dominio.</p>
+              <p className="text-zinc-600 dark:text-zinc-600 dark:text-zinc-400">El agente genera planes estructurados derivados de un Blueprint específico del dominio.</p>
             </div>
             <div className="p-3 rounded bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 space-y-1">
               <span className="text-amber-400 font-bold block">2. Sandbox & TDD</span>
-              <p className="text-zinc-600 dark:text-zinc-400">Las pruebas unitarias y linter AST se ejecutan de forma aislada antes de solicitar revisión.</p>
+              <p className="text-zinc-600 dark:text-zinc-600 dark:text-zinc-400">Las pruebas unitarias y linter AST se ejecutan de forma aislada antes de solicitar revisión.</p>
             </div>
             <div className="p-3 rounded bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 space-y-1">
               <span className="text-blue-400 font-bold block">3. Aprobación o Rechazo</span>
-              <p className="text-zinc-600 dark:text-zinc-400">El supervisor humano aprueba, solicita cambios o revierte con un solo clic.</p>
+              <p className="text-zinc-600 dark:text-zinc-600 dark:text-zinc-400">El supervisor humano aprueba, solicita cambios o revierte con un solo clic.</p>
             </div>
           </div>
         </div>
@@ -72,22 +72,22 @@ export const UserManualModal: React.FC<UserManualModalProps> = ({
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px]">
-            <div className="p-3 rounded bg-zinc-900 border border-amber-900/60 space-y-2">
+            <div className="p-3 rounded bg-amber-50/50 dark:bg-zinc-900 border border-amber-200 dark:border-amber-900/60 text-amber-900 dark:text-zinc-200 space-y-2">
               <div className="flex items-center gap-2">
                 <Shield className="w-4 h-4 text-amber-400" />
                 <h4 className="font-bold text-amber-300">Lockfile: historial.md (Inmutable)</h4>
               </div>
-              <p className="text-zinc-600 dark:text-zinc-400">
+              <p className="text-zinc-600 dark:text-zinc-600 dark:text-zinc-400">
                 Almacena el registro cronológico estricto de requerimientos aprobados. Tiene regla de oro de inmutabilidad: el agente puede leerlo como verdad absoluta, pero nunca puede sobrescribir ni modificar entradas pasadas.
               </p>
             </div>
 
-            <div className="p-3 rounded bg-zinc-900 border border-purple-900/60 space-y-2">
+            <div className="p-3 rounded bg-purple-50/50 dark:bg-zinc-900 border border-purple-200 dark:border-purple-900/60 text-purple-900 dark:text-zinc-200 space-y-2">
               <div className="flex items-center gap-2">
                 <Layers className="w-4 h-4 text-purple-400" />
                 <h4 className="font-bold text-purple-300">RAG Vectorial (STM + LTM)</h4>
               </div>
-              <p className="text-zinc-600 dark:text-zinc-400">
+              <p className="text-zinc-600 dark:text-zinc-600 dark:text-zinc-400">
                 Segmentación inteligente: Memoria a Corto Plazo (STM) para la tarea en ejecución y Memoria a Largo Plazo (LTM) indexada vectorialmente para recuperar decisiones arquitectónicas históricas.
               </p>
             </div>
@@ -108,11 +108,11 @@ export const UserManualModal: React.FC<UserManualModalProps> = ({
           <div className="space-y-2.5 text-[11px]">
             <div className="p-3 rounded bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 space-y-1">
               <h4 className="font-semibold text-emerald-400">Diff Viewer Unificado</h4>
-              <p className="text-zinc-600 dark:text-zinc-400">Permite inspeccionar línea por línea qué archivos modificó la IA antes de confirmar cambios en la rama principal.</p>
+              <p className="text-zinc-600 dark:text-zinc-600 dark:text-zinc-400">Permite inspeccionar línea por línea qué archivos modificó la IA antes de confirmar cambios en la rama principal.</p>
             </div>
             <div className="p-3 rounded bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 space-y-1">
               <h4 className="font-semibold text-rose-400">Rollback Inmediato (Git Revert)</h4>
-              <p className="text-zinc-600 dark:text-zinc-400">Si un ciclo introduce una regresión, el botón de Rollback restaura el estado anterior preservando el grafo completo de auditoría.</p>
+              <p className="text-zinc-600 dark:text-zinc-600 dark:text-zinc-400">Si un ciclo introduce una regresión, el botón de Rollback restaura el estado anterior preservando el grafo completo de auditoría.</p>
             </div>
           </div>
         </div>
@@ -133,7 +133,7 @@ export const UserManualModal: React.FC<UserManualModalProps> = ({
               <CheckCircle2 className="w-4 h-4" />
               <span>Criterios Obligatorios de DoD:</span>
             </div>
-            <ul className="list-disc list-inside space-y-1 text-zinc-600 dark:text-zinc-400">
+            <ul className="list-disc list-inside space-y-1 text-zinc-600 dark:text-zinc-600 dark:text-zinc-400">
               <li>Pruebas unitarias TDD ejecutadas con éxito (0 fallos).</li>
               <li>Validación estática de sintaxis y arquitectura con linter AST estricto.</li>
               <li>Generación de Walkthrough técnico con decisiones arquitectónicas.</li>
@@ -169,7 +169,7 @@ export const UserManualModal: React.FC<UserManualModalProps> = ({
                   </button>
                 )}
               </div>
-              <p className="text-zinc-600 dark:text-zinc-400">
+              <p className="text-zinc-600 dark:text-zinc-600 dark:text-zinc-400">
                 Monitorea en tiempo real el consumo de tokens, llamadas a la API y cuenta con un <strong className="text-zinc-200">Kill Switch de Emergencia</strong> para detener instantáneamente cualquier agente descontrolado.
               </p>
             </div>
@@ -189,7 +189,7 @@ export const UserManualModal: React.FC<UserManualModalProps> = ({
                   </button>
                 )}
               </div>
-              <p className="text-zinc-600 dark:text-zinc-400">
+              <p className="text-zinc-600 dark:text-zinc-600 dark:text-zinc-400">
                 Sincronización con servicios de borde: <strong className="text-zinc-200">Cloudflare Pages Functions</strong> (cálculo serverless), <strong className="text-zinc-200">D1</strong> (SQL relacional SQLite), <strong className="text-zinc-200">Vectorize</strong> (base vectorial distribuida) y <strong className="text-zinc-200">SSE</strong> (Streaming en tiempo real).
               </p>
             </div>
@@ -237,7 +237,7 @@ export const UserManualModal: React.FC<UserManualModalProps> = ({
                 </button>
               )}
             </div>
-            <p className="text-zinc-600 dark:text-zinc-400">
+            <p className="text-zinc-600 dark:text-zinc-600 dark:text-zinc-400">
               Conecta scripts externos de IA (Antigravity, Codex, Hermes, Claude) proveyendo la URL base <code className="text-emerald-400">https://arqaistudio.pages.dev/api</code> y cabeceras <code className="text-amber-300">x-api-key</code>.
             </p>
           </div>
@@ -260,24 +260,24 @@ export const UserManualModal: React.FC<UserManualModalProps> = ({
         {/* Modal Header */}
         <div className="px-4 py-3 bg-zinc-50 dark:bg-[#16191f] border-b border-zinc-200 dark:border-zinc-200 dark:border-zinc-800 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-emerald-950/80 border border-emerald-800/80 flex items-center justify-center text-emerald-400">
+            <div className="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200 dark:border-emerald-800/80 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
               <BookOpen className="w-4 h-4" />
             </div>
             <div>
               <h2 className="text-sm font-bold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2">
                 Manual de Usuario & Especificaciones AgentOS
-                <span className="text-[10px] font-mono font-normal px-1.5 py-0.2 rounded bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-700">
+                <span className="text-[10px] font-mono font-normal px-1.5 py-0.2 rounded bg-zinc-800 text-zinc-600 dark:text-zinc-600 dark:text-zinc-400 border border-zinc-700">
                   v2.4
                 </span>
               </h2>
-              <p className="text-[11px] text-zinc-600 dark:text-zinc-400">
+              <p className="text-[11px] text-zinc-600 dark:text-zinc-600 dark:text-zinc-400">
                 Guía completa de arquitectura, supervisión HITL, memoria RAG y especificaciones agénticas.
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-zinc-600 dark:text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -290,7 +290,7 @@ export const UserManualModal: React.FC<UserManualModalProps> = ({
           <div className="w-full md:w-72 bg-[#12151b] border-b md:border-b-0 md:border-r border-zinc-200 dark:border-zinc-800 flex flex-col shrink-0">
             <div className="p-3 border-b border-zinc-200 dark:border-zinc-800">
               <div className="relative">
-                <Search className="w-3.5 h-3.5 text-zinc-600 dark:text-zinc-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <Search className="w-3.5 h-3.5 text-zinc-600 dark:text-zinc-600 dark:text-zinc-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   placeholder="Buscar en el manual..."
@@ -310,8 +310,8 @@ export const UserManualModal: React.FC<UserManualModalProps> = ({
                     onClick={() => setActiveTabId(section.id)}
                     className={`w-full text-left px-2.5 py-2 rounded-md text-xs flex items-center justify-between transition-colors cursor-pointer ${
                       isActive
-                        ? "bg-emerald-950/60 text-emerald-300 border border-emerald-800/80 font-medium"
-                        : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50 border border-transparent"
+                        ? "bg-emerald-50 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/80 font-bold shadow-2xs"
+                        : "text-zinc-600 dark:text-zinc-600 dark:text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50 border border-transparent"
                     }`}
                   >
                     <div className="flex items-center gap-2 truncate">
@@ -324,7 +324,7 @@ export const UserManualModal: React.FC<UserManualModalProps> = ({
               })}
             </div>
 
-            <div className="p-3 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-[#090b0e]/60 text-[11px] space-y-1 text-zinc-600 dark:text-zinc-400">
+            <div className="p-3 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-[#090b0e]/60 text-[11px] space-y-1 text-zinc-600 dark:text-zinc-600 dark:text-zinc-400">
               <div className="flex items-center justify-between">
                 <span>Versión:</span>
                 <span className="font-mono text-zinc-300">2.4.0 (Autonomous)</span>
@@ -358,7 +358,7 @@ export const UserManualModal: React.FC<UserManualModalProps> = ({
               <span>AgentOS HITL Supervisor Documentation</span>
               <button
                 onClick={onClose}
-                className="px-3 py-1.5 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs border border-zinc-700 cursor-pointer"
+                className="px-3 py-1.5 rounded bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs border border-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 dark:border-zinc-700 cursor-pointer"
               >
                 Cerrar Manual
               </button>

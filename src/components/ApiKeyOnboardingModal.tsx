@@ -79,18 +79,18 @@ Conéctate al centro de mando con las siguientes credenciales:
         <div className="p-4 sm:p-5 space-y-4 overflow-y-auto text-xs text-zinc-300">
           
           {/* Key Box */}
-          <div className="p-3.5 rounded-lg bg-zinc-50 dark:bg-[#12151b] border border-zinc-200 dark:border-zinc-200 dark:border-zinc-800 space-y-2">
+          <div className="p-3.5 rounded-lg bg-zinc-50 dark:bg-[#12151b] border border-zinc-200 dark:border-zinc-800 space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">Tu Clave API de Proyecto</span>
               <button
                 onClick={() => copyToClipboard(apiKey)}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-zinc-100 hover:bg-zinc-200 text-zinc-800 border border-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 dark:border-transparent text-xs transition-colors cursor-pointer"
               >
                 {copiedKey ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                 <span>{copiedKey ? "¡Copiada!" : "Copiar Clave"}</span>
               </button>
             </div>
-            <div className="p-2.5 rounded bg-zinc-50 dark:bg-[#090b0e] border border-zinc-200 dark:border-zinc-800 font-mono text-xs text-amber-300 select-all break-all">
+            <div className="p-2.5 rounded bg-white dark:bg-[#090b0e] border border-zinc-200 dark:border-zinc-800 font-mono text-xs text-amber-300 select-all break-all">
               {apiKey}
             </div>
             <div className="flex items-center justify-between text-[11px] text-zinc-500 font-mono">
@@ -114,7 +114,7 @@ Conéctate al centro de mando con las siguientes credenciales:
                 <span>{copiedPrompt ? "¡Prompt Copiado!" : "Copiar Prompt Completo"}</span>
               </button>
             </div>
-            <pre className="p-3 rounded-lg bg-zinc-50 dark:bg-[#090b0e] border border-zinc-200 dark:border-zinc-800 text-[11px] font-mono text-zinc-300 whitespace-pre-wrap leading-relaxed max-h-48 overflow-y-auto select-all">
+            <pre className="p-3 rounded-lg bg-white dark:bg-[#090b0e] border border-zinc-200 dark:border-zinc-800 text-[11px] font-mono text-zinc-300 whitespace-pre-wrap leading-relaxed max-h-48 overflow-y-auto select-all">
               {systemPrompt}
             </pre>
           </div>
@@ -133,10 +133,10 @@ Conéctate al centro de mando con las siguientes credenciales:
         </div>
 
         {/* Footer */}
-        <div className="px-4 py-3 bg-[#16191f] border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-end">
+        <div className="px-4 py-3 bg-zinc-50 dark:bg-[#16191f] border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-1.5 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium transition-colors cursor-pointer"
+            className="px-4 py-1.5 rounded bg-zinc-100 hover:bg-zinc-200 text-zinc-800 border border-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 dark:border-transparent text-xs font-medium transition-colors cursor-pointer"
           >
             Entendido
           </button>

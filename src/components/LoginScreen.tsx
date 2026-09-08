@@ -94,11 +94,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className={`min-h-screen bg-[#07090c] flex flex-col items-center justify-center p-3 transition-opacity duration-500 ${isExiting ? 'opacity-0' : 'opacity-100'}`}>
-      <div className="w-full max-w-[340px] bg-white dark:bg-[#0e1117] border border-zinc-200 dark:border-zinc-200 dark:border-zinc-800 rounded-xl shadow-2xl text-zinc-800 dark:text-zinc-200 overflow-hidden text-xs text-zinc-200 animate-in fade-in zoom-in-95 duration-200">
+    <div className={`min-h-screen bg-zinc-100 dark:bg-[#07090c] flex flex-col items-center justify-center p-3 transition-opacity duration-500 ${isExiting ? 'opacity-0' : 'opacity-100'}`}>
+      <div className="w-full max-w-[340px] bg-white dark:bg-[#0e1117] border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-2xl text-zinc-800 dark:text-zinc-200 overflow-hidden text-xs animate-in fade-in zoom-in-95 duration-200">
         
         {/* Compact Header */}
-        <div className="px-4 py-3.5 text-center border-b border-zinc-200 dark:border-zinc-800/80 bg-[#12151b] relative">
+        <div className="px-4 py-3.5 text-center border-b border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-[#12151b] relative">
           <div className="flex items-center justify-center gap-2 mb-1">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <h1 className="text-sm font-bold text-zinc-900 dark:text-white tracking-tight flex items-center gap-1.5">
@@ -120,8 +120,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             }}
             className={`flex-1 py-1 px-2.5 rounded text-[11px] font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
               authMode === 'login'
-                ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-800/80'
-                : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white hover:bg-zinc-800/50'
+                ? 'bg-emerald-50 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-800/80 font-bold shadow-2xs'
+                : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800/50'
             }`}
           >
             <LogIn className="w-3 h-3 text-emerald-400" />
@@ -136,8 +136,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             }}
             className={`flex-1 py-1 px-2.5 rounded text-[11px] font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
               authMode === 'register'
-                ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-800/80'
-                : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:text-white hover:bg-zinc-800/50'
+                ? 'bg-emerald-50 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-800/80 font-bold shadow-2xs'
+                : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800/50'
             }`}
           >
             <UserPlus className="w-3 h-3 text-emerald-400" />
@@ -167,7 +167,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             {/* Usuario */}
             <div className="space-y-1">
               <div className="flex items-center justify-between text-[11px]">
-                <label className="text-zinc-300 font-medium">Usuario</label>
+                <label className="text-zinc-700 dark:text-zinc-300 font-semibold">Usuario</label>
                 {authMode === 'login' && (
                   <button
                     type="button"
@@ -184,7 +184,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full pl-8 pr-2.5 py-1.5 bg-zinc-50 dark:bg-[#090b0e] border border-zinc-200 dark:border-zinc-800 rounded-md text-zinc-900 dark:text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500 text-xs transition-colors"
+                  className="w-full pl-8 pr-2.5 py-1.5 bg-white dark:bg-[#090b0e] border border-zinc-300 dark:border-zinc-800 rounded-md text-zinc-900 dark:text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500 text-xs transition-colors"
                   placeholder="Ej: admin o tu nombre"
                   autoFocus
                   required
@@ -195,14 +195,14 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             {/* Email (Solo registro) */}
             {authMode === 'register' && (
               <div className="space-y-1">
-                <label className="text-[11px] text-zinc-300 font-medium">Correo Electrónico (Opcional)</label>
+                <label className="text-[11px] text-zinc-700 dark:text-zinc-300 font-semibold">Correo Electrónico (Opcional)</label>
                 <div className="relative">
                   <Mail className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-8 pr-2.5 py-1.5 bg-zinc-50 dark:bg-[#090b0e] border border-zinc-200 dark:border-zinc-800 rounded-md text-zinc-900 dark:text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500 text-xs transition-colors"
+                    className="w-full pl-8 pr-2.5 py-1.5 bg-white dark:bg-[#090b0e] border border-zinc-300 dark:border-zinc-800 rounded-md text-zinc-900 dark:text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500 text-xs transition-colors"
                     placeholder="correo@ejemplo.com"
                   />
                 </div>
@@ -211,14 +211,14 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
             {/* PIN */}
             <div className="space-y-1">
-              <label className="text-[11px] text-zinc-300 font-medium">PIN de Acceso (4 dígitos)</label>
+              <label className="text-[11px] text-zinc-700 dark:text-zinc-300 font-semibold">PIN de Acceso (4 dígitos)</label>
               <div className="relative">
                 <Lock className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
                   type="password"
                   value={pin}
                   onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                  className="w-full pl-8 pr-2.5 py-1.5 bg-zinc-50 dark:bg-[#090b0e] border border-zinc-200 dark:border-zinc-800 rounded-md text-zinc-900 dark:text-white placeholder-zinc-500 tracking-[0.4em] font-mono focus:outline-none focus:border-emerald-500 text-xs transition-colors"
+                  className="w-full pl-8 pr-2.5 py-1.5 bg-white dark:bg-[#090b0e] border border-zinc-300 dark:border-zinc-800 rounded-md text-zinc-900 dark:text-white placeholder-zinc-500 tracking-[0.4em] font-mono focus:outline-none focus:border-emerald-500 text-xs transition-colors"
                   placeholder="••••"
                   maxLength={4}
                   required
@@ -230,7 +230,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             <button
               type="submit"
               disabled={isLoading || !name.trim() || pin.length !== 4}
-              className="w-full mt-1 flex items-center justify-center gap-1.5 py-2 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-zinc-900 dark:text-white font-semibold rounded-md transition-all disabled:opacity-50 disabled:cursor-not-allowed text-xs cursor-pointer shadow-xs"
+              className="w-full mt-1 flex items-center justify-center gap-1.5 py-2 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-bold rounded-md transition-all disabled:opacity-50 disabled:cursor-not-allowed text-xs cursor-pointer shadow-xs"
             >
               <span>{isLoading ? 'Verificando...' : authMode === 'login' ? 'Ingresar al Workspace' : 'Crear Cuenta en D1'}</span>
               {!isLoading && <ArrowRight className="w-3.5 h-3.5" />}
