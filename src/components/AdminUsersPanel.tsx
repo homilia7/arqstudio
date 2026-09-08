@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { createPortal } from "react-dom";
 import {
   ShieldCheck,
   Users,
@@ -35,6 +34,7 @@ import {
   Info,
   MessageSquare,
   Bell,
+  ArrowLeft,
 } from "lucide-react";
 import { User, DatabaseStorageStats } from "../types";
 import { fetchUsers, registerUser, deleteUser, fetchDatabaseStorageStats, cleanMockData } from "../services/api";
@@ -285,82 +285,116 @@ export function AdminUsersPanel({
   if (!isOpen) return null;
 
   const panelContent = (
-    <div className="fixed inset-0 z-[99999] bg-zinc-950/80 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 animate-fade-in">
-      <div className="bg-white dark:bg-[#12151b] border border-zinc-200 dark:border-zinc-800/80 text-zinc-800 dark:text-zinc-200 rounded-2xl shadow-2xl w-full max-w-6xl flex flex-col max-h-[94vh] overflow-hidden text-xs">
-        {/* Encabezado Superior */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between px-5 py-3.5 border-b border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-950/60 gap-3">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/30 rounded-xl flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white tracking-tight flex items-center gap-1.5">
-                  Directorio de Usuarios & Consumo Real de Base de Datos
-                </h2>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30">
-                  <Crown className="w-3 h-3" />
-                  <span>SUPER ADMIN</span>
-                </span>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                  <Database className="w-3 h-3" />
-                  <span>Cloudflare D1 SQL</span>
-                </span>
-              </div>
-              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
-                Supervisa el almacenamiento real consumido por cada usuario, capacidad total acumulada y actividad en tiempo real.
-              </p>
-            </div>
-          </div>
+    <div className="flex-1 w-full bg-zinc-50 dark:bg-[#07090c] text-zinc-800 dark:text-zinc-200 flex flex-col overflow-y-auto animate-fade-in pb-12">
+      {/* Barra de navegación superior / Breadcrumb */}
+      <div className="bg-white/90 dark:bg-[#0b0d10]/90 backdrop-blur-sm border-b border-zinc-200 dark:border-[#1c2027] px-4 sm:px-6 py-2.5 flex items-center justify-between sticky top-0 z-30 shadow-2xs">
+        <div className="flex items-center gap-3">
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800/80 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 transition-colors font-semibold text-xs cursor-pointer group shadow-2xs"
+              title="Volver a los Proyectos y Flujo de Trabajo"
+            >
+              <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5 text-indigo-500" />
+              <span>← Volver al Espacio de Trabajo</span>
+            </button>
+          )}
 
-          <div className="flex items-center space-x-2 shrink-0 self-end sm:self-center">
-            <button
-              onClick={() => setIsDbBreakdownOpen(true)}
-              className="px-2.5 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 border border-zinc-300 dark:border-zinc-700 rounded-lg text-xs font-medium flex items-center space-x-1.5 transition-colors cursor-pointer"
-              title="Ver desglose completo de tablas en Cloudflare D1"
-            >
-              <PieChart className="w-3.5 h-3.5 text-indigo-500" />
-              <span>Desglose D1</span>
-            </button>
-            <button
-              onClick={handleCleanMockData}
-              disabled={cleaningMock}
-              title="Purgar chats de prueba y datos simulados de Cloudflare D1"
-              className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-200 dark:border-rose-900/60 rounded-lg text-xs font-medium flex items-center space-x-1.5 transition-colors cursor-pointer disabled:opacity-50"
-            >
-              <Trash2 className={`w-3.5 h-3.5 ${cleaningMock ? "animate-spin" : ""}`} />
-              <span className="hidden md:inline">Purgar Simulados</span>
-            </button>
-            <button
-              onClick={loadData}
-              disabled={loading}
-              title="Refrescar datos en vivo"
-              className="px-2.5 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 border border-zinc-300 dark:border-zinc-700 rounded-lg text-xs font-medium flex items-center space-x-1.5 transition-colors cursor-pointer disabled:opacity-50"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-indigo-500" : ""}`} />
-              <span className="hidden sm:inline">Refrescar</span>
-            </button>
-            <button
-              onClick={() => {
-                setFormError(null);
-                setSuccessMsg(null);
-                setIsModalOpen(true);
-              }}
-              className="flex items-center space-x-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold shadow-sm transition-all cursor-pointer"
-            >
-              <UserPlus className="w-3.5 h-3.5" />
-              <span>Registrar Usuario</span>
-            </button>
-            {onClose && (
-              <button
-                onClick={onClose}
-                className="p-1.5 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
+          <div className="hidden sm:flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+            <span className="text-zinc-400 font-mono">AgentOS</span>
+            <span>/</span>
+            <span className="font-semibold text-zinc-800 dark:text-zinc-200">Panel de Administración</span>
+            <span>/</span>
+            <span className="font-mono text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded border border-indigo-200 dark:border-indigo-900/60 text-[11px]">
+              Directorio & Base de Datos SQL
+            </span>
           </div>
         </div>
+
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] text-zinc-400 font-mono hidden md:inline">Entorno Cloudflare D1 Serverless</span>
+        </div>
+      </div>
+
+      {/* Main Page Container */}
+      <div className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-4">
+        <div className="bg-white dark:bg-[#12151b] border border-zinc-200 dark:border-zinc-800/80 rounded-2xl shadow-sm overflow-hidden flex flex-col text-xs">
+          {/* Encabezado Superior */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between px-5 py-3.5 border-b border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-950/60 gap-3">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/30 rounded-xl flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h2 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white tracking-tight flex items-center gap-1.5">
+                    Directorio de Usuarios & Consumo Real de Base de Datos
+                  </h2>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+                    <Crown className="w-3 h-3" />
+                    <span>SUPER ADMIN</span>
+                  </span>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                    <Database className="w-3 h-3" />
+                    <span>Cloudflare D1 SQL</span>
+                  </span>
+                </div>
+                <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
+                  Supervisa el almacenamiento real consumido por cada usuario, capacidad total acumulada y actividad en tiempo real.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2 shrink-0 self-end sm:self-center">
+              <button
+                onClick={() => setIsDbBreakdownOpen(true)}
+                className="px-2.5 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 border border-zinc-300 dark:border-zinc-700 rounded-lg text-xs font-medium flex items-center space-x-1.5 transition-colors cursor-pointer"
+                title="Ver desglose completo de tablas en Cloudflare D1"
+              >
+                <PieChart className="w-3.5 h-3.5 text-indigo-500" />
+                <span>Desglose D1</span>
+              </button>
+              <button
+                onClick={handleCleanMockData}
+                disabled={cleaningMock}
+                title="Purgar chats de prueba y datos simulados de Cloudflare D1"
+                className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-200 dark:border-rose-900/60 rounded-lg text-xs font-medium flex items-center space-x-1.5 transition-colors cursor-pointer disabled:opacity-50"
+              >
+                <Trash2 className={`w-3.5 h-3.5 ${cleaningMock ? "animate-spin" : ""}`} />
+                <span className="hidden md:inline">Purgar Simulados</span>
+              </button>
+              <button
+                onClick={loadData}
+                disabled={loading}
+                title="Refrescar datos en vivo"
+                className="px-2.5 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 border border-zinc-300 dark:border-zinc-700 rounded-lg text-xs font-medium flex items-center space-x-1.5 transition-colors cursor-pointer disabled:opacity-50"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-indigo-500" : ""}`} />
+                <span className="hidden sm:inline">Refrescar</span>
+              </button>
+              <button
+                onClick={() => {
+                  setFormError(null);
+                  setSuccessMsg(null);
+                  setIsModalOpen(true);
+                }}
+                className="flex items-center space-x-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold shadow-sm transition-all cursor-pointer"
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                <span>Registrar Usuario</span>
+              </button>
+              {onClose && (
+                <button
+                  onClick={onClose}
+                  title="Volver al Espacio de Trabajo / Proyectos"
+                  className="px-2.5 py-1.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 border border-zinc-300 dark:border-zinc-700 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition-colors cursor-pointer"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5 text-indigo-500" />
+                  <span>Volver</span>
+                </button>
+              )}
+            </div>
+          </div>
 
         {/* MONITOR PRINCIPAL: Capacidad Real & Almacenamiento Acumulado de la Base de Datos */}
         <div className="p-4 bg-gradient-to-r from-indigo-50/50 via-zinc-50 to-purple-50/50 dark:from-indigo-950/20 dark:via-zinc-900/40 dark:to-purple-950/20 border-b border-zinc-200 dark:border-zinc-800/80">
@@ -1467,8 +1501,9 @@ export function AdminUsersPanel({
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 
-  return createPortal(panelContent, document.body);
+  return panelContent;
 }

@@ -48,6 +48,7 @@ interface DesktopMenuBarProps {
   isRefreshing: boolean;
   onLogout?: () => void;
   unreadNotificationsCount: number;
+  isAdminUsersView?: boolean;
 }
 
 export const DesktopMenuBar: React.FC<DesktopMenuBarProps> = ({
@@ -58,6 +59,7 @@ export const DesktopMenuBar: React.FC<DesktopMenuBarProps> = ({
   onOpenNewProject,
   onOpenMyAccount,
   onOpenAdminUsers,
+  isAdminUsersView,
   onOpenApiDocs,
   onOpenAgentConnections,
   onOpenNotifications,
@@ -393,10 +395,15 @@ export const DesktopMenuBar: React.FC<DesktopMenuBarProps> = ({
           {(currentUser?.name?.toLowerCase() === 'admin' || currentUser?.accessType?.toLowerCase()?.includes('admin')) && (
             <button
               onClick={onOpenAdminUsers}
-              title="Directorio de Usuarios Registrados (Super Admin)"
-              className="p-1 rounded bg-indigo-50 border border-indigo-200 text-indigo-800 hover:bg-indigo-100 dark:bg-indigo-950/70 dark:border-indigo-800/80 dark:text-indigo-300 dark:hover:bg-indigo-900 transition-colors cursor-pointer flex items-center gap-1"
+              title="Directorio de Usuarios Registrados & Consumo Real (Super Admin)"
+              className={`px-2 py-1 rounded border transition-colors cursor-pointer flex items-center gap-1.5 text-xs font-semibold ${
+                isAdminUsersView
+                  ? 'bg-indigo-600 border-indigo-500 text-white shadow-xs'
+                  : 'bg-indigo-50 border-indigo-200 text-indigo-800 hover:bg-indigo-100 dark:bg-indigo-950/70 dark:border-indigo-800/80 dark:text-indigo-300 dark:hover:bg-indigo-900'
+              }`}
             >
-              <Users className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+              <Users className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Usuarios & DB</span>
             </button>
           )}
 

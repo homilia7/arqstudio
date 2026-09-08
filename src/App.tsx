@@ -141,7 +141,41 @@ export default function App() {
   const [chatAuditTask, setChatAuditTask] = useState<TaskItem | null>(null);
   const [agentConnectionsOpen, setAgentConnectionsOpen] = useState(false);
   const [myAccountOpen, setMyAccountOpen] = useState(false);
-  const [adminUsersOpen, setAdminUsersOpen] = useState(false);
+  
+  // Routing interno para entornos/páginas independientes: "workspace" | "admin_users"
+  const [currentView, setCurrentView] = useState<"workspace" | "admin_users">(() => {
+    try {
+      const h = window.location.hash;
+      if (h === "#admin-users" || h === "#usuarios") return "admin_users";
+    } catch {}
+    return "workspace";
+  });
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      const h = window.location.hash;
+      if (h === "#admin-users" || h === "#usuarios") {
+        setCurrentView("admin_users");
+      } else if (currentView === "admin_users" && (!h || h === "#")) {
+        setCurrentView("workspace");
+      }
+    };
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, [currentView]);
+
+  const handleOpenAdminUsers = () => {
+    setCurrentView("admin_users");
+    window.location.hash = "admin-users";
+  };
+
+  const handleCloseAdminUsers = () => {
+    setCurrentView("workspace");
+    if (window.location.hash) {
+      window.history.pushState(null, "", window.location.pathname + window.location.search);
+    }
+  };
+
   const [notificationsDrawerOpen, setNotificationsDrawerOpen] = useState(false);
   const [notifications, setNotifications] = useState<AgentNotification[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -339,7 +373,8 @@ export default function App() {
         onSelectProject={handleSelectProject}
         onOpenNewProject={() => setCreateProjectModalOpen(true)}
         onOpenMyAccount={() => setMyAccountOpen(true)}
-        onOpenAdminUsers={() => setAdminUsersOpen(true)}
+        onOpenAdminUsers={handleOpenAdminUsers}
+        isAdminUsersView={currentView === "admin_users"}
         onOpenApiDocs={() => setApiDocsOpen(true)}
         onOpenAgentConnections={() => setAgentConnectionsOpen(true)}
         onOpenNotifications={() => setNotificationsDrawerOpen(true)}
@@ -356,96 +391,107 @@ export default function App() {
         unreadNotificationsCount={notifications.filter((n) => !n.read).length}
       />
 
-      {/* 2. Barra de Comandos y Badges de Estado */}
-      <ProjectCommandBar
-        activeProject={activeProject}
-        allProjects={projects}
-        onSelectProject={handleSelectProject}
-        onOpenNewProject={() => setCreateProjectModalOpen(true)}
-        onDeleteProject={handleDeleteProject}
-        approvedTasksCount={approvedTasksCount}
-        onRunAgentLoop={handleRunAgentLoop}
-        isAgentRunning={isAgentRunning}
-        activeModelName={activeModelName}
-        onToggleLeftSidebar={() => setIsLeftSidebarOpen(!isLeftSidebarOpen)}
-        onToggleRightSidebar={() => setIsRightSidebarOpen(!isRightSidebarOpen)}
-        isLeftSidebarOpen={isLeftSidebarOpen}
-        isRightSidebarOpen={isRightSidebarOpen}
-      />
-
-      {/* 3. Layout Principal 3 Columnas Dockable */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Columna 1: Panel Izquierdo de Auditoría */}
-        <AuditSidebar
-          isOpen={isLeftSidebarOpen}
-          onClose={() => setIsLeftSidebarOpen(false)}
-          commits={commits}
-          onRollback={(c) => {
-            showToast(`Rollback completado para ${c.commitHash}`, "info");
-          }}
+      {/* 2. Vista Principal: Entorno de Directorio de Usuarios o Espacio de Trabajo */}
+      {currentView === "admin_users" ? (
+        <AdminUsersPanel
+          isOpen={true}
+          onClose={handleCloseAdminUsers}
+          currentUser={currentUser}
         />
-
-        {/* Columna 2: Panel Central de Flujo en Cascada / QA Hub */}
-        <main className="flex-1 flex flex-col overflow-y-auto bg-zinc-50 dark:bg-[#07090c] border-x border-zinc-200 dark:border-[#1e222d]">
-          {/* Cabecera del Flujo en Cascada */}
-          <CascadingHeader
-            approvedCount={approvedTasksCount}
-            reviewCount={pendingReviewCount}
-            pendingCount={pendingWaitCount}
-            onOpenNewTask={() => {
-              const el = document.getElementById("instruction-input");
-              if (el) el.focus();
-            }}
+      ) : (
+        <>
+          {/* Barra de Comandos y Badges de Estado */}
+          <ProjectCommandBar
+            activeProject={activeProject}
+            allProjects={projects}
+            onSelectProject={handleSelectProject}
+            onOpenNewProject={() => setCreateProjectModalOpen(true)}
+            onDeleteProject={handleDeleteProject}
+            approvedTasksCount={approvedTasksCount}
+            onRunAgentLoop={handleRunAgentLoop}
+            isAgentRunning={isAgentRunning}
+            activeModelName={activeModelName}
+            onToggleLeftSidebar={() => setIsLeftSidebarOpen(!isLeftSidebarOpen)}
+            onToggleRightSidebar={() => setIsRightSidebarOpen(!isRightSidebarOpen)}
+            isLeftSidebarOpen={isLeftSidebarOpen}
+            isRightSidebarOpen={isRightSidebarOpen}
           />
 
-          {/* Contenido Central */}
-          <div className="p-4 space-y-4 max-w-5xl w-full mx-auto">
-            {/* Formulario de Entrada */}
-            <TaskInputForm
-              activeProject={activeProject}
-              onAddTask={handleAddTask}
-              onOpenApiDocs={() => setApiDocsOpen(true)}
+          {/* Layout Principal 3 Columnas Dockable */}
+          <div className="flex-1 flex overflow-hidden">
+            {/* Columna 1: Panel Izquierdo de Auditoría */}
+            <AuditSidebar
+              isOpen={isLeftSidebarOpen}
+              onClose={() => setIsLeftSidebarOpen(false)}
+              commits={commits}
+              onRollback={(c) => {
+                showToast(`Rollback completado para ${c.commitHash}`, "info");
+              }}
             />
 
-            {/* Lista de Tareas y Quality Gates */}
-            <TaskList
-              tasks={activeTasks}
-              modules={modules}
-              stages={stages}
-              filter={filter}
-              onFilterChange={setFilter}
-              onReviewTask={(t) => setReviewTask(t)}
-              onQuickVerify={handleVerifyTask}
-              onUnlockTask={(id) => api.unlockTask(id, currentUser?.id).then(() => loadData(true))}
-              onDeleteTask={(id) => api.deleteTask(id).then(() => loadData(true))}
-              onSimulateTask={(id) => {
-                const found = tasks.find((t) => t.id === id);
-                if (found) setSimulateTask(found);
-              }}
-              onOpenNewTaskPrompt={() => {
-                const el = document.getElementById("instruction-input");
-                if (el) el.focus();
-              }}
-              onOpenContextMemory={(t) => setContextTask(t)}
-              onCreateModule={(title) => activeProject && api.createModule(activeProject.id, title).then(() => loadData(true))}
-              onCreateStage={(modId, title) => activeProject && api.createStage(modId, activeProject.id, title).then(() => loadData(true))}
-              onDeleteModule={(modId) => api.deleteModule(modId).then(() => loadData(true))}
-              onOpenPlanGenerator={() => setPlanGeneratorOpen(true)}
-              onOpenChatAudit={(t) => { setChatAuditTask(t); setChatAuditOpen(true); }}
-              onRejectTask={handleRejectTask}
+            {/* Columna 2: Panel Central de Flujo en Cascada / QA Hub */}
+            <main className="flex-1 flex flex-col overflow-y-auto bg-zinc-50 dark:bg-[#07090c] border-x border-zinc-200 dark:border-[#1e222d]">
+              {/* Cabecera del Flujo en Cascada */}
+              <CascadingHeader
+                approvedCount={approvedTasksCount}
+                reviewCount={pendingReviewCount}
+                pendingCount={pendingWaitCount}
+                onOpenNewTask={() => {
+                  const el = document.getElementById("instruction-input");
+                  if (el) el.focus();
+                }}
+              />
+
+              {/* Contenido Central */}
+              <div className="p-4 space-y-4 max-w-5xl w-full mx-auto">
+                {/* Formulario de Entrada */}
+                <TaskInputForm
+                  activeProject={activeProject}
+                  onAddTask={handleAddTask}
+                  onOpenApiDocs={() => setApiDocsOpen(true)}
+                />
+
+                {/* Lista de Tareas y Quality Gates */}
+                <TaskList
+                  tasks={activeTasks}
+                  modules={modules}
+                  stages={stages}
+                  filter={filter}
+                  onFilterChange={setFilter}
+                  onReviewTask={(t) => setReviewTask(t)}
+                  onQuickVerify={handleVerifyTask}
+                  onUnlockTask={(id) => api.unlockTask(id, currentUser?.id).then(() => loadData(true))}
+                  onDeleteTask={(id) => api.deleteTask(id).then(() => loadData(true))}
+                  onSimulateTask={(id) => {
+                    const found = tasks.find((t) => t.id === id);
+                    if (found) setSimulateTask(found);
+                  }}
+                  onOpenNewTaskPrompt={() => {
+                    const el = document.getElementById("instruction-input");
+                    if (el) el.focus();
+                  }}
+                  onOpenContextMemory={(t) => setContextTask(t)}
+                  onCreateModule={(title) => activeProject && api.createModule(activeProject.id, title).then(() => loadData(true))}
+                  onCreateStage={(modId, title) => activeProject && api.createStage(modId, activeProject.id, title).then(() => loadData(true))}
+                  onDeleteModule={(modId) => api.deleteModule(modId).then(() => loadData(true))}
+                  onOpenPlanGenerator={() => setPlanGeneratorOpen(true)}
+                  onOpenChatAudit={(t) => { setChatAuditTask(t); setChatAuditOpen(true); }}
+                  onRejectTask={handleRejectTask}
+                />
+              </div>
+            </main>
+
+            {/* Columna 3: Panel Derecho de Memoria y Lockfile */}
+            <MemoryLockfileSidebar
+              isOpen={isRightSidebarOpen}
+              onClose={() => setIsRightSidebarOpen(false)}
+              activeProject={activeProject}
+              ragCount={0}
+              activeTokens={0}
             />
           </div>
-        </main>
-
-        {/* Columna 3: Panel Derecho de Memoria y Lockfile */}
-        <MemoryLockfileSidebar
-          isOpen={isRightSidebarOpen}
-          onClose={() => setIsRightSidebarOpen(false)}
-          activeProject={activeProject}
-          ragCount={0}
-          activeTokens={0}
-        />
-      </div>
+        </>
+      )}
 
       {/* 4. Barra de Estado Inferior Inmóvil (Footer) */}
       <IdeStatusBar
@@ -515,12 +561,6 @@ export default function App() {
           handleUpdateCurrentUser(null);
           setMyAccountOpen(false);
         }}
-      />
-
-      <AdminUsersPanel
-        isOpen={adminUsersOpen}
-        onClose={() => setAdminUsersOpen(false)}
-        currentUser={currentUser}
       />
 
       <PlanGeneratorModal
