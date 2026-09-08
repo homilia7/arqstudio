@@ -810,20 +810,83 @@ export async function onRequest(context: any) {
       );
     }
 
+    // Helper de cálculo de bytes reales en SQLite / Cloudflare D1
+    function calculateRowBytes(row: any): number {
+      if (!row || typeof row !== "object") return 0;
+      let bytes = 0;
+      for (const [key, value] of Object.entries(row)) {
+        bytes += key.length;
+        if (value === null || value === undefined) {
+          bytes += 1;
+        } else if (typeof value === "string") {
+          bytes += new TextEncoder().encode(value).length;
+        } else if (typeof value === "number") {
+          bytes += 8;
+        } else if (typeof value === "boolean") {
+          bytes += 1;
+        } else {
+          bytes += new TextEncoder().encode(JSON.stringify(value)).length;
+        }
+      }
+      return bytes + 20; // Overhead de registro SQLite y puntero B-Tree
+    }
+
+    function formatBytes(bytes: number): string {
+      if (bytes === 0) return "0 B";
+      const k = 1024;
+      const sizes = ["B", "KB", "MB", "GB", "TB"];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
+    }
+
+    // --- CONSULTA DE USUARIOS CON CONSUMO REAL DE BASE DE DATOS (GET /api/users) ---
     if (pathname === "/api/users" && request.method === "GET") {
       const requesterId = (request.headers.get("x-user-id") || url.searchParams.get("userId") || "").trim();
       let users: any[] = [];
       let projects: any[] = [];
+      let tasks: any[] = [];
       let connections: any[] = [];
+      let notifications: any[] = [];
+      let chatAudits: any[] = [];
+      let history: any[] = [];
+      let modules: any[] = [];
 
       if (env && env.DB) {
-        const res = await env.DB.prepare("SELECT * FROM antigravity_users ORDER BY created_at DESC").all();
-        users = res.results || [];
-        const projRes = await env.DB.prepare("SELECT user_id, api_key FROM antigravity_projects").all().catch(() => ({ results: [] }));
-        projects = projRes.results || [];
-        const connRes = await env.DB.prepare("SELECT user_id, action_description, connected_at FROM antigravity_agent_connections ORDER BY connected_at DESC LIMIT 200").all().catch(() => ({ results: [] }));
-        connections = connRes.results || [];
+        const [uRes, pRes, tRes, cRes, nRes, caRes, hRes, mRes] = await Promise.all([
+          env.DB.prepare("SELECT * FROM antigravity_users ORDER BY created_at DESC").all().catch(() => ({ results: [] })),
+          env.DB.prepare("SELECT * FROM antigravity_projects").all().catch(() => ({ results: [] })),
+          env.DB.prepare("SELECT id, project_id, title, description, modified_files, ai_output, ai_notes, status, created_at FROM antigravity_tasks").all().catch(() => ({ results: [] })),
+          env.DB.prepare("SELECT id, user_id, action_description, connected_at, agent_name, project_name FROM antigravity_agent_connections").all().catch(() => ({ results: [] })),
+          env.DB.prepare("SELECT id, user_id, project_id, title, message, created_at FROM antigravity_notifications").all().catch(() => ({ results: [] })),
+          env.DB.prepare("SELECT id, project_id, user_prompt, ai_summary, modified_files, ai_model, created_at FROM antigravity_chat_audit").all().catch(() => ({ results: [] })),
+          env.DB.prepare("SELECT id, project_id, task_title, details, created_at FROM antigravity_history").all().catch(() => ({ results: [] })),
+          env.DB.prepare("SELECT id, project_id, title, description FROM antigravity_modules").all().catch(() => ({ results: [] })),
+        ]);
+
+        users = uRes.results || [];
+        projects = pRes.results || [];
+        tasks = tRes.results || [];
+        connections = cRes.results || [];
+        notifications = nRes.results || [];
+        chatAudits = caRes.results || [];
+        history = hRes.results || [];
+        modules = mRes.results || [];
       }
+
+      // Calcular tamaños por tabla para la base de datos completa
+      const tableBytes = {
+        users: users.reduce((acc, r) => acc + calculateRowBytes(r), 0),
+        projects: projects.reduce((acc, r) => acc + calculateRowBytes(r), 0),
+        tasks: tasks.reduce((acc, r) => acc + calculateRowBytes(r), 0),
+        connections: connections.reduce((acc, r) => acc + calculateRowBytes(r), 0),
+        notifications: notifications.reduce((acc, r) => acc + calculateRowBytes(r), 0),
+        chat_audit: chatAudits.reduce((acc, r) => acc + calculateRowBytes(r), 0),
+        history: history.reduce((acc, r) => acc + calculateRowBytes(r), 0),
+        modules: modules.reduce((acc, r) => acc + calculateRowBytes(r), 0),
+      };
+
+      const totalDbBytes = Object.values(tableBytes).reduce((acc, b) => acc + b, 0);
+      const D1_CAPACITY_BYTES = 5 * 1024 * 1024 * 1024; // 5 GB Cloudflare D1 Quota
 
       const projectKeyMap = new Map<string, string>();
       const projectCountMap = new Map<string, number>();
@@ -848,33 +911,148 @@ export async function onRequest(context: any) {
       const nowMs = Date.now();
       const ONLINE_THRESHOLD_MS = 25 * 60 * 1000; // 25 minutos de inactividad
 
-      return new Response(
-        JSON.stringify(users.map((u) => {
-          const userProjectKey = projectKeyMap.get(u.id);
-          const defaultKey = `arqai_sec_${u.pin || "1234"}_${(u.id || "usr").slice(-4)}`;
-          const userActivity = lastActivityMap.get(u.id);
-          const lastActiveAt = userActivity?.timestamp || u.created_at;
-          const lastActiveMs = new Date(lastActiveAt).getTime();
-          
-          const isOnline = (requesterId && (u.id === requesterId || (u.name?.toLowerCase() === "admin" && requesterId.includes("admin")))) 
-            || (!isNaN(lastActiveMs) && (nowMs - lastActiveMs) < ONLINE_THRESHOLD_MS);
+      const usersWithStorage = users.map((u) => {
+        const userProjectKey = projectKeyMap.get(u.id);
+        const defaultKey = `arqai_sec_${u.pin || "1234"}_${(u.id || "usr").slice(-4)}`;
+        const userActivity = lastActivityMap.get(u.id);
+        const lastActiveAt = userActivity?.timestamp || u.created_at;
+        const lastActiveMs = new Date(lastActiveAt).getTime();
 
-          return {
-            id: u.id,
-            name: u.name,
-            email: u.email,
-            pin: u.pin,
-            apiKey: u.api_key || userProjectKey || defaultKey,
-            accessType: u.access_type || "user",
-            createdAt: u.created_at,
-            projectsCount: projectCountMap.get(u.id) || 0,
-            isOnline: Boolean(isOnline),
-            lastActiveAt: lastActiveAt,
-            lastActivity: userActivity?.action || "Registro en la plataforma",
-          };
-        })),
-        { headers: jsonHeaders }
-      );
+        const isOnline = (requesterId && (u.id === requesterId || (u.name?.toLowerCase() === "admin" && requesterId.includes("admin")))) 
+          || (!isNaN(lastActiveMs) && (nowMs - lastActiveMs) < ONLINE_THRESHOLD_MS);
+
+        // Desglose de consumo de almacenamiento real para este usuario
+        const userProjects = projects.filter((p: any) => p.user_id === u.id);
+        const userProjIds = new Set(userProjects.map((p: any) => p.id));
+
+        const userTasks = tasks.filter((t: any) => userProjIds.has(t.project_id));
+        const userChats = chatAudits.filter((c: any) => userProjIds.has(c.project_id));
+        const userHistory = history.filter((h: any) => userProjIds.has(h.project_id));
+        const userModules = modules.filter((m: any) => userProjIds.has(m.project_id));
+        const userConns = connections.filter((c: any) => c.user_id === u.id);
+        const userNotifs = notifications.filter((n: any) => n.user_id === u.id || (n.project_id && userProjIds.has(n.project_id)));
+
+        const userProfileBytes = calculateRowBytes(u);
+        const projectsBytes = userProjects.reduce((acc, r) => acc + calculateRowBytes(r), 0) + userModules.reduce((acc, r) => acc + calculateRowBytes(r), 0);
+        const tasksBytes = userTasks.reduce((acc, r) => acc + calculateRowBytes(r), 0);
+        const chatBytes = userChats.reduce((acc, r) => acc + calculateRowBytes(r), 0);
+        const historyBytes = userHistory.reduce((acc, r) => acc + calculateRowBytes(r), 0);
+        const connectionsBytes = userConns.reduce((acc, r) => acc + calculateRowBytes(r), 0);
+        const notificationsBytes = userNotifs.reduce((acc, r) => acc + calculateRowBytes(r), 0);
+
+        const totalUserBytes = userProfileBytes + projectsBytes + tasksBytes + chatBytes + historyBytes + connectionsBytes + notificationsBytes;
+        const percentageOfDb = totalDbBytes > 0 ? (totalUserBytes / totalDbBytes) * 100 : 0;
+
+        return {
+          id: u.id,
+          name: u.name,
+          email: u.email,
+          pin: u.pin,
+          apiKey: u.api_key || userProjectKey || defaultKey,
+          accessType: u.access_type || "user",
+          createdAt: u.created_at,
+          projectsCount: projectCountMap.get(u.id) || 0,
+          isOnline: Boolean(isOnline),
+          lastActiveAt: lastActiveAt,
+          lastActivity: userActivity?.action || "Registro en la plataforma",
+          storage: {
+            totalBytes: totalUserBytes,
+            formatted: formatBytes(totalUserBytes),
+            percentageOfDb: parseFloat(percentageOfDb.toFixed(1)),
+            breakdown: {
+              userProfileBytes,
+              projectsBytes,
+              tasksBytes,
+              chatBytes,
+              historyBytes,
+              connectionsBytes,
+              notificationsBytes,
+            },
+            counts: {
+              projects: userProjects.length,
+              tasks: userTasks.length,
+              chatAudits: userChats.length,
+              history: userHistory.length,
+              connections: userConns.length,
+              notifications: userNotifs.length,
+            },
+          },
+        };
+      });
+
+      const userHeaders = {
+        ...jsonHeaders,
+        "x-d1-total-bytes": totalDbBytes.toString(),
+        "x-d1-capacity-bytes": D1_CAPACITY_BYTES.toString(),
+        "x-d1-used-formatted": formatBytes(totalDbBytes),
+        "Access-Control-Expose-Headers": "x-d1-total-bytes, x-d1-capacity-bytes, x-d1-used-formatted",
+      };
+
+      return new Response(JSON.stringify(usersWithStorage), { headers: userHeaders });
+    }
+
+    // --- ESTADÍSTICAS GLOBALES DE ALMACENAMIENTO DE BASE DE DATOS D1 (GET /api/admin/database-storage) ---
+    if (pathname === "/api/admin/database-storage" && request.method === "GET") {
+      let users: any[] = [];
+      let projects: any[] = [];
+      let tasks: any[] = [];
+      let connections: any[] = [];
+      let notifications: any[] = [];
+      let chatAudits: any[] = [];
+      let history: any[] = [];
+      let modules: any[] = [];
+
+      if (env && env.DB) {
+        const [uRes, pRes, tRes, cRes, nRes, caRes, hRes, mRes] = await Promise.all([
+          env.DB.prepare("SELECT * FROM antigravity_users").all().catch(() => ({ results: [] })),
+          env.DB.prepare("SELECT * FROM antigravity_projects").all().catch(() => ({ results: [] })),
+          env.DB.prepare("SELECT * FROM antigravity_tasks").all().catch(() => ({ results: [] })),
+          env.DB.prepare("SELECT * FROM antigravity_agent_connections").all().catch(() => ({ results: [] })),
+          env.DB.prepare("SELECT * FROM antigravity_notifications").all().catch(() => ({ results: [] })),
+          env.DB.prepare("SELECT * FROM antigravity_chat_audit").all().catch(() => ({ results: [] })),
+          env.DB.prepare("SELECT * FROM antigravity_history").all().catch(() => ({ results: [] })),
+          env.DB.prepare("SELECT * FROM antigravity_modules").all().catch(() => ({ results: [] })),
+        ]);
+
+        users = uRes.results || [];
+        projects = pRes.results || [];
+        tasks = tRes.results || [];
+        connections = cRes.results || [];
+        notifications = nRes.results || [];
+        chatAudits = caRes.results || [];
+        history = hRes.results || [];
+        modules = mRes.results || [];
+      }
+
+      const tableBytes = {
+        users: users.reduce((acc, r) => acc + calculateRowBytes(r), 0),
+        projects: projects.reduce((acc, r) => acc + calculateRowBytes(r), 0) + modules.reduce((acc, r) => acc + calculateRowBytes(r), 0),
+        tasks: tasks.reduce((acc, r) => acc + calculateRowBytes(r), 0),
+        connections: connections.reduce((acc, r) => acc + calculateRowBytes(r), 0),
+        notifications: notifications.reduce((acc, r) => acc + calculateRowBytes(r), 0),
+        chat_audit: chatAudits.reduce((acc, r) => acc + calculateRowBytes(r), 0),
+        history: history.reduce((acc, r) => acc + calculateRowBytes(r), 0),
+      };
+
+      const totalDbBytes = Object.values(tableBytes).reduce((acc, b) => acc + b, 0);
+      const D1_CAPACITY_BYTES = 5 * 1024 * 1024 * 1024; // 5 GB Cloudflare D1 Quota
+
+      return new Response(JSON.stringify({
+        totalStorageBytes: totalDbBytes,
+        totalStorageFormatted: formatBytes(totalDbBytes),
+        maxCapacityBytes: D1_CAPACITY_BYTES,
+        maxCapacityFormatted: "5.0 GB",
+        usagePercentage: parseFloat(((totalDbBytes / D1_CAPACITY_BYTES) * 100).toFixed(4)),
+        tables: [
+          { name: "antigravity_projects", displayName: "Proyectos & Blueprint", bytes: tableBytes.projects, formatted: formatBytes(tableBytes.projects), rows: projects.length + modules.length, percentage: totalDbBytes > 0 ? parseFloat(((tableBytes.projects / totalDbBytes) * 100).toFixed(1)) : 0 },
+          { name: "antigravity_tasks", displayName: "Tareas & Entregables", bytes: tableBytes.tasks, formatted: formatBytes(tableBytes.tasks), rows: tasks.length, percentage: totalDbBytes > 0 ? parseFloat(((tableBytes.tasks / totalDbBytes) * 100).toFixed(1)) : 0 },
+          { name: "antigravity_chat_audit", displayName: "Historial de Chat & HITL", bytes: tableBytes.chat_audit, formatted: formatBytes(tableBytes.chat_audit), rows: chatAudits.length, percentage: totalDbBytes > 0 ? parseFloat(((tableBytes.chat_audit / totalDbBytes) * 100).toFixed(1)) : 0 },
+          { name: "antigravity_agent_connections", displayName: "Conexiones & Actividad", bytes: tableBytes.connections, formatted: formatBytes(tableBytes.connections), rows: connections.length, percentage: totalDbBytes > 0 ? parseFloat(((tableBytes.connections / totalDbBytes) * 100).toFixed(1)) : 0 },
+          { name: "antigravity_history", displayName: "Historial de Cambios", bytes: tableBytes.history, formatted: formatBytes(tableBytes.history), rows: history.length, percentage: totalDbBytes > 0 ? parseFloat(((tableBytes.history / totalDbBytes) * 100).toFixed(1)) : 0 },
+          { name: "antigravity_notifications", displayName: "Notificaciones", bytes: tableBytes.notifications, formatted: formatBytes(tableBytes.notifications), rows: notifications.length, percentage: totalDbBytes > 0 ? parseFloat(((tableBytes.notifications / totalDbBytes) * 100).toFixed(1)) : 0 },
+          { name: "antigravity_users", displayName: "Cuentas de Usuario", bytes: tableBytes.users, formatted: formatBytes(tableBytes.users), rows: users.length, percentage: totalDbBytes > 0 ? parseFloat(((tableBytes.users / totalDbBytes) * 100).toFixed(1)) : 0 },
+        ]
+      }), { headers: jsonHeaders });
     }
 
     // CREAR / REGISTRAR USUARIO (POST /api/users & POST /api/auth/register)

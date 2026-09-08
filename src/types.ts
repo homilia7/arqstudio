@@ -123,6 +123,51 @@ export interface AgentConnection {
   projectName?: string;
 }
 
+export interface UserStorageBreakdown {
+  userProfileBytes: number;
+  projectsBytes: number;
+  tasksBytes: number;
+  chatBytes: number;
+  historyBytes: number;
+  connectionsBytes: number;
+  notificationsBytes: number;
+}
+
+export interface UserStorageCounts {
+  projects: number;
+  tasks: number;
+  chatAudits: number;
+  history: number;
+  connections: number;
+  notifications: number;
+}
+
+export interface UserStorageInfo {
+  totalBytes: number;
+  formatted: string;
+  percentageOfDb: number;
+  breakdown: UserStorageBreakdown;
+  counts: UserStorageCounts;
+}
+
+export interface TableStorageStat {
+  name: string;
+  displayName: string;
+  bytes: number;
+  formatted: string;
+  rows: number;
+  percentage: number;
+}
+
+export interface DatabaseStorageStats {
+  totalStorageBytes: number;
+  totalStorageFormatted: string;
+  maxCapacityBytes: number;
+  maxCapacityFormatted: string;
+  usagePercentage: number;
+  tables: TableStorageStat[];
+}
+
 export interface User {
   id: string;
   name: string;
@@ -135,6 +180,7 @@ export interface User {
   lastActiveAt?: string;
   lastActivity?: string;
   projectsCount?: number;
+  storage?: UserStorageInfo;
 }
 
 export interface AgentNotification {

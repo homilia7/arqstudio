@@ -13,6 +13,7 @@ import {
   BlockedAgent,
   ChatAuditEntry,
   RagMemorySnippet,
+  DatabaseStorageStats,
 } from "../types";
 
 const BASE_URL = "/api";
@@ -796,6 +797,17 @@ export async function fetchUsers(requesterUserId?: string, requesterUserPin?: st
     throw new Error(errorData?.error || 'Error al obtener la lista de usuarios');
   }
   return res.json();
+}
+
+export async function fetchDatabaseStorageStats(): Promise<DatabaseStorageStats | null> {
+  try {
+    const res = await fetch('/api/admin/database-storage');
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (err) {
+    console.error("Error fetching database storage stats:", err);
+    return null;
+  }
 }
 
 export async function getUserProfile(id: string) {

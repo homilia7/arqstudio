@@ -23,12 +23,19 @@ import {
   Activity,
   Calendar,
   Wifi,
-  WifiOff,
   FolderGit2,
   Crown,
+  HardDrive,
+  BarChart2,
+  PieChart,
+  ArrowUpDown,
+  FileCode,
+  Layers,
+  Sparkles,
+  Info,
 } from "lucide-react";
-import { User } from "../types";
-import { fetchUsers, registerUser, deleteUser } from "../services/api";
+import { User, DatabaseStorageStats } from "../types";
+import { fetchUsers, registerUser, deleteUser, fetchDatabaseStorageStats } from "../services/api";
 
 interface AdminUsersPanelProps {
   isOpen?: boolean;
@@ -44,12 +51,20 @@ export function AdminUsersPanel({
   refreshKey,
 }: AdminUsersPanelProps) {
   const [users, setUsers] = useState<User[]>([]);
+  const [dbStats, setDbStats] = useState<DatabaseStorageStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterTab, setFilterTab] = useState<"all" | "online" | "offline" | "admin" | "user">("all");
+  const [sortByStorage, setSortByStorage] = useState<boolean>(false);
   const [showPins, setShowPins] = useState<Record<string, boolean>>({});
   const [copiedPinId, setCopiedPinId] = useState<string | null>(null);
+
+  // Modal para ver desglose de almacenamiento del usuario
+  const [userForStorageDetail, setUserForStorageDetail] = useState<User | null>(null);
+
+  // Modal para ver desglose global de la base de datos
+  const [isDbBreakdownOpen, setIsDbBreakdownOpen] = useState(false);
 
   // Modal para registrar nuevo usuario
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -68,18 +83,22 @@ export function AdminUsersPanel({
 
   useEffect(() => {
     if (isOpen) {
-      loadUsers();
+      loadData();
     }
   }, [isOpen, refreshKey]);
 
-  const loadUsers = async () => {
+  const loadData = async () => {
     try {
       setLoading(true);
-      const data = await fetchUsers(currentUser?.id, currentUser?.pin);
-      setUsers(Array.isArray(data) ? data : []);
+      const [usersData, statsData] = await Promise.all([
+        fetchUsers(currentUser?.id, currentUser?.pin),
+        fetchDatabaseStorageStats(),
+      ]);
+      setUsers(Array.isArray(usersData) ? usersData : []);
+      if (statsData) setDbStats(statsData);
       setError(null);
     } catch (err: any) {
-      setError(err.message || "Error al cargar los usuarios.");
+      setError(err.message || "Error al cargar los datos del panel.");
     } finally {
       setLoading(false);
     }
@@ -116,7 +135,7 @@ export function AdminUsersPanel({
         setPin("");
         setEmail("");
         setAccessType("Acceso Full");
-        await loadUsers();
+        await loadData();
         setTimeout(() => {
           setIsModalOpen(false);
           setSuccessMsg(null);
@@ -136,7 +155,7 @@ export function AdminUsersPanel({
     try {
       await deleteUser(userToDelete.id);
       setUserToDelete(null);
-      await loadUsers();
+      await loadData();
     } catch (err: any) {
       setDeleteError(err.message || "Error al eliminar el usuario de la base de datos.");
     } finally {
@@ -147,16 +166,20 @@ export function AdminUsersPanel({
   // KPIs
   const totalUsers = users.length;
   const onlineUsersCount = useMemo(() => users.filter((u) => u.isOnline).length, [users]);
-  const offlineUsersCount = totalUsers - onlineUsersCount;
   const totalProjects = useMemo(() => users.reduce((acc, u) => acc + (u.projectsCount || 0), 0), [users]);
   const newTodayCount = useMemo(() => {
     const today = new Date().toDateString();
     return users.filter((u) => u.createdAt && new Date(u.createdAt).toDateString() === today).length;
   }, [users]);
 
-  // Filtrado de usuarios
-  const filteredUsers = useMemo(() => {
-    return users.filter((u) => {
+  // Almacenamiento total acumulado de todos los usuarios
+  const totalAccumulatedUserBytes = useMemo(() => {
+    return users.reduce((acc, u) => acc + (u.storage?.totalBytes || 0), 0);
+  }, [users]);
+
+  // Filtrado y ordenamiento de usuarios
+  const filteredAndSortedUsers = useMemo(() => {
+    let result = users.filter((u) => {
       const q = searchQuery.toLowerCase().trim();
       const matchesSearch =
         !q ||
@@ -183,7 +206,13 @@ export function AdminUsersPanel({
       }
       return true;
     });
-  }, [users, searchQuery, filterTab]);
+
+    if (sortByStorage) {
+      result = [...result].sort((a, b) => (b.storage?.totalBytes || 0) - (a.storage?.totalBytes || 0));
+    }
+
+    return result;
+  }, [users, searchQuery, filterTab, sortByStorage]);
 
   const formatActivityTime = (dateStr?: string) => {
     if (!dateStr) return "Sin actividad registrada";
@@ -226,7 +255,7 @@ export function AdminUsersPanel({
 
   const panelContent = (
     <div className="fixed inset-0 z-[99999] bg-zinc-950/80 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 animate-fade-in">
-      <div className="bg-white dark:bg-[#12151b] border border-zinc-200 dark:border-zinc-800/80 text-zinc-800 dark:text-zinc-200 rounded-2xl shadow-2xl w-full max-w-6xl flex flex-col max-h-[92vh] overflow-hidden text-xs">
+      <div className="bg-white dark:bg-[#12151b] border border-zinc-200 dark:border-zinc-800/80 text-zinc-800 dark:text-zinc-200 rounded-2xl shadow-2xl w-full max-w-6xl flex flex-col max-h-[94vh] overflow-hidden text-xs">
         {/* Encabezado Superior */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between px-5 py-3.5 border-b border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-950/60 gap-3">
           <div className="flex items-center space-x-3">
@@ -236,7 +265,7 @@ export function AdminUsersPanel({
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white tracking-tight flex items-center gap-1.5">
-                  Directorio de Usuarios Registrados
+                  Directorio de Usuarios & Consumo Real de Base de Datos
                 </h2>
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30">
                   <Crown className="w-3 h-3" />
@@ -244,18 +273,26 @@ export function AdminUsersPanel({
                 </span>
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                   <Database className="w-3 h-3" />
-                  <span>D1 SQL: antigravity_users</span>
+                  <span>Cloudflare D1 SQL</span>
                 </span>
               </div>
               <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
-                Supervisa usuarios registrados, fecha exacta de registro, estado en tiempo real (online/offline) y actividad en Cloudflare D1.
+                Supervisa el almacenamiento real consumido por cada usuario, capacidad total acumulada y actividad en tiempo real.
               </p>
             </div>
           </div>
 
           <div className="flex items-center space-x-2 shrink-0 self-end sm:self-center">
             <button
-              onClick={loadUsers}
+              onClick={() => setIsDbBreakdownOpen(true)}
+              className="px-2.5 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 border border-zinc-300 dark:border-zinc-700 rounded-lg text-xs font-medium flex items-center space-x-1.5 transition-colors cursor-pointer"
+              title="Ver desglose completo de tablas en Cloudflare D1"
+            >
+              <PieChart className="w-3.5 h-3.5 text-indigo-500" />
+              <span>Desglose D1</span>
+            </button>
+            <button
+              onClick={loadData}
               disabled={loading}
               title="Refrescar datos en vivo"
               className="px-2.5 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-200 border border-zinc-300 dark:border-zinc-700 rounded-lg text-xs font-medium flex items-center space-x-1.5 transition-colors cursor-pointer disabled:opacity-50"
@@ -282,6 +319,76 @@ export function AdminUsersPanel({
                 <X className="w-4 h-4" />
               </button>
             )}
+          </div>
+        </div>
+
+        {/* MONITOR PRINCIPAL: Capacidad Real & Almacenamiento Acumulado de la Base de Datos */}
+        <div className="p-4 bg-gradient-to-r from-indigo-50/50 via-zinc-50 to-purple-50/50 dark:from-indigo-950/20 dark:via-zinc-900/40 dark:to-purple-950/20 border-b border-zinc-200 dark:border-zinc-800/80">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-2.5">
+            <div className="flex items-center space-x-2.5">
+              <div className="p-2 bg-indigo-600 text-white rounded-xl shadow-sm shrink-0">
+                <HardDrive className="w-4 h-4" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white">
+                    Almacenamiento Acumulado en Base de Datos D1
+                  </h3>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 font-bold">
+                    {dbStats?.totalStorageFormatted || "Calculando..."} utilizado
+                  </span>
+                </div>
+                <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                  Capacidad total asignada: <strong className="text-zinc-700 dark:text-zinc-300 font-mono">{dbStats?.maxCapacityFormatted || "5.0 GB"}</strong> • Acumulado sumado de todos los usuarios registrados
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2 shrink-0">
+              <div className="text-right">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">
+                  Uso de Capacidad D1
+                </span>
+                <span className="text-sm font-black text-indigo-600 dark:text-indigo-400 font-mono">
+                  {dbStats ? `${dbStats.usagePercentage.toFixed(4)}%` : "0.00%"}
+                </span>
+              </div>
+              <button
+                onClick={() => setIsDbBreakdownOpen(true)}
+                className="p-1.5 text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer border border-zinc-300 dark:border-zinc-700"
+                title="Inspeccionar tablas SQL"
+              >
+                <BarChart2 className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Barra de Progreso Visual de Capacidad */}
+          <div className="w-full bg-zinc-200 dark:bg-zinc-800 rounded-full h-2.5 overflow-hidden shadow-inner">
+            <div
+              className="bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-500 h-2.5 rounded-full transition-all duration-500"
+              style={{
+                width: `${Math.max(
+                  0.8,
+                  Math.min(100, (dbStats?.usagePercentage || 0) * 10)
+                )}%`,
+              }}
+            />
+          </div>
+
+          {/* Pastillas de Resumen por Tipo de Datos */}
+          <div className="flex items-center gap-2 mt-2.5 overflow-x-auto text-[11px] text-zinc-600 dark:text-zinc-400">
+            <span className="text-[10px] uppercase font-bold text-zinc-400 mr-1">Distribución:</span>
+            {dbStats?.tables.slice(0, 5).map((tbl) => (
+              <span
+                key={tbl.name}
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shrink-0 font-medium"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                <span>{tbl.displayName}:</span>
+                <strong className="text-zinc-900 dark:text-zinc-200 font-mono">{tbl.formatted}</strong>
+              </span>
+            ))}
           </div>
         </div>
 
@@ -317,17 +424,19 @@ export function AdminUsersPanel({
 
           <div className="p-3 bg-white dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800 rounded-xl flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Nuevos Hoy</p>
-              <p className="text-lg font-bold text-sky-600 dark:text-sky-400">+{newTodayCount}</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Consumo Usuarios</p>
+              <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400 font-mono">
+                {dbStats?.totalStorageFormatted || "0 B"}
+              </p>
             </div>
-            <div className="p-2 rounded-lg bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400">
-              <Calendar className="w-4 h-4" />
+            <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400">
+              <HardDrive className="w-4 h-4" />
             </div>
           </div>
 
           <div className="p-3 bg-white dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800 rounded-xl flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Proyectos Creados</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Proyectos Totales</p>
               <p className="text-lg font-bold text-purple-600 dark:text-purple-400">{totalProjects}</p>
             </div>
             <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400">
@@ -387,7 +496,7 @@ export function AdminUsersPanel({
                   : "bg-zinc-100 dark:bg-zinc-800/70 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
               }`}
             >
-              Offline ({offlineUsersCount})
+              Offline
             </button>
             <button
               onClick={() => setFilterTab("admin")}
@@ -409,6 +518,20 @@ export function AdminUsersPanel({
             >
               Usuarios
             </button>
+
+            {/* Botón de Ordenar por Consumo de Almacenamiento */}
+            <button
+              onClick={() => setSortByStorage(!sortByStorage)}
+              className={`ml-2 px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors cursor-pointer flex items-center gap-1 border ${
+                sortByStorage
+                  ? "bg-indigo-50 border-indigo-300 text-indigo-700 dark:bg-indigo-950/80 dark:border-indigo-700 dark:text-indigo-300 font-bold"
+                  : "bg-zinc-100 border-zinc-200 dark:bg-zinc-800/70 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400"
+              }`}
+              title="Ordenar por usuarios con mayor consumo de almacenamiento en la base de datos"
+            >
+              <ArrowUpDown className="w-3 h-3" />
+              <span>{sortByStorage ? "Orden: Mayor Consumo" : "Ordenar por Consumo"}</span>
+            </button>
           </div>
         </div>
 
@@ -424,13 +547,13 @@ export function AdminUsersPanel({
               <AlertTriangle className="w-7 h-7 mb-2 text-rose-500" />
               <p className="text-xs font-semibold">{error}</p>
               <button
-                onClick={loadUsers}
+                onClick={loadData}
                 className="mt-3 px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition cursor-pointer text-xs"
               >
                 Reintentar
               </button>
             </div>
-          ) : filteredUsers.length === 0 ? (
+          ) : filteredAndSortedUsers.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-zinc-400">
               <Users className="w-8 h-8 mb-2 opacity-30" />
               <p className="text-xs">No se encontraron usuarios con los criterios actuales.</p>
@@ -442,6 +565,12 @@ export function AdminUsersPanel({
                   <tr className="bg-zinc-50 dark:bg-zinc-900/70 border-b border-zinc-200 dark:border-zinc-800 text-[10px] text-zinc-500 dark:text-zinc-400 font-bold uppercase tracking-wider">
                     <th className="px-4 py-2.5 whitespace-nowrap">Usuario & Rol</th>
                     <th className="px-4 py-2.5 whitespace-nowrap">Estado Online</th>
+                    <th className="px-4 py-2.5 whitespace-nowrap">
+                      <div className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400">
+                        <HardDrive className="w-3 h-3" />
+                        <span>Consumo en Base de Datos</span>
+                      </div>
+                    </th>
                     <th className="px-4 py-2.5 whitespace-nowrap">Última Actividad</th>
                     <th className="px-4 py-2.5 whitespace-nowrap">Fecha Registro</th>
                     <th className="px-4 py-2.5 whitespace-nowrap">Email</th>
@@ -451,7 +580,7 @@ export function AdminUsersPanel({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/60 text-xs">
-                  {filteredUsers.map((user) => {
+                  {filteredAndSortedUsers.map((user) => {
                     const isSuperAdmin =
                       user.name.toLowerCase() === "admin" ||
                       (user.accessType && user.accessType.toLowerCase().includes("admin"));
@@ -513,12 +642,44 @@ export function AdminUsersPanel({
                           )}
                         </td>
 
+                        {/* Consumo Real en Base de Datos */}
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          <div className="flex items-center space-x-2">
+                            <div>
+                              <div className="flex items-center space-x-1.5">
+                                <span className="font-mono font-bold text-zinc-900 dark:text-white text-xs">
+                                  {user.storage?.formatted || "0 B"}
+                                </span>
+                                <span className="text-[10px] font-mono text-indigo-600 dark:text-indigo-400 font-semibold bg-indigo-50 dark:bg-indigo-950/80 px-1.5 py-0.2 rounded border border-indigo-200 dark:border-indigo-800">
+                                  {user.storage?.percentageOfDb || 0}% de DB
+                                </span>
+                              </div>
+                              {/* Barra relativa de almacenamiento */}
+                              <div className="w-28 bg-zinc-200 dark:bg-zinc-800 rounded-full h-1.5 mt-1 overflow-hidden">
+                                <div
+                                  className="bg-indigo-500 h-1.5 rounded-full"
+                                  style={{
+                                    width: `${Math.min(100, Math.max(3, user.storage?.percentageOfDb || 0))}%`,
+                                  }}
+                                />
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => setUserForStorageDetail(user)}
+                              className="p-1 text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded transition-colors cursor-pointer"
+                              title="Ver desglose detallado de consumo"
+                            >
+                              <Info className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </td>
+
                         {/* Última Actividad */}
                         <td className="px-4 py-3 whitespace-nowrap">
                           <div className="flex items-center gap-1.5 text-zinc-700 dark:text-zinc-300">
                             <Activity className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
                             <div className="flex flex-col">
-                              <span className="font-medium text-[11px] truncate max-w-[200px]" title={user.lastActivity}>
+                              <span className="font-medium text-[11px] truncate max-w-[190px]" title={user.lastActivity}>
                                 {user.lastActivity || "Conexión a la plataforma"}
                               </span>
                               <span className="text-[10px] text-zinc-400">
@@ -541,7 +702,7 @@ export function AdminUsersPanel({
                           {user.email ? (
                             <div className="flex items-center space-x-1 text-zinc-700 dark:text-zinc-300">
                               <Mail className="w-3 h-3 text-zinc-400 shrink-0" />
-                              <span className="truncate max-w-[150px]">{user.email}</span>
+                              <span className="truncate max-w-[140px]">{user.email}</span>
                             </div>
                           ) : (
                             <span className="text-zinc-400 italic text-[10px]">No registrado</span>
@@ -615,17 +776,214 @@ export function AdminUsersPanel({
           )}
         </div>
 
-        {/* Footer con info de estado */}
-        <div className="px-5 py-2.5 border-t border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-950/70 flex items-center justify-between text-[11px] text-zinc-500 dark:text-zinc-400">
+        {/* Footer con info de estado y total acumulado */}
+        <div className="px-5 py-2.5 border-t border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-950/70 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-zinc-500 dark:text-zinc-400">
           <div className="flex items-center gap-2">
             <span className="flex h-2 w-2 rounded-full bg-emerald-500" />
-            <span>Sincronizado con Cloudflare D1 en tiempo real</span>
+            <span>Sincronizado con Cloudflare D1 SQL en tiempo real</span>
+            <span className="text-zinc-300 dark:text-zinc-700">•</span>
+            <span>Total acumulado: <strong className="text-indigo-600 dark:text-indigo-400 font-mono font-bold">{dbStats?.totalStorageFormatted || "Calculando..."}</strong></span>
           </div>
           <div>
-            Mostrando {filteredUsers.length} de {totalUsers} usuarios registrados
+            Mostrando {filteredAndSortedUsers.length} de {totalUsers} usuarios registrados
           </div>
         </div>
       </div>
+
+      {/* Submodal Desglose de Consumo por Usuario */}
+      {userForStorageDetail && (
+        <div className="fixed inset-0 z-[100000] flex items-center justify-center p-3 sm:p-5 bg-zinc-950/80 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white dark:bg-[#151922] border border-zinc-300 dark:border-zinc-800 rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden shrink-0">
+            <div className="px-5 py-3.5 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-zinc-50 dark:bg-zinc-900/60">
+              <div className="flex items-center space-x-2">
+                <HardDrive className="w-4 h-4 text-indigo-500" />
+                <h3 className="font-bold text-zinc-900 dark:text-white text-sm">
+                  Desglose de Almacenamiento: {userForStorageDetail.name}
+                </h3>
+              </div>
+              <button
+                onClick={() => setUserForStorageDetail(null)}
+                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1 rounded-lg transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-5 space-y-4">
+              <div className="p-3 bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800/60 rounded-xl flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-zinc-500">Consumo Total del Usuario:</span>
+                  <p className="text-base font-black text-indigo-600 dark:text-indigo-400 font-mono">
+                    {userForStorageDetail.storage?.formatted || "0 B"}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <span className="text-[10px] uppercase font-bold text-zinc-500">Impacto en la DB:</span>
+                  <p className="text-base font-black text-purple-600 dark:text-purple-400 font-mono">
+                    {userForStorageDetail.storage?.percentageOfDb || 0}%
+                  </p>
+                </div>
+              </div>
+
+              {/* Lista detallada de consumos */}
+              <div className="space-y-2 text-xs">
+                <h4 className="font-bold text-zinc-800 dark:text-zinc-200 text-[11px] uppercase tracking-wider">
+                  Detalle de Tablas y Datos Ocupados:
+                </h4>
+
+                <div className="p-2.5 bg-zinc-50 dark:bg-zinc-900/80 rounded-lg border border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <FolderGit2 className="w-3.5 h-3.5 text-purple-500" />
+                    <span>Proyectos & Blueprint ({userForStorageDetail.storage?.counts.projects || 0}):</span>
+                  </div>
+                  <span className="font-mono font-bold text-zinc-900 dark:text-zinc-100">
+                    {userForStorageDetail.storage ? `${(userForStorageDetail.storage.breakdown.projectsBytes / 1024).toFixed(1)} KB` : "0 KB"}
+                  </span>
+                </div>
+
+                <div className="p-2.5 bg-zinc-50 dark:bg-zinc-900/80 rounded-lg border border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <FileCode className="w-3.5 h-3.5 text-indigo-500" />
+                    <span>Tareas & Código Modificado ({userForStorageDetail.storage?.counts.tasks || 0}):</span>
+                  </div>
+                  <span className="font-mono font-bold text-zinc-900 dark:text-zinc-100">
+                    {userForStorageDetail.storage ? `${(userForStorageDetail.storage.breakdown.tasksBytes / 1024).toFixed(1)} KB` : "0 KB"}
+                  </span>
+                </div>
+
+                <div className="p-2.5 bg-zinc-50 dark:bg-zinc-900/80 rounded-lg border border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <MessageSquare className="w-3.5 h-3.5 text-blue-500" />
+                    <span>Historial de Chat & HITL ({userForStorageDetail.storage?.counts.chatAudits || 0}):</span>
+                  </div>
+                  <span className="font-mono font-bold text-zinc-900 dark:text-zinc-100">
+                    {userForStorageDetail.storage ? `${(userForStorageDetail.storage.breakdown.chatBytes / 1024).toFixed(1)} KB` : "0 KB"}
+                  </span>
+                </div>
+
+                <div className="p-2.5 bg-zinc-50 dark:bg-zinc-900/80 rounded-lg border border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Activity className="w-3.5 h-3.5 text-emerald-500" />
+                    <span>Conexiones & Logs de Agentes ({userForStorageDetail.storage?.counts.connections || 0}):</span>
+                  </div>
+                  <span className="font-mono font-bold text-zinc-900 dark:text-zinc-100">
+                    {userForStorageDetail.storage ? `${(userForStorageDetail.storage.breakdown.connectionsBytes / 1024).toFixed(1)} KB` : "0 KB"}
+                  </span>
+                </div>
+
+                <div className="p-2.5 bg-zinc-50 dark:bg-zinc-900/80 rounded-lg border border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-3.5 h-3.5 text-amber-500" />
+                    <span>Historial de Cambios ({userForStorageDetail.storage?.counts.history || 0}):</span>
+                  </div>
+                  <span className="font-mono font-bold text-zinc-900 dark:text-zinc-100">
+                    {userForStorageDetail.storage ? `${(userForStorageDetail.storage.breakdown.historyBytes / 1024).toFixed(1)} KB` : "0 KB"}
+                  </span>
+                </div>
+
+                <div className="p-2.5 bg-zinc-50 dark:bg-zinc-900/80 rounded-lg border border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <UserIcon className="w-3.5 h-3.5 text-zinc-400" />
+                    <span>Perfil & Credenciales SQL:</span>
+                  </div>
+                  <span className="font-mono font-bold text-zinc-900 dark:text-zinc-100">
+                    {userForStorageDetail.storage ? `${(userForStorageDetail.storage.breakdown.userProfileBytes / 1024).toFixed(1)} KB` : "0 KB"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="pt-2 flex justify-end">
+                <button
+                  onClick={() => setUserForStorageDetail(null)}
+                  className="px-4 py-1.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 text-zinc-700 dark:text-zinc-200 rounded-lg text-xs font-semibold transition cursor-pointer"
+                >
+                  Cerrar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Submodal Desglose Global de la Base de Datos Cloudflare D1 */}
+      {isDbBreakdownOpen && (
+        <div className="fixed inset-0 z-[100000] flex items-center justify-center p-3 sm:p-5 bg-zinc-950/80 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white dark:bg-[#151922] border border-zinc-300 dark:border-zinc-800 rounded-2xl shadow-2xl max-w-xl w-full overflow-hidden shrink-0">
+            <div className="px-5 py-3.5 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-zinc-50 dark:bg-zinc-900/60">
+              <div className="flex items-center space-x-2">
+                <PieChart className="w-4 h-4 text-indigo-500" />
+                <h3 className="font-bold text-zinc-900 dark:text-white text-sm">
+                  Desglose de Capacidad & Tablas Cloudflare D1 SQL
+                </h3>
+              </div>
+              <button
+                onClick={() => setIsDbBreakdownOpen(false)}
+                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1 rounded-lg cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-5 space-y-4 text-xs">
+              <div className="grid grid-cols-2 gap-3 p-3 bg-zinc-50 dark:bg-zinc-900/80 rounded-xl border border-zinc-200 dark:border-zinc-800">
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-zinc-400">Total Almacenado:</span>
+                  <p className="text-lg font-black text-indigo-600 dark:text-indigo-400 font-mono">
+                    {dbStats?.totalStorageFormatted || "0 B"}
+                  </p>
+                </div>
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-zinc-400">Límite Cloudflare D1:</span>
+                  <p className="text-lg font-black text-zinc-800 dark:text-zinc-100 font-mono">
+                    {dbStats?.maxCapacityFormatted || "5.0 GB"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <h4 className="font-bold text-zinc-800 dark:text-zinc-200 text-[11px] uppercase tracking-wider">
+                  Tablas SQL en D1 Serverless:
+                </h4>
+
+                {dbStats?.tables.map((tbl) => (
+                  <div
+                    key={tbl.name}
+                    className="p-3 bg-zinc-50 dark:bg-zinc-900/60 rounded-xl border border-zinc-200 dark:border-zinc-800/80 space-y-1"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
+                        <Database className="w-3.5 h-3.5 text-indigo-500" />
+                        <span>{tbl.displayName}</span>
+                        <span className="text-[10px] font-mono text-zinc-400">({tbl.name})</span>
+                      </span>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-[10px] text-zinc-400 font-mono">{tbl.rows} filas</span>
+                        <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400">{tbl.formatted}</span>
+                        <span className="text-[10px] text-zinc-400 font-mono">({tbl.percentage}%)</span>
+                      </div>
+                    </div>
+                    <div className="w-full bg-zinc-200 dark:bg-zinc-800 rounded-full h-1.5 overflow-hidden">
+                      <div
+                        className="bg-indigo-500 h-1.5 rounded-full"
+                        style={{ width: `${Math.max(1, tbl.percentage)}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-2 flex justify-end">
+                <button
+                  onClick={() => setIsDbBreakdownOpen(false)}
+                  className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold cursor-pointer shadow-sm transition"
+                >
+                  Entendido
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Submodal Registrar Nuevo Usuario */}
       {isModalOpen && (
@@ -792,13 +1150,13 @@ export function AdminUsersPanel({
                   <span className="font-mono text-zinc-700 dark:text-zinc-300">{userToDelete.pin}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-zinc-400">Proyectos:</span>
-                  <span className="font-bold text-purple-600 dark:text-purple-400">{userToDelete.projectsCount || 0} proyectos</span>
+                  <span className="text-zinc-400">Almacenamiento ocupado:</span>
+                  <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400">{userToDelete.storage?.formatted || "0 B"}</span>
                 </div>
               </div>
 
               <div className="p-2.5 bg-amber-500/10 border border-amber-500/20 rounded-xl text-[11px] text-amber-600 dark:text-amber-400">
-                ⚠️ <strong>Atención:</strong> Esta acción borrará permanentemente sus credenciales de acceso y desconectará cualquier sesión activa.
+                ⚠️ <strong>Atención:</strong> Esta acción borrará permanentemente sus credenciales de acceso y liberará el almacenamiento ocupado en la base de datos.
               </div>
 
               <div className="pt-2 flex items-center justify-end space-x-2">
