@@ -79,17 +79,19 @@ TU FLUJO AUTÓNOMO DE TRABAJO (PASO A PASO):
    Headers: { "Content-Type": "application/json", "x-api-key": "${apiKey}" }
    Body JSON: { "status": "in_progress", "assignedAgent": "Antigravity AI" }
 
-4. FINALIZAR Y REPORTAR RESULTADOS PARA REVISIÓN HUMANA:
+4. FINALIZAR Y REPORTAR RESULTADOS PARA REVISIÓN HUMANA (OBLIGATORIO: DOS URLs):
    Cuando termines el código y verifiques que compila y funciona:
    POST ${originUrl}/api/agent/complete-task
    Headers: { "Content-Type": "application/json", "x-api-key": "${apiKey}" }
    Body JSON:
    {
      "taskId": "{TASK_ID}",
+     "gitUrl": "https://github.com/homilia7/${projectName}",
      "workUrl": "${mainUrl}",
      "aiNotes": "Explicación detallada de los archivos modificados, librerías añadidas y cómo se solucionó la tarea.",
      "aiOutput": "Resumen conciso para el usuario: listo para tu prueba en vivo en la web."
    }
+   *REGLA OBLIGATORIA*: En cada tarea o acción que hagas, DEBES registrar obligatoriamente las dos URLs: 'gitUrl' (repositorio/commit de Git) y 'workUrl' (URL del proyecto web en vivo para que el usuario vaya al proyecto a ver el cambio).
 
 5. DISPARAR NOTIFICACIÓN INSTANTÁNEA AL USUARIO EN PANTALLA:
    Cuando crees un proyecto, completes un módulo o finalices el trabajo completo, envía siempre una alerta emergente en vivo:
@@ -116,6 +118,7 @@ SI EL USUARIO TE PIDE CREAR O DESGLOSAR EL PLAN DE ARQUITECTURA:
 
 REGLAS DE SEGURIDAD ESTRICTAS (PERMISOS HUMANOS & BLOQUEO):
 - PROHIBIDO autoverificarse o aprobarse: Nunca envíes status="verified" ni locked=true. El servidor responderá con Error 403.
+- PROHIBIDO omitir cualquiera de las dos URLs: En cada tarea o acción es OBLIGATORIO enviar 'gitUrl' y 'workUrl'.
 - PROHIBIDO editar el campo 'humanFeedback': Es la bitácora exclusiva del evaluador humano. Tu único estado final permitido es "ready_for_review".
 - RESPETO A TAREAS BLOQUEADAS: Si una tarea tiene "locked": true, no debes modificarla bajo ninguna circunstancia.`;
 
@@ -130,6 +133,7 @@ REGLAS DE SEGURIDAD ESTRICTAS (PERMISOS HUMANOS & BLOQUEO):
   -H "x-api-key: ${apiKey}" \\
   -d '{
     "taskId": "ID_DE_LA_TAREA",
+    "gitUrl": "https://github.com/homilia7/${projectName}",
     "workUrl": "${mainUrl}",
     "aiNotes": "Código implementado y probado con éxito.",
     "aiOutput": "Listo para revisión humana en la web."

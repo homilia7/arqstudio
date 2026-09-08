@@ -131,11 +131,12 @@ export async function onRequest(context: any) {
           status: "active",
           platform: "Cloudflare Pages & Cloudflare D1 Serverless Edge",
           mandatoryRule: "OBLIGATORIO: Cuando crees un proyecto o finalices una tarea, DEBES enviar una notificación en vivo al usuario invocando POST /api/agent/notify-user.",
+          mandatoryDualUrlsRule: "REGLA OBLIGATORIA DE ENTREGABLES: En cada tarea o acción completada, DEBES proporcionar obligatoriamente dos URLs: 1) 'gitUrl': URL del repositorio/commit de Git (ej: https://github.com/homilia7/SinpePay), y 2) 'workUrl' / 'projectUrl': URL del proyecto web en vivo (ej: https://sinpepay.pages.dev) para que el usuario pueda ir directamente al proyecto a ver el cambio en vivo.",
           stepsToFollow: [
             "1. LEER MEMORIA TÉCNICA: GET /api/agent/context-memory?taskId={TASK_ID}",
             "2. OBTENER TU TAREA ASIGNADA: GET /api/agent/next-task?projectId={PROJECT_ID}",
             "3. NOTIFICAR INICIO DE TRABAJO: PATCH /api/tasks/{TASK_ID} con status='in_progress'",
-            "4. ENVIAR RESULTADOS PARA REVISIÓN QA: POST /api/agent/complete-task con workUrl",
+            "4. ENVIAR RESULTADOS PARA REVISIÓN QA: POST /api/agent/complete-task con 'gitUrl' (código Git) y 'workUrl' (web en vivo)",
             "5. NOTIFICAR AL USUARIO EN PANTALLA (EN VIVO): POST /api/agent/notify-user"
           ],
           mandatoryNotificationEndpoint: {
@@ -329,8 +330,9 @@ export async function onRequest(context: any) {
         instructionsForAgent: [
           "1. Guarda el objeto 'connectorConfig' en la raíz del proyecto local en '.arqai.json'.",
           "2. Antes de realizar modificaciones, verifica que ningún archivo esté en 'lockedFiles'.",
-          "3. Al completar requerimientos del humano, registra el log en POST /api/agent/chat-log.",
-          "4. Consulta fragmentos RAG en GET /api/agent/rag-context para ahorrar tokens."
+          "3. REGLA OBLIGATORIA DE ENTREGABLES: En cada tarea o acción completada, DEBES proporcionar obligatoriamente DOS URLs: 1) 'gitUrl': URL del repositorio o commit en GitHub/GitLab, y 2) 'workUrl': URL del proyecto web en vivo para que el usuario vaya a comprobar el cambio.",
+          "4. Al completar requerimientos del humano, registra el log en POST /api/agent/chat-log o POST /api/agent/complete-task con ambas URLs.",
+          "5. Consulta fragmentos RAG en GET /api/agent/rag-context para ahorrar tokens."
         ]
       }), { headers: jsonHeaders });
     }
@@ -352,7 +354,8 @@ export async function onRequest(context: any) {
           modifiedFiles = body.modifiedFiles.split(",").map((s: string) => s.trim()).filter(Boolean);
         }
       }
-      const workUrl = body.workUrl || body.testUrl || "";
+      const gitUrl = body.gitUrl || body.git_url || "";
+      const workUrl = body.workUrl || body.projectUrl || body.testUrl || "";
       const agentName = request.headers.get("x-agent-name") || body.agentName || "Antigravity AI";
       const aiModel = request.headers.get("x-ai-model") || body.aiModel || body.model || "Gemini 2.5 Pro";
 
@@ -416,8 +419,9 @@ export async function onRequest(context: any) {
           `).bind(JSON.stringify(modifiedFiles), workUrl, workUrl, taskId).run().catch(() => {});
         }
 
-        // Registrar en historial de cambios con el modelo de IA
+        // Registrar en historial de cambios con el modelo de IA y ambas URLs
         const histId = "hist-" + Date.now() + "-" + Math.random().toString(36).substring(2, 6);
+        const urlDetails = (gitUrl && workUrl) ? `Git: ${gitUrl} | Web: ${workUrl}` : (gitUrl ? `Git: ${gitUrl}` : (workUrl || "N/A"));
         await env.DB.prepare(`
           INSERT INTO antigravity_history (id, task_id, project_id, task_title, action, previous_status, new_status, details, work_url, author, timestamp)
           VALUES (?, ?, ?, ?, 'chat_audit_logged', 'in_progress', 'ready_for_review', ?, ?, ?, datetime('now'))
@@ -426,8 +430,8 @@ export async function onRequest(context: any) {
           taskId || projectId,
           projectId,
           `Diálogo [${aiModel}]: ${userPrompt.slice(0, 45)}...`,
-          `Prompt Humano: "${userPrompt.slice(0, 85)}..." | Modelo IA: ${aiModel} | Agente: ${agentName} | Modificados: ${modifiedFiles.join(", ") || "Ninguno"}`,
-          workUrl,
+          `Prompt: "${userPrompt.slice(0, 75)}..." | URLs: ${urlDetails} | Modificados: ${modifiedFiles.join(", ") || "Ninguno"}`,
+          workUrl || gitUrl,
           agentName
         ).run().catch(() => {});
 
@@ -1945,13 +1949,17 @@ export async function onRequest(context: any) {
 
     if (pathname === "/api/tasks" && request.method === "POST") {
       const body = await request.json().catch(() => ({}));
+      const gitUrl = body.gitUrl || body.git_url || "";
+      const workUrl = body.workUrl || body.projectUrl || body.testUrl || "";
       const contextObj = body.contextMemory || {
         technicalRequirements: body.technicalRequirements || body.technical_requirements || [],
         affectedFiles: body.affectedFiles || body.affected_files || [],
         rulesConstraints: body.rulesConstraints || body.rules_constraints || [],
         dependencies: body.dependencies || body.requiredDependencies || [],
         notes: body.notes || body.persistentNotes || "",
+        gitUrl: gitUrl || undefined,
       };
+      if (gitUrl && !contextObj.gitUrl) contextObj.gitUrl = gitUrl;
 
       const newTask = {
         id: body.id || ("task-" + Date.now() + "-" + Math.random().toString(36).substring(2, 6)),
@@ -1961,7 +1969,7 @@ export async function onRequest(context: any) {
         title: body.title || body.instruction?.substring(0, 45) || "Instrucción Asignada",
         instruction: body.instruction || body.description || "",
         status: body.status || "pending",
-        workUrl: body.workUrl || body.testUrl || "",
+        workUrl: workUrl || gitUrl || "",
         locked: false,
         assignedAgent: body.assignedAgent || body.author || "Antigravity AI",
         subtasks: JSON.stringify(body.subtasks || []),
@@ -2233,29 +2241,36 @@ export async function onRequest(context: any) {
         }), { status: 403, headers: jsonHeaders });
       }
 
-      const workUrl = body.workUrl || body.testUrl || "";
+      const gitUrl = body.gitUrl || body.git_url || "";
+      const workUrl = body.workUrl || body.projectUrl || body.testUrl || "";
       const aiNotes = body.aiNotes || body.aiOutput || "";
-      const gitBranch = body.gitBranch || body.branch || null;
-      const gitCommit = body.gitCommit || body.commit || null;
+      let gitBranch = body.gitBranch || body.branch || null;
+      let gitCommit = body.gitCommit || body.commit || null;
+
+      if (gitUrl && !gitCommit && gitUrl.includes("/commit/")) {
+        gitCommit = gitUrl.split("/commit/")[1]?.slice(0, 10);
+      }
 
       if (env && env.DB && taskId) {
-        const taskObj = await env.DB.prepare("SELECT project_id FROM antigravity_tasks WHERE id = ?").bind(taskId).first().catch(() => null);
+        const taskObj = await env.DB.prepare("SELECT project_id, title FROM antigravity_tasks WHERE id = ?").bind(taskId).first().catch(() => null);
         let taskOwnerUserId = null;
         if (taskObj && taskObj.project_id) {
           const projObj = await env.DB.prepare("SELECT user_id FROM antigravity_projects WHERE id = ?").bind(taskObj.project_id).first().catch(() => null);
           if (projObj && projObj.user_id) taskOwnerUserId = projObj.user_id;
         }
 
+        const effectiveWorkUrl = workUrl || (gitUrl && !gitUrl.includes("github.com") ? gitUrl : "");
+
         if (gitBranch || gitCommit) {
-          await env.DB.prepare("UPDATE antigravity_tasks SET status = 'ready_for_review', work_url = ?, ai_notes = ?, assigned_agent = ?, git_branch = ?, git_commit = ?, updated_at = ? WHERE id = ?")
-            .bind(workUrl, aiNotes, agentName, gitBranch, gitCommit, new Date().toISOString(), taskId)
+          await env.DB.prepare("UPDATE antigravity_tasks SET status = 'ready_for_review', work_url = CASE WHEN ? != '' THEN ? ELSE work_url END, ai_notes = ?, assigned_agent = ?, git_branch = ?, git_commit = ?, updated_at = ? WHERE id = ?")
+            .bind(effectiveWorkUrl, effectiveWorkUrl, aiNotes, agentName, gitBranch, gitCommit, new Date().toISOString(), taskId)
             .run().catch(async () => {
-              await env.DB.prepare("UPDATE antigravity_tasks SET status = 'ready_for_review', work_url = ?, ai_notes = ?, assigned_agent = ?, updated_at = ? WHERE id = ?")
-                .bind(workUrl, aiNotes, agentName, new Date().toISOString(), taskId).run();
+              await env.DB.prepare("UPDATE antigravity_tasks SET status = 'ready_for_review', work_url = CASE WHEN ? != '' THEN ? ELSE work_url END, ai_notes = ?, assigned_agent = ?, updated_at = ? WHERE id = ?")
+                .bind(effectiveWorkUrl, effectiveWorkUrl, aiNotes, agentName, new Date().toISOString(), taskId).run();
             });
         } else {
-          await env.DB.prepare("UPDATE antigravity_tasks SET status = 'ready_for_review', work_url = ?, ai_notes = ?, assigned_agent = ?, updated_at = ? WHERE id = ?")
-            .bind(workUrl, aiNotes, agentName, new Date().toISOString(), taskId)
+          await env.DB.prepare("UPDATE antigravity_tasks SET status = 'ready_for_review', work_url = CASE WHEN ? != '' THEN ? ELSE work_url END, ai_notes = ?, assigned_agent = ?, updated_at = ? WHERE id = ?")
+            .bind(effectiveWorkUrl, effectiveWorkUrl, aiNotes, agentName, new Date().toISOString(), taskId)
             .run();
         }
 
@@ -2263,7 +2278,15 @@ export async function onRequest(context: any) {
         await env.DB.prepare(`
           INSERT INTO antigravity_notifications (id, agent_name, title, message, type, project_id, user_id, read, created_at)
           VALUES (?, ?, ?, ?, 'task_completed', ?, ?, 0, ?)
-        `).bind(notifId, agentName, `✨ Tarea lista para revisión QA`, `El agente ${agentName} ha completado la tarea '${taskId}' y la envió a revisión humana.`, taskObj?.project_id || '', taskOwnerUserId, new Date().toISOString()).run().catch(() => {});
+        `).bind(
+          notifId,
+          agentName,
+          `✨ Tarea lista para revisión QA`,
+          `El agente ${agentName} completó la tarea '${taskId}' y registró las URLs de Git y Proyecto Web en vivo.`,
+          taskObj?.project_id || '',
+          taskOwnerUserId,
+          new Date().toISOString()
+        ).run().catch(() => {});
       }
 
       return new Response(JSON.stringify({

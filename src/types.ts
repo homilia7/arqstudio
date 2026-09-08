@@ -34,6 +34,7 @@ export interface Project {
   userId?: string;
   name: string;
   mainUrl: string;
+  gitUrl?: string;
   description?: string;
   apiKey: string;
   blueprint?: ProjectBlueprint;
@@ -84,6 +85,8 @@ export interface TaskItem {
   instruction: string;
   status: TaskStatus;
   workUrl: string;
+  gitUrl?: string;
+  projectUrl?: string;
   aiOutput?: string;
   aiNotes?: string;
   humanFeedback?: string;

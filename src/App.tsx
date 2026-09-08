@@ -484,6 +484,7 @@ export default function App() {
                   modules={modules}
                   stages={stages}
                   filter={filter}
+                  activeProject={activeProject}
                   onFilterChange={setFilter}
                   onReviewTask={(t) => setReviewTask(t)}
                   onQuickVerify={handleVerifyTask}

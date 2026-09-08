@@ -24,10 +24,11 @@ import {
   MessageSquare,
   FileCode,
 } from "lucide-react";
-import { TaskItem, TaskStatus } from "../types";
+import { TaskItem, TaskStatus, Project } from "../types";
 
 interface TaskCardProps {
   task: TaskItem;
+  activeProject?: Project | null;
   onReview: (task: TaskItem) => void;
   onQuickVerify: (taskId: string) => Promise<void>;
   onUnlock: (taskId: string) => Promise<void>;
@@ -40,6 +41,7 @@ interface TaskCardProps {
 
 export const TaskCard: React.FC<TaskCardProps> = ({
   task,
+  activeProject,
   onReview,
   onQuickVerify,
   onUnlock,
@@ -156,6 +158,51 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
   const subtasks = task.subtasks || [];
   const completedSubtasksCount = subtasks.filter((s) => s.completed).length;
+
+  // 1. URL de Git (Repositorio o Commit de GitHub/GitLab)
+  const resolvedGitUrl = (() => {
+    if (task.gitUrl && task.gitUrl.trim()) return task.gitUrl.trim();
+    if (task.workUrl && (task.workUrl.includes("github.com") || task.workUrl.includes("gitlab.com") || task.workUrl.includes("bitbucket.org"))) {
+      return task.workUrl.trim();
+    }
+    if (activeProject?.gitUrl && activeProject.gitUrl.trim()) {
+      const base = activeProject.gitUrl.trim().replace(/\/$/, "");
+      if (task.gitCommit) return `${base}/commit/${task.gitCommit}`;
+      return base;
+    }
+    if (activeProject?.mainUrl && (activeProject.mainUrl.includes("github.com") || activeProject.mainUrl.includes("gitlab.com"))) {
+      const base = activeProject.mainUrl.trim().replace(/\/$/, "");
+      if (task.gitCommit) return `${base}/commit/${task.gitCommit}`;
+      return base;
+    }
+    if (activeProject?.name) {
+      const name = activeProject.name.trim();
+      const base = `https://github.com/homilia7/${name}`;
+      if (task.gitCommit) return `${base}/commit/${task.gitCommit}`;
+      return base;
+    }
+    return null;
+  })();
+
+  // 2. URL del Proyecto Web en Vivo (para ir a ver el cambio en tiempo real)
+  const resolvedProjectUrl = (() => {
+    if (task.projectUrl && task.projectUrl.trim()) return task.projectUrl.trim();
+    if (task.workUrl && !task.workUrl.includes("github.com") && !task.workUrl.includes("gitlab.com") && !task.workUrl.includes("bitbucket.org")) {
+      return task.workUrl.trim();
+    }
+    if (activeProject?.mainUrl && !activeProject.mainUrl.includes("github.com") && !activeProject.mainUrl.includes("gitlab.com")) {
+      return activeProject.mainUrl.trim();
+    }
+    if (activeProject?.name) {
+      const slug = activeProject.name.toLowerCase().replace(/[^a-z0-9]/g, "");
+      if (slug === "sinpepay") return "https://sinpepay.pages.dev";
+      if (slug === "qchatt") return "https://qchatt.pages.dev";
+      if (slug === "arqaistudio" || slug === "arqstudio") return "https://arqaistudio.pages.dev";
+      if (activeProject.mainUrl) return activeProject.mainUrl.trim();
+      return `https://${slug}.pages.dev`;
+    }
+    return null;
+  })();
 
   return (
     <div
@@ -502,27 +549,47 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
         {/* SECCIÓN DE URL DE TRABAJO, MEMORIA DE CONTEXTO & BOTÓN DE REVISIÓN */}
         <div className="pt-1.5 border-t border-zinc-200 dark:border-zinc-800 flex flex-wrap items-center justify-between gap-2">
-          {/* URL Info */}
-          <div className="flex items-center space-x-1.5 text-xs text-zinc-500 dark:text-zinc-400 min-w-0 max-w-xs">
-            <Globe className="w-3 h-3 text-indigo-600 dark:text-indigo-400 shrink-0" />
-            <span className="shrink-0 text-zinc-400 dark:text-zinc-500 text-[11px]">URL:</span>
-            {task.workUrl ? (
-              <a
-                href={
-                  task.workUrl.startsWith("http")
-                    ? task.workUrl
-                    : `https://${task.workUrl}`
-                }
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 hover:underline truncate font-mono text-[11px] inline-flex items-center space-x-1 font-medium"
-              >
-                <span>{task.workUrl}</span>
-                <ExternalLink className="w-2.5 h-2.5 shrink-0 ml-0.5" />
-              </a>
-            ) : (
-              <span className="text-zinc-400 dark:text-zinc-500 text-[11px] italic">No asignada</span>
-            )}
+          {/* Dual URLs Info: Git Repo & Live Project Web App */}
+          <div className="flex items-center flex-wrap gap-2 text-xs">
+            {/* 1. URL de Git */}
+            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-purple-50/90 dark:bg-purple-950/40 border border-purple-200/90 dark:border-purple-800/60 text-purple-900 dark:text-purple-300 min-w-0 max-w-[240px] shadow-2xs">
+              <GitBranch className="w-3 h-3 text-purple-600 dark:text-purple-400 shrink-0" />
+              <span className="shrink-0 text-[10px] font-bold text-purple-700 dark:text-purple-400 uppercase tracking-wider">Git:</span>
+              {resolvedGitUrl ? (
+                <a
+                  href={resolvedGitUrl.startsWith("http") ? resolvedGitUrl : `https://${resolvedGitUrl}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-purple-700 dark:text-purple-300 hover:text-purple-900 dark:hover:text-purple-100 hover:underline truncate font-mono text-[11px] inline-flex items-center gap-0.5 font-semibold"
+                  title={`Abrir Repositorio / Commit en GitHub: ${resolvedGitUrl}`}
+                >
+                  <span className="truncate">{resolvedGitUrl.replace(/^https?:\/\/(www\.)?github\.com\//, "")}</span>
+                  <ExternalLink className="w-2.5 h-2.5 shrink-0 ml-0.5" />
+                </a>
+              ) : (
+                <span className="text-zinc-400 dark:text-zinc-500 text-[11px] italic">No asignada</span>
+              )}
+            </div>
+
+            {/* 2. URL del Proyecto en Vivo (Ir al proyecto a ver el cambio) */}
+            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-200/90 dark:border-emerald-800/60 text-emerald-900 dark:text-emerald-300 min-w-0 max-w-[260px] shadow-2xs">
+              <Globe className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <span className="shrink-0 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Proyecto:</span>
+              {resolvedProjectUrl ? (
+                <a
+                  href={resolvedProjectUrl.startsWith("http") ? resolvedProjectUrl : `https://${resolvedProjectUrl}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-emerald-700 dark:text-emerald-300 hover:text-emerald-900 dark:hover:text-emerald-100 hover:underline truncate font-mono text-[11px] inline-flex items-center gap-0.5 font-bold"
+                  title={`Ir al Proyecto para ver el cambio en vivo: ${resolvedProjectUrl}`}
+                >
+                  <span className="truncate">{resolvedProjectUrl.replace(/^https?:\/\//, "")}</span>
+                  <ExternalLink className="w-2.5 h-2.5 shrink-0 ml-0.5" />
+                </a>
+              ) : (
+                <span className="text-zinc-400 dark:text-zinc-500 text-[11px] italic">No asignada</span>
+              )}
+            </div>
           </div>
 
           {/* Action Buttons */}

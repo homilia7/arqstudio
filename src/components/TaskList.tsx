@@ -16,6 +16,7 @@ import {
   FilterStatus,
   ProjectModule,
   ProjectStage,
+  Project,
 } from "../types";
 import { TaskCard } from "./TaskCard";
 import { ModulePlanView } from "./ModulePlanView";
@@ -25,6 +26,7 @@ interface TaskListProps {
   modules: ProjectModule[];
   stages: ProjectStage[];
   filter: FilterStatus;
+  activeProject?: Project | null;
   onFilterChange: (filter: FilterStatus) => void;
   onReviewTask: (task: TaskItem) => void;
   onQuickVerify: (taskId: string) => Promise<void>;
@@ -46,6 +48,7 @@ export const TaskList: React.FC<TaskListProps> = ({
   modules,
   stages,
   filter,
+  activeProject,
   onFilterChange,
   onReviewTask,
   onQuickVerify,
@@ -307,6 +310,7 @@ export const TaskList: React.FC<TaskListProps> = ({
                 <TaskCard
                   key={task.id}
                   task={task}
+                  activeProject={activeProject}
                   onReview={onReviewTask}
                   onQuickVerify={onQuickVerify}
                   onUnlock={onUnlockTask}

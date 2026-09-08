@@ -32,7 +32,10 @@ export const ApiKeyOnboardingModal: React.FC<ApiKeyOnboardingModalProps> = ({
 2. Guarda la respuesta recibida en la raíz de tu proyecto local bajo el archivo '.arqai.json'.
 3. Consulta fragmentos RAG en GET ${baseUrl}/agent/rag-context?projectId=${projectId} para ahorrar tokens.
 4. NUNCA toques ningún archivo que aparezca en 'security.lockedFiles' (.arqai.json). Tienen Quality Gate inmutable.
-5. Cada vez que completes una instrucción del usuario, registra el diálogo en POST ${baseUrl}/agent/chat-log con el prompt del humano, tu resumen técnico y la URL de prueba.`;
+5. REGLA OBLIGATORIA DE ENTREGABLES (DOS URLs POR TAREA/ACCIÓN):
+   En cada tarea o acción completada (POST ${baseUrl}/agent/complete-task o POST ${baseUrl}/agent/chat-log), DEBES proporcionar obligatoriamente DOS URLs:
+   - 'gitUrl': URL del repositorio o commit de Git (ej: https://github.com/homilia7/${projectName})
+   - 'workUrl' / 'projectUrl': URL del proyecto web en vivo (ej: https://sinpepay.pages.dev) para que el evaluador humano pueda hacer clic e ir directamente al proyecto a ver el cambio en directo.`;
 
   const copyKey = () => {
     navigator.clipboard.writeText(apiKey);

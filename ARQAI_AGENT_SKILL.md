@@ -3,6 +3,11 @@
 ## ⚡ REGLA DE ORO OBLIGATORIA PARA AGENTES (CREACIÓN DE PLANES)
 > **Nunca generes un plan genérico. Primero crea un Blueprint específico del dominio del proyecto. Luego cada módulo, etapa y tarea debe derivarse directamente de ese Blueprint. Si una tarea podría servir para cualquier proyecto, reescríbela hasta que sea específica del producto solicitado.**
 
+## 🌐 REGLA OBLIGATORIA DE ENTREGABLES: DOS URLs EN CADA TAREA Y ACCIÓN
+> **Toda IA que se conecte a ARQAISTUDIO DEBE registrar obligatoriamente DOS URLs en cada tarea que haga y en cada acción completada:**
+> 1. `gitUrl`: **URL del Git** (Repositorio, rama o commit en GitHub, ej: `https://github.com/homilia7/SinpePay` o `.../commit/7b89459`).
+> 2. `workUrl` / `projectUrl`: **URL del Proyecto Web en Vivo** (Despliegue activo en Cloudflare Pages o Web, ej: `https://sinpepay.pages.dev`), para que cuando el evaluador humano haga clic ahí pueda ir inmediatamente al proyecto a ver y probar el cambio en vivo.
+
 ---
 
 ## Overview
@@ -148,18 +153,23 @@ Sets `status = "in_progress"`.
 ---
 
 ### Step 4: Complete Task & Request Human QA Review
-Once code is built and deployed/verified locally or on Cloudflare:
+Once code is built, committed, and deployed/verified locally or on Cloudflare:
 ```http
 POST /api/tasks/:taskId/complete-by-ai
 ```
-**Payload Body**:
+*(Or `POST /api/agent/complete-task` with `taskId` in body)*
+
+**Payload Body (Mandatory Dual URLs)**:
 ```json
 {
-  "workUrl": "https://arqai.pages.dev",
+  "gitUrl": "https://github.com/homilia7/SinpePay/commit/7b89459",
+  "workUrl": "https://sinpepay.pages.dev",
   "aiOutput": "Endpoints de autenticación creados y validados.",
   "aiNotes": "Se agregaron tests unitarios y la tabla D1 fue migrada."
 }
 ```
+> **NOTA OBLIGATORIA**: Es imperativo proporcionar tanto `gitUrl` (enlace al repositorio o commit para revisar el código fuente) como `workUrl` (enlace a la web en vivo para ver el cambio desplegado). Ambos botones se mostrarán en la tarjeta para el usuario.
+
 Sets `status = "ready_for_review"`.
 
 ---
@@ -192,3 +202,4 @@ POST /api/agent/notify-user
 ## 3. Strict Safety Rules for AI Agents
 1. **Never attempt to self-approve or verify tasks (`status = "verified"` or `locked = true`).** Only human users have permission to verify and lock tasks.
 2. **Respect `locked = true` tasks.** Never edit or delete a task that is locked.
+3. **Always provide BOTH URLs (`gitUrl` and `workUrl` / `projectUrl`) in every task or action.** Never leave one missing: the user needs to inspect the code in Git AND open the live project in a browser to see the change in real time.
