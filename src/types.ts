@@ -131,6 +131,10 @@ export interface User {
   apiKey?: string;
   accessType: string;
   createdAt: string;
+  isOnline?: boolean;
+  lastActiveAt?: string;
+  lastActivity?: string;
+  projectsCount?: number;
 }
 
 export interface AgentNotification {

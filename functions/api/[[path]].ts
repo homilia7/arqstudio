@@ -719,6 +719,18 @@ export async function onRequest(context: any) {
         );
       }
 
+      if (env && env.DB) {
+        await env.DB.prepare(`
+          INSERT INTO antigravity_agent_connections (id, agent_name, connected_at, action_description, project_name, user_id)
+          VALUES (?, ?, datetime('now'), ?, 'Sesión Web', ?)
+        `).bind(
+          "conn-" + Date.now() + "-" + Math.random().toString(36).substring(2, 6),
+          user.name,
+          "Inicio de sesión en la plataforma",
+          user.id
+        ).run().catch(() => {});
+      }
+
       return new Response(
         JSON.stringify({
           success: true,
@@ -735,26 +747,54 @@ export async function onRequest(context: any) {
     }
 
     if (pathname === "/api/users" && request.method === "GET") {
+      const requesterId = (request.headers.get("x-user-id") || url.searchParams.get("userId") || "").trim();
       let users: any[] = [];
       let projects: any[] = [];
+      let connections: any[] = [];
+
       if (env && env.DB) {
         const res = await env.DB.prepare("SELECT * FROM antigravity_users ORDER BY created_at DESC").all();
         users = res.results || [];
         const projRes = await env.DB.prepare("SELECT user_id, api_key FROM antigravity_projects").all().catch(() => ({ results: [] }));
         projects = projRes.results || [];
+        const connRes = await env.DB.prepare("SELECT user_id, action_description, connected_at FROM antigravity_agent_connections ORDER BY connected_at DESC LIMIT 200").all().catch(() => ({ results: [] }));
+        connections = connRes.results || [];
       }
 
-      const projectKeyMap = new Map();
+      const projectKeyMap = new Map<string, string>();
+      const projectCountMap = new Map<string, number>();
       projects.forEach((p: any) => {
-        if (p.user_id && p.api_key) {
-          projectKeyMap.set(p.user_id, p.api_key);
+        if (p.user_id) {
+          projectCountMap.set(p.user_id, (projectCountMap.get(p.user_id) || 0) + 1);
+          if (p.api_key) projectKeyMap.set(p.user_id, p.api_key);
         }
       });
+
+      // Mapear última actividad por usuario
+      const lastActivityMap = new Map<string, { action: string; timestamp: string }>();
+      connections.forEach((c: any) => {
+        if (c.user_id && !lastActivityMap.has(c.user_id)) {
+          lastActivityMap.set(c.user_id, {
+            action: c.action_description || "Conexión a la plataforma",
+            timestamp: c.connected_at,
+          });
+        }
+      });
+
+      const nowMs = Date.now();
+      const ONLINE_THRESHOLD_MS = 25 * 60 * 1000; // 25 minutos de inactividad
 
       return new Response(
         JSON.stringify(users.map((u) => {
           const userProjectKey = projectKeyMap.get(u.id);
           const defaultKey = `arqai_sec_${u.pin || "1234"}_${(u.id || "usr").slice(-4)}`;
+          const userActivity = lastActivityMap.get(u.id);
+          const lastActiveAt = userActivity?.timestamp || u.created_at;
+          const lastActiveMs = new Date(lastActiveAt).getTime();
+          
+          const isOnline = (requesterId && (u.id === requesterId || (u.name?.toLowerCase() === "admin" && requesterId.includes("admin")))) 
+            || (!isNaN(lastActiveMs) && (nowMs - lastActiveMs) < ONLINE_THRESHOLD_MS);
+
           return {
             id: u.id,
             name: u.name,
@@ -763,6 +803,10 @@ export async function onRequest(context: any) {
             apiKey: u.api_key || userProjectKey || defaultKey,
             accessType: u.access_type || "user",
             createdAt: u.created_at,
+            projectsCount: projectCountMap.get(u.id) || 0,
+            isOnline: Boolean(isOnline),
+            lastActiveAt: lastActiveAt,
+            lastActivity: userActivity?.action || "Registro en la plataforma",
           };
         })),
         { headers: jsonHeaders }

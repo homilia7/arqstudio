@@ -517,6 +517,12 @@ export default function App() {
         }}
       />
 
+      <AdminUsersPanel
+        isOpen={adminUsersOpen}
+        onClose={() => setAdminUsersOpen(false)}
+        currentUser={currentUser}
+      />
+
       <PlanGeneratorModal
         isOpen={planGeneratorOpen}
         onClose={() => setPlanGeneratorOpen(false)}

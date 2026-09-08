@@ -389,6 +389,17 @@ export const DesktopMenuBar: React.FC<DesktopMenuBarProps> = ({
             <Database className="w-3.5 h-3.5 text-orange-400" />
           </button>
 
+          {/* Botón Directorio de Usuarios (Super Admin) */}
+          {(currentUser?.name?.toLowerCase() === 'admin' || currentUser?.accessType?.toLowerCase()?.includes('admin')) && (
+            <button
+              onClick={onOpenAdminUsers}
+              title="Directorio de Usuarios Registrados (Super Admin)"
+              className="p-1 rounded bg-indigo-50 border border-indigo-200 text-indigo-800 hover:bg-indigo-100 dark:bg-indigo-950/70 dark:border-indigo-800/80 dark:text-indigo-300 dark:hover:bg-indigo-900 transition-colors cursor-pointer flex items-center gap-1"
+            >
+              <Users className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+            </button>
+          )}
+
           {/* Campana de Notificaciones */}
           <button
             onClick={onOpenNotifications}
