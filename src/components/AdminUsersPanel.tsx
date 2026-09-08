@@ -122,10 +122,10 @@ export function AdminUsersPanel({ currentUser, refreshKey }: AdminUsersPanelProp
   }
 
   return (
-    <div className="bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden shadow-sm transition-colors">
-      <div className="px-6 py-5 border-b border-zinc-200 dark:border-zinc-200 dark:border-zinc-800 bg-zinc-100/50 dark:bg-zinc-900/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden shadow-sm transition-colors">
+      <div className="px-6 py-5 border-b border-zinc-200 dark:border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-zinc-800 dark:text-zinc-100 flex items-center space-x-2">
+          <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 flex items-center space-x-2">
             <ShieldCheck className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
             <span>Panel de Administración: Usuarios</span>
             <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-medium inline-flex items-center gap-1">
@@ -137,7 +137,7 @@ export function AdminUsersPanel({ currentUser, refreshKey }: AdminUsersPanelProp
           </p>
         </div>
         <div className="flex items-center space-x-3">
-          <div className="flex items-center space-x-2 text-xs font-semibold text-zinc-500 bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-800 px-3 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-700">
+          <div className="flex items-center space-x-2 text-xs font-semibold text-zinc-500 bg-white dark:bg-zinc-800 px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300">
             <Users className="w-4 h-4 mr-1 text-zinc-600 dark:text-zinc-400" />
             {users.length} {users.length === 1 ? "Usuario" : "Usuarios"}
           </div>
@@ -147,7 +147,7 @@ export function AdminUsersPanel({ currentUser, refreshKey }: AdminUsersPanelProp
               setSuccessMsg(null);
               setIsModalOpen(true);
             }}
-            className="flex items-center space-x-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-zinc-900 dark:text-white rounded-lg text-xs font-medium shadow-sm transition-all cursor-pointer"
+            className="flex items-center space-x-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-medium shadow-sm transition-all cursor-pointer"
           >
             <UserPlus className="w-4 h-4" />
             <span>Registrar Usuario</span>
@@ -158,7 +158,7 @@ export function AdminUsersPanel({ currentUser, refreshKey }: AdminUsersPanelProp
       <div className="p-0 overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-zinc-100 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-200 dark:border-zinc-800 text-xs text-zinc-500 dark:text-zinc-600 dark:text-zinc-400 font-semibold uppercase tracking-wider">
+            <tr className="bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800 text-xs text-zinc-500 dark:text-zinc-600 dark:text-zinc-400 font-semibold uppercase tracking-wider">
               <th className="px-6 py-3 whitespace-nowrap">Nombre de Usuario</th>
               <th className="px-6 py-3 whitespace-nowrap">Correo Electrónico</th>
               <th className="px-6 py-3 whitespace-nowrap">PIN / Contraseña</th>
@@ -192,7 +192,7 @@ export function AdminUsersPanel({ currentUser, refreshKey }: AdminUsersPanelProp
                     {user.email ? user.email : <span className="text-zinc-600 dark:text-zinc-400 italic">No proporcionado</span>}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center text-zinc-600 dark:text-zinc-300 font-mono text-xs bg-zinc-200 dark:bg-zinc-800 px-2 py-1 rounded inline-flex border border-zinc-300 dark:border-zinc-700">
+                    <div className="flex items-center text-zinc-600 dark:text-zinc-300 font-mono text-xs bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded inline-flex border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200">
                       <Key className="w-3 h-3 mr-1.5 opacity-60" />
                       {user.pin}
                     </div>
@@ -340,7 +340,7 @@ export function AdminUsersPanel({ currentUser, refreshKey }: AdminUsersPanelProp
                 <button
                   type="submit"
                   disabled={submitting || !name.trim() || pin.length !== 4}
-                  className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-zinc-900 dark:text-white rounded-xl text-xs font-semibold shadow-md shadow-emerald-500/20 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 cursor-pointer"
+                  className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold shadow-md shadow-emerald-500/20 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 cursor-pointer"
                 >
                   {submitting ? "Guardando en SQL..." : "Guardar Usuario"}
                 </button>
@@ -411,7 +411,7 @@ export function AdminUsersPanel({ currentUser, refreshKey }: AdminUsersPanelProp
                   type="button"
                   onClick={CONFIRM_DELETE_USER}
                   disabled={deleting}
-                  className="px-5 py-2 bg-rose-600 hover:bg-rose-500 text-zinc-900 dark:text-white rounded-xl text-xs font-semibold shadow-md shadow-rose-500/20 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 cursor-pointer"
+                  className="px-5 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-semibold shadow-md shadow-rose-500/20 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 cursor-pointer"
                 >
                   {deleting ? "Eliminando..." : "Sí, Eliminar Usuario"}
                 </button>
