@@ -50,7 +50,8 @@ function formatBytesPrecise(bytes: number): string {
   if (!bytes || bytes <= 0) return "0 B";
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+  if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+  return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
 }
 
 export function AdminUsersPanel({
@@ -413,7 +414,7 @@ export function AdminUsersPanel({
                   </span>
                 </div>
                 <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
-                  Capacidad total asignada: <strong className="text-zinc-700 dark:text-zinc-300 font-mono">{dbStats?.maxCapacityFormatted || "5.0 GB"}</strong> • Acumulado total de todos los usuarios: <strong className="text-indigo-600 dark:text-indigo-400 font-mono">{formatBytesPrecise(totalAccumulatedUserBytes)}</strong>
+                  Capacidad de este Proyecto: <strong className="text-zinc-700 dark:text-zinc-300 font-mono">{dbStats?.maxCapacityFormatted || "500.0 MB"} (Cloudflare Free Tier)</strong> • Acumulado total de usuarios: <strong className="text-indigo-600 dark:text-indigo-400 font-mono">{formatBytesPrecise(totalAccumulatedUserBytes)}</strong> • Consumo total en D1: <strong className="text-purple-600 dark:text-purple-400 font-mono">{dbStats?.totalStorageFormatted || "0 B"}</strong>
                 </p>
               </div>
             </div>
@@ -421,7 +422,7 @@ export function AdminUsersPanel({
             <div className="flex items-center space-x-2 shrink-0">
               <div className="text-right">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">
-                  Uso Global D1
+                  Uso Real de 500 MB
                 </span>
                 <span className="text-sm font-black text-indigo-600 dark:text-indigo-400 font-mono">
                   {dbStats ? `${dbStats.usagePercentage.toFixed(4)}%` : "0.00%"}
@@ -438,17 +439,26 @@ export function AdminUsersPanel({
             </div>
           </div>
 
-          {/* Barra de Progreso Visual de Capacidad */}
-          <div className="w-full bg-zinc-200 dark:bg-zinc-800 rounded-full h-2.5 overflow-hidden shadow-inner">
-            <div
-              className="bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-500 h-2.5 rounded-full transition-all duration-500"
-              style={{
-                width: `${Math.max(
-                  0.8,
-                  Math.min(100, (dbStats?.usagePercentage || 0) * 10)
-                )}%`,
-              }}
-            />
+          {/* Barra de Progreso Visual de Capacidad hacia 500 MB */}
+          <div className="space-y-1.5">
+            <div className="w-full bg-zinc-200 dark:bg-zinc-800 rounded-full h-2.5 overflow-hidden shadow-inner">
+              <div
+                className="bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-500 h-2.5 rounded-full transition-all duration-500"
+                style={{
+                  width: `${Math.max(
+                    0.6,
+                    Math.min(100, dbStats?.usagePercentage || 0)
+                  )}%`,
+                }}
+              />
+            </div>
+            <div className="flex items-center justify-between text-[10.5px] text-zinc-500 dark:text-zinc-400 font-mono">
+              <span>0 MB</span>
+              <span className="text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded border border-indigo-200/60 dark:border-indigo-800/60">
+                {dbStats?.totalStorageFormatted || formatBytesPrecise(totalAccumulatedUserBytes)} consumidos de {dbStats?.maxCapacityFormatted || "500.0 MB"}
+              </span>
+              <span>{dbStats?.maxCapacityFormatted || "500.0 MB"} límite</span>
+            </div>
           </div>
 
           {/* Pastillas de Resumen por Tipo de Datos */}
@@ -516,7 +526,7 @@ export function AdminUsersPanel({
               <p className="text-lg font-bold text-purple-600 dark:text-purple-400 font-mono">
                 {dbStats?.totalStorageFormatted || "0 B"}
               </p>
-              <span className="text-[10px] text-zinc-400">de 5.0 GB asignados</span>
+              <span className="text-[10px] text-zinc-400">de {dbStats?.maxCapacityFormatted || "500.0 MB"} asignados</span>
             </div>
             <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400">
               <Database className="w-4 h-4" />
@@ -750,18 +760,24 @@ export function AdminUsersPanel({
                             >
                               <div className="flex items-center space-x-1.5">
                                 <span className="font-mono font-bold text-zinc-900 dark:text-white text-xs group-hover/storage:text-indigo-600 dark:group-hover/storage:text-indigo-400 transition-colors">
-                                  {user.storage?.formatted || "0 B"}
+                                  {user.storage ? formatBytesPrecise(user.storage.totalBytes) : "0 B"}
                                 </span>
-                                <span className="text-[10px] font-mono text-indigo-600 dark:text-indigo-400 font-semibold bg-indigo-50 dark:bg-indigo-950/80 px-1.5 py-0.2 rounded border border-indigo-200 dark:border-indigo-800">
-                                  {user.storage?.percentageOfDb || 0}% de DB
-                                </span>
+                                {(!user.storage || user.storage.totalBytes === 0) ? (
+                                  <span className="text-[9.5px] font-mono text-zinc-400 dark:text-zinc-500 font-medium bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.2 rounded border border-zinc-200 dark:border-zinc-700">
+                                    Limpio
+                                  </span>
+                                ) : (
+                                  <span className="text-[9.5px] font-mono text-indigo-600 dark:text-indigo-400 font-semibold bg-indigo-50 dark:bg-indigo-950/80 px-1.5 py-0.2 rounded border border-indigo-200 dark:border-indigo-800" title={`Representa el ${user.storage.percentageOfDb}% de los datos activos`}>
+                                    {user.storage.percentageOfDb}% activo
+                                  </span>
+                                )}
                               </div>
                               {/* Barra relativa de almacenamiento */}
                               <div className="w-28 bg-zinc-200 dark:bg-zinc-800 rounded-full h-1.5 mt-1 overflow-hidden">
                                 <div
-                                  className="bg-indigo-500 h-1.5 rounded-full"
+                                  className="bg-indigo-500 h-1.5 rounded-full transition-all"
                                   style={{
-                                    width: `${Math.min(100, Math.max(3, user.storage?.percentageOfDb || 0))}%`,
+                                    width: `${Math.min(100, Math.max((user.storage?.totalBytes || 0) > 0 ? 5 : 0, user.storage?.percentageOfDb || 0))}%`,
                                   }}
                                 />
                               </div>
@@ -887,7 +903,7 @@ export function AdminUsersPanel({
             <span>Sincronizado con Cloudflare D1 SQL en tiempo real</span>
             <span>Total Usuarios: <strong className="text-indigo-600 dark:text-indigo-400 font-mono font-bold">{formatBytesPrecise(totalAccumulatedUserBytes)}</strong></span>
             <span className="text-zinc-300 dark:text-zinc-700">•</span>
-            <span>Total DB: <strong className="text-purple-600 dark:text-purple-400 font-mono font-bold">{dbStats?.totalStorageFormatted || "Calculando..."}</strong> ({dbStats ? `${dbStats.usagePercentage.toFixed(4)}%` : "0%"} de 5.0 GB)</span>
+            <span>Total DB: <strong className="text-purple-600 dark:text-purple-400 font-mono font-bold">{dbStats?.totalStorageFormatted || "Calculando..."}</strong> ({dbStats ? `${dbStats.usagePercentage.toFixed(4)}%` : "0%"} de {dbStats?.maxCapacityFormatted || "500.0 MB"})</span>
           </div>
           <div>
             Mostrando {filteredAndSortedUsers.length} de {totalUsers} usuarios registrados
@@ -967,8 +983,11 @@ export function AdminUsersPanel({
                           {userForStorageDetail.storage?.percentageOfDb || 0}%
                         </span>
                         <span className="text-[9px] text-zinc-400 font-mono">
-                          de {dbStats?.totalStorageFormatted || "DB"}
+                          de {dbStats?.totalStorageFormatted || "DB activa"}
                         </span>
+                      </div>
+                      <div className="text-[8.5px] text-indigo-600 dark:text-indigo-400 font-mono mt-0.5">
+                        {((uTotal / (500 * 1024 * 1024)) * 100).toFixed(4)}% de 500 MB
                       </div>
                     </div>
                   </div>
@@ -1226,10 +1245,11 @@ export function AdminUsersPanel({
                   </p>
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase font-bold text-zinc-400">Límite Cloudflare D1:</span>
+                  <span className="text-[10px] uppercase font-bold text-zinc-400">Límite BD (Este Proyecto):</span>
                   <p className="text-lg font-black text-zinc-800 dark:text-zinc-100 font-mono">
-                    {dbStats?.maxCapacityFormatted || "5.0 GB"}
+                    {dbStats?.maxCapacityFormatted || "500.0 MB"}
                   </p>
+                  <span className="text-[10px] text-zinc-400 font-mono">Cloudflare Free Tier</span>
                 </div>
               </div>
 

@@ -924,7 +924,7 @@ export async function onRequest(context: any) {
       };
 
       const totalDbBytes = Object.values(tableBytes).reduce((acc, b) => acc + b, 0);
-      const D1_CAPACITY_BYTES = 5 * 1024 * 1024 * 1024; // 5 GB Cloudflare D1 Quota
+      const D1_CAPACITY_BYTES = 500 * 1024 * 1024; // 500 MB Límite Real Cloudflare D1 (Free Tier para este proyecto)
 
       const projectKeyMap = new Map<string, string>();
       const projectCountMap = new Map<string, number>();
@@ -980,6 +980,7 @@ export async function onRequest(context: any) {
 
         const totalUserBytes = userProfileBytes + projectsBytes + tasksBytes + chatBytes + historyBytes + connectionsBytes + notificationsBytes;
         const percentageOfDb = totalDbBytes > 0 ? (totalUserBytes / totalDbBytes) * 100 : 0;
+        const percentageOfCapacity = (totalUserBytes / D1_CAPACITY_BYTES) * 100;
 
         return {
           id: u.id,
@@ -997,6 +998,7 @@ export async function onRequest(context: any) {
             totalBytes: totalUserBytes,
             formatted: formatBytes(totalUserBytes),
             percentageOfDb: parseFloat(percentageOfDb.toFixed(1)),
+            percentageOfCapacity: parseFloat(percentageOfCapacity.toFixed(4)),
             breakdown: {
               userProfileBytes,
               projectsBytes,
@@ -1073,13 +1075,13 @@ export async function onRequest(context: any) {
       };
 
       const totalDbBytes = Object.values(tableBytes).reduce((acc, b) => acc + b, 0);
-      const D1_CAPACITY_BYTES = 5 * 1024 * 1024 * 1024; // 5 GB Cloudflare D1 Quota
+      const D1_CAPACITY_BYTES = 500 * 1024 * 1024; // 500 MB Límite Real Cloudflare D1 (Free Tier para este proyecto)
 
       return new Response(JSON.stringify({
         totalStorageBytes: totalDbBytes,
         totalStorageFormatted: formatBytes(totalDbBytes),
         maxCapacityBytes: D1_CAPACITY_BYTES,
-        maxCapacityFormatted: "5.0 GB",
+        maxCapacityFormatted: "500.0 MB",
         usagePercentage: parseFloat(((totalDbBytes / D1_CAPACITY_BYTES) * 100).toFixed(4)),
         tables: [
           { name: "antigravity_projects", displayName: "Proyectos & Blueprint", bytes: tableBytes.projects, formatted: formatBytes(tableBytes.projects), rows: projects.length + modules.length, percentage: totalDbBytes > 0 ? parseFloat(((tableBytes.projects / totalDbBytes) * 100).toFixed(1)) : 0 },

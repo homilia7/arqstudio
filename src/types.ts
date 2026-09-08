@@ -146,6 +146,7 @@ export interface UserStorageInfo {
   totalBytes: number;
   formatted: string;
   percentageOfDb: number;
+  percentageOfCapacity?: number;
   breakdown: UserStorageBreakdown;
   counts: UserStorageCounts;
 }
