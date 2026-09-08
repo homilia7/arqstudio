@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { 
   BookOpen, Search, X, Shield, Cpu, Database, 
   GitBranch, CheckCircle2, Cloud, Key, Keyboard, ChevronRight,
-  AlertTriangle, Terminal, Layers
+  AlertTriangle, Terminal, Layers, Bot, Globe, ListChecks, Ban
 } from "lucide-react";
 
 interface UserManualModalProps {
@@ -241,6 +241,144 @@ export const UserManualModal: React.FC<UserManualModalProps> = ({
               Conecta scripts externos de IA (Antigravity, Codex, Hermes, Claude) proveyendo la URL base <code className="text-emerald-700 dark:text-emerald-400 font-mono font-semibold">https://arqaistudio.pages.dev/api</code> y cabeceras <code className="text-amber-700 dark:text-amber-300 font-mono font-semibold">x-api-key</code>.
             </p>
           </div>
+        </div>
+      )
+    },
+    {
+      id: "agent-guide",
+      category: "0. Protocolo Oficial de Agentes IA",
+      title: "Guía Normativa para Agentes IA",
+      icon: <Bot className="w-4 h-4 text-violet-600 dark:text-violet-400" />,
+      content: (
+        <div className="space-y-4 text-xs text-zinc-800 dark:text-zinc-300 leading-relaxed">
+
+          {/* Header */}
+          <div className="p-3.5 rounded-lg bg-violet-50/60 dark:bg-violet-950/30 border border-violet-300 dark:border-violet-800 space-y-1.5">
+            <h3 className="text-sm font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+              <Bot className="w-4 h-4 text-violet-600 dark:text-violet-400" />
+              ¿Qué es ARQAISTUDIO?
+            </h3>
+            <p className="text-zinc-700 dark:text-zinc-400">
+              <strong className="text-zinc-900 dark:text-zinc-100">ARQAISTUDIO</strong> es una plataforma de <strong className="text-violet-700 dark:text-violet-400">orquestación de Agentes IA</strong> con supervisión humana (HITL).
+              Los agentes reciben tareas, las ejecutan, registran su historial de acciones y esperan aprobación del supervisor antes de marcarlas como completadas.
+              La URL base de la API es <code className="font-mono text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-1 rounded">https://arqaistudio.pages.dev/api</code>.
+            </p>
+          </div>
+
+          {/* Protocolo de 9 pasos */}
+          <div className="space-y-2">
+            <h4 className="text-xs font-bold text-zinc-900 dark:text-white flex items-center gap-1.5 uppercase tracking-wider">
+              <ListChecks className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              Protocolo Obligatorio de 9 Pasos
+            </h4>
+            <div className="grid grid-cols-1 gap-1.5 text-[11px]">
+              {[
+                { step: "1", color: "emerald", title: "Conectar → POST /api/agent/connect", desc: "Enviar agentId, projectId, agentName, model. Guardar el token devuelto." },
+                { step: "2", color: "blue", title: "Obtener Proyecto → GET /api/projects/:id", desc: "Leer contexto del proyecto: nombre, descripción, stack tecnológico." },
+                { step: "3", color: "violet", title: "Obtener Tarea → GET /api/tasks?projectId=:id&status=pending", desc: "Seleccionar la primera tarea pendiente. Registrar su taskId." },
+                { step: "4", color: "amber", title: "Reclamar Tarea → PATCH /api/tasks/:id", desc: 'Cambiar status a "in_progress". Incluir agentId en el body.' },
+                { step: "5", color: "orange", title: "Registrar Chat → POST /api/agent/chat-log", desc: "Loggear cada acción significativa durante la ejecución." },
+                { step: "6", color: "pink", title: "Completar Tarea → POST /api/agent/complete-task", desc: "Enviar OBLIGATORIAMENTE: gitUrl (GitHub) + workUrl (URL pública del deploy)." },
+                { step: "7", color: "teal", title: "Crear Historial → POST /api/history", desc: "Registrar el resumen técnico de lo que se hizo, con ambas URLs." },
+                { step: "8", color: "indigo", title: "Crear Notificación → POST /api/notifications", desc: "Avisar al supervisor que la tarea está lista para revisión." },
+                { step: "9", color: "red", title: "Desconectar → POST /api/agent/disconnect", desc: "Liberar la conexión una vez completado el ciclo." },
+              ].map(({ step, color, title, desc }) => (
+                <div key={step} className={`flex gap-2.5 p-2.5 rounded bg-${color}-50/40 dark:bg-zinc-900 border border-${color}-200 dark:border-zinc-800`}>
+                  <span className={`shrink-0 w-5 h-5 rounded-full bg-${color}-600 dark:bg-${color}-700 text-white text-[10px] font-bold flex items-center justify-center`}>{step}</span>
+                  <div>
+                    <span className={`font-mono font-bold text-${color}-800 dark:text-${color}-400 block`}>{title}</span>
+                    <span className="text-zinc-600 dark:text-zinc-400">{desc}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Regla de las 2 URLs */}
+          <div className="p-3 rounded-lg bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-300 dark:border-emerald-800 space-y-1.5">
+            <h4 className="text-xs font-bold text-emerald-800 dark:text-emerald-400 flex items-center gap-1.5 uppercase tracking-wider">
+              <Globe className="w-3.5 h-3.5" />
+              Regla de Oro: DOS URLs por Tarea
+            </h4>
+            <p className="text-zinc-700 dark:text-zinc-400">
+              En cada tarea completada el agente <strong className="text-zinc-900 dark:text-zinc-100">DEBE entregar exactamente dos URLs</strong>:
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-[11px]">
+              <div className="p-2 rounded bg-violet-50/60 dark:bg-zinc-900 border border-violet-200 dark:border-violet-900/60 space-y-0.5">
+                <div className="flex items-center gap-1">
+                  <GitBranch className="w-3 h-3 text-violet-600 dark:text-violet-400" />
+                  <span className="font-bold text-violet-800 dark:text-violet-400">gitUrl</span>
+                </div>
+                <span className="text-zinc-600 dark:text-zinc-400">URL del commit en GitHub — ej: <code className="font-mono text-[10px]">https://github.com/org/repo/commit/abc123</code></span>
+              </div>
+              <div className="p-2 rounded bg-emerald-50/60 dark:bg-zinc-900 border border-emerald-200 dark:border-emerald-900/60 space-y-0.5">
+                <div className="flex items-center gap-1">
+                  <Globe className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                  <span className="font-bold text-emerald-800 dark:text-emerald-400">workUrl</span>
+                </div>
+                <span className="text-zinc-600 dark:text-zinc-400">URL pública del deploy en vivo — ej: <code className="font-mono text-[10px]">https://mi-proyecto.pages.dev</code></span>
+              </div>
+            </div>
+          </div>
+
+          {/* Endpoints rápidos */}
+          <div className="space-y-1.5">
+            <h4 className="text-xs font-bold text-zinc-900 dark:text-white flex items-center gap-1.5 uppercase tracking-wider">
+              <Terminal className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+              Referencia Rápida de Endpoints
+            </h4>
+            <div className="grid grid-cols-1 gap-1 text-[10px] font-mono">
+              {[
+                { method: "POST", path: "/api/agent/connect", color: "emerald", note: "Conexión y autenticación" },
+                { method: "GET",  path: "/api/agent/guide",   color: "violet",  note: "Esta guía en formato JSON" },
+                { method: "GET",  path: "/api/projects/:id",  color: "blue",    note: "Detalle del proyecto" },
+                { method: "GET",  path: "/api/tasks",         color: "blue",    note: "Listar tareas del proyecto" },
+                { method: "POST", path: "/api/tasks",         color: "emerald", note: "Crear nueva tarea" },
+                { method: "PATCH",path: "/api/tasks/:id",     color: "amber",   note: "Actualizar estado/progreso" },
+                { method: "POST", path: "/api/agent/chat-log",color: "orange",  note: "Registrar acción de chat" },
+                { method: "POST", path: "/api/agent/complete-task", color: "pink", note: "Marcar tarea completada (con gitUrl + workUrl)" },
+                { method: "POST", path: "/api/history",       color: "teal",    note: "Crear entrada en historial" },
+                { method: "POST", path: "/api/notifications", color: "indigo",  note: "Notificar al supervisor" },
+                { method: "POST", path: "/api/agent/disconnect", color: "red",  note: "Cerrar conexión del agente" },
+              ].map(({ method, path, color, note }) => (
+                <div key={path} className={`flex items-center gap-2 p-1.5 rounded bg-zinc-50 dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800`}>
+                  <span className={`shrink-0 px-1.5 py-0.5 rounded text-[9px] font-bold bg-${color}-100 dark:bg-${color}-950/60 text-${color}-800 dark:text-${color}-400 border border-${color}-300 dark:border-${color}-800`}>{method}</span>
+                  <code className="text-zinc-800 dark:text-zinc-300 flex-1">{path}</code>
+                  <span className="text-zinc-500 dark:text-zinc-500 text-right">{note}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Prohibiciones */}
+          <div className="p-3 rounded-lg bg-red-50/60 dark:bg-red-950/20 border border-red-300 dark:border-red-900 space-y-1.5">
+            <h4 className="text-xs font-bold text-red-800 dark:text-red-400 flex items-center gap-1.5 uppercase tracking-wider">
+              <Ban className="w-3.5 h-3.5" />
+              Prohibiciones Absolutas
+            </h4>
+            <ul className="space-y-1 text-[11px] text-red-800 dark:text-red-300">
+              {[
+                "No marcar una tarea como completada sin gitUrl Y workUrl.",
+                "No omitir el registro en /api/agent/chat-log durante la ejecución.",
+                "No completar tareas sin pasar por el flujo HITL (ready_for_review → aprobación).",
+                "No eliminar ni modificar datos de otros agentes o proyectos.",
+                "No operar sin token de autenticación válido (x-api-key).",
+                "No inventar URLs: deben ser URLs reales y funcionales.",
+                "No saltarse la creación del historial (/api/history) tras completar una tarea.",
+              ].map((item, i) => (
+                <li key={i} className="flex items-start gap-1.5">
+                  <span className="shrink-0 mt-0.5 w-3.5 h-3.5 rounded-full bg-red-200 dark:bg-red-900/60 flex items-center justify-center text-[8px] font-bold text-red-800 dark:text-red-400">{i + 1}</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* JSON endpoint hint */}
+          <div className="p-2.5 rounded bg-zinc-100 dark:bg-zinc-900/80 border border-zinc-300 dark:border-zinc-700 text-[10px] font-mono text-zinc-700 dark:text-zinc-400">
+            💡 Esta guía también está disponible en JSON para IAs: <code className="text-emerald-700 dark:text-emerald-400">GET /api/agent/guide</code> · <code className="text-violet-700 dark:text-violet-400">GET /api/agent/normativa</code>
+          </div>
+
         </div>
       )
     }

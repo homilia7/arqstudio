@@ -158,6 +158,70 @@ export async function onRequest(context: any) {
       );
     }
 
+    // --- GUÍA NORMATIVA COMPLETA PARA AGENTES IA (GET /api/agent/guide, /api/agent/normativa) ---
+    if (pathname === "/api/agent/guide" || pathname === "/api/agent/normativa") {
+      return new Response(
+        JSON.stringify({
+          title: "🤖 GUÍA NORMATIVA Y MANUAL OPERATIVO PARA AGENTES IA (ARQAISTUDIO)",
+          platform: "ARQAISTUDIO (https://arqaistudio.pages.dev)",
+          purpose: "Hub Central de Arquitectura de Software, Supervisión HITL (Human-in-the-Loop) y Quality Gate.",
+          coreRules: [
+            {
+              rule: "1. Handshake & Conexión Inicial",
+              endpoint: "POST /api/agent/connect",
+              action: "Conectar proyecto y guardar .arqai.json en raíz local."
+            },
+            {
+              rule: "2. Escudo de Calidad & Lockfile Inmutable",
+              endpoint: "GET /api/agent/sync-lockfile",
+              action: "NUNCA modificar ningún archivo listado en security.lockedFiles. Tienen Quality Gate inmutable."
+            },
+            {
+              rule: "3. Tarea Prioritaria",
+              endpoint: "GET /api/agent/next-task",
+              action: "Atender prioritariamente tareas en 'needs_revision' con humanFeedback ('⚠️ No Funciona' o '✨ Mejorar')."
+            },
+            {
+              rule: "4. Memoria de Contexto Técnico",
+              endpoint: "GET /api/agent/context-memory",
+              action: "Leer requerimientos técnicos, dependencias y restricciones antes de tocar código."
+            },
+            {
+              rule: "5. Iniciar Tarea",
+              endpoint: "PATCH /api/tasks/:id",
+              action: "Enviar status='in_progress' y assignedAgent='<NombreAgente>'."
+            },
+            {
+              rule: "6. REGLA OBLIGATORIA: DOS URLs POR TAREA Y ACCIÓN",
+              endpoint: "POST /api/agent/complete-task",
+              action: "DEBES proporcionar obligatoriamente dos URLs: 1) 'gitUrl': URL del repositorio/commit de Git, y 2) 'workUrl': URL del proyecto web en vivo para que el humano pueda ir a ver el cambio en directo."
+            },
+            {
+              rule: "7. Auditoría HITL y Diálogo",
+              endpoint: "POST /api/agent/chat-log",
+              action: "Registrar prompt del usuario, resumen técnico, archivos modificados y ambas URLs."
+            },
+            {
+              rule: "8. Alerta Emergente en Vivo",
+              endpoint: "POST /api/agent/notify-user",
+              action: "Disparar notificación en pantalla del usuario al finalizar tareas o módulos."
+            },
+            {
+              rule: "9. Memoria RAG para ahorro de tokens",
+              endpoint: "GET /api/agent/rag-context",
+              action: "Consultar fragmentos técnicos previos antes de pedir reexplicaciones al usuario."
+            },
+            {
+              rule: "10. Prohibición de Auto-aprobación",
+              endpoint: "POST /api/tasks/:id/verify",
+              action: "PROHIBIDO autoverificarse (status='verified' o locked=true). Solo el evaluador humano tiene esa potestad."
+            }
+          ]
+        }),
+        { headers: jsonHeaders }
+      );
+    }
+
     // --- CONEXIÓN AUTÓNOMA Y GENERACIÓN DE CONNECTOR LOCAL (POST /api/agent/connect) ---
     if (pathname === "/api/agent/connect" && request.method === "POST") {
       const body = await request.json().catch(() => ({}));
