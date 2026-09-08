@@ -24,6 +24,7 @@ import {
   Filter,
   Search,
   Zap,
+  Trash2,
 } from "lucide-react";
 import { ChatAuditEntry, Project, TaskItem } from "../types";
 import {
@@ -32,6 +33,8 @@ import {
   rejectTask,
   syncLockfile,
   createChatLog,
+  deleteChatLog,
+  clearChatLogs,
 } from "../services/api";
 
 interface ChatAuditModalProps {
@@ -144,6 +147,43 @@ export const ChatAuditModal: React.FC<ChatAuditModalProps> = ({
       alert("⚠️ Tarea marcada para revisión y corrección técnica.");
     } catch (e: any) {
       alert("Error al rechazar: " + (e.message || e));
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const handleDeleteLog = async (entryId: string) => {
+    if (!window.confirm("¿Estás seguro de que deseas eliminar este registro de chat de la base de datos?")) {
+      return;
+    }
+    setDeletingId(entryId);
+    try {
+      await deleteChatLog(entryId);
+      const remaining = logs.filter((l) => l.id !== entryId);
+      setLogs(remaining);
+      if (selectedEntry?.id === entryId) {
+        setSelectedEntry(remaining.length > 0 ? remaining[0] : null);
+      }
+    } catch (err: any) {
+      alert("Error al eliminar el registro: " + (err.message || err));
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const handleClearAllLogs = async () => {
+    if (!window.confirm(`¿Estás seguro de que deseas vaciar todos los registros de chat de "${currentProject?.name || "este proyecto"}"? Esta acción eliminará permanentemente los datos.`)) {
+      return;
+    }
+    setActionLoading(true);
+    try {
+      await clearChatLogs(currentProject?.id);
+      setLogs([]);
+      setSelectedEntry(null);
+    } catch (err: any) {
+      alert("Error al vaciar los registros: " + (err.message || err));
     } finally {
       setActionLoading(false);
     }
@@ -316,6 +356,17 @@ export const ChatAuditModal: React.FC<ChatAuditModalProps> = ({
           </div>
 
           <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+            {logs.length > 0 && (
+              <button
+                onClick={handleClearAllLogs}
+                disabled={actionLoading}
+                className="flex items-center space-x-1 px-2.5 py-1.5 border border-rose-200 dark:border-rose-900/60 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg text-xs font-semibold shadow-2xs transition-all cursor-pointer"
+                title="Eliminar todos los registros de chat de este proyecto"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Vaciar Historial</span>
+              </button>
+            )}
             <button
               onClick={() => setIsRegisterOpen(true)}
               className="flex items-center space-x-1 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold shadow-sm transition-all cursor-pointer"
@@ -574,6 +625,15 @@ export const ChatAuditModal: React.FC<ChatAuditModalProps> = ({
                       )}
                     </button>
                     <button
+                      onClick={() => handleDeleteLog(selectedEntry.id)}
+                      disabled={deletingId === selectedEntry.id}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 border border-rose-300 dark:border-rose-900 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-medium rounded-lg transition-colors cursor-pointer"
+                      title="Eliminar este registro de chat de la base de datos"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                      <span>{deletingId === selectedEntry.id ? "Eliminando..." : "Eliminar"}</span>
+                    </button>
+                    <button
                       onClick={handleSyncLockfile}
                       disabled={syncingLockfile}
                       className="inline-flex items-center gap-1 px-2.5 py-1 border border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-xs font-medium rounded-lg transition-colors cursor-pointer"
@@ -679,9 +739,16 @@ export const ChatAuditModal: React.FC<ChatAuditModalProps> = ({
                 </div>
               </>
             ) : (
-              <div className="h-full flex flex-col items-center justify-center text-zinc-400 text-xs py-16">
+              <div className="h-full flex flex-col items-center justify-center text-zinc-400 text-xs py-16 text-center px-4">
                 <Sparkles className="w-10 h-10 mb-2 text-indigo-400 opacity-40" />
-                <p>Selecciona un diálogo de la izquierda para ver el historial y el modelo de IA utilizado.</p>
+                <p className="font-semibold text-zinc-700 dark:text-zinc-300">
+                  {logs.length === 0 ? "Historial 100% Limpio" : "Selecciona un diálogo"}
+                </p>
+                <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1 max-w-sm">
+                  {logs.length === 0
+                    ? "No hay consultas de prueba. Conforme interactúes con la plataforma y los agentes de IA, se auditará aquí cada instrucción y modelo utilizado en tiempo real."
+                    : "Selecciona un diálogo de la izquierda para ver el historial y el modelo de IA utilizado."}
+                </p>
               </div>
             )}
           </div>

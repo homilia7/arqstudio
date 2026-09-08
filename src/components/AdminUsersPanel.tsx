@@ -37,7 +37,7 @@ import {
   Bell,
 } from "lucide-react";
 import { User, DatabaseStorageStats } from "../types";
-import { fetchUsers, registerUser, deleteUser, fetchDatabaseStorageStats } from "../services/api";
+import { fetchUsers, registerUser, deleteUser, fetchDatabaseStorageStats, cleanMockData } from "../services/api";
 
 interface AdminUsersPanelProps {
   isOpen?: boolean;
@@ -90,6 +90,24 @@ export function AdminUsersPanel({
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleteSuccessNotice, setDeleteSuccessNotice] = useState<string | null>(null);
+
+  const [cleaningMock, setCleaningMock] = useState(false);
+
+  const handleCleanMockData = async () => {
+    if (!window.confirm("¿Deseas purgar de la base de datos todos los chats de prueba y registros de conexión simulados? Solo quedarán datos 100% reales.")) {
+      return;
+    }
+    setCleaningMock(true);
+    try {
+      await cleanMockData();
+      await loadData();
+      alert("✅ Datos de prueba y simulados purgados exitosamente. Las cuentas están 100% limpias.");
+    } catch (err: any) {
+      alert("Error al limpiar datos: " + (err.message || err));
+    } finally {
+      setCleaningMock(false);
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -303,6 +321,15 @@ export function AdminUsersPanel({
             >
               <PieChart className="w-3.5 h-3.5 text-indigo-500" />
               <span>Desglose D1</span>
+            </button>
+            <button
+              onClick={handleCleanMockData}
+              disabled={cleaningMock}
+              title="Purgar chats de prueba y datos simulados de Cloudflare D1"
+              className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 dark:text-rose-300 border border-rose-200 dark:border-rose-900/60 rounded-lg text-xs font-medium flex items-center space-x-1.5 transition-colors cursor-pointer disabled:opacity-50"
+            >
+              <Trash2 className={`w-3.5 h-3.5 ${cleaningMock ? "animate-spin" : ""}`} />
+              <span className="hidden md:inline">Purgar Simulados</span>
             </button>
             <button
               onClick={loadData}
@@ -862,109 +889,108 @@ export function AdminUsersPanel({
         const profPct = parseFloat(calcPercent(profBytes));
 
         return (
-          <div className="fixed inset-0 z-[100000] flex items-center justify-center p-3 sm:p-4 bg-zinc-950/80 backdrop-blur-sm animate-fade-in">
-            <div className="bg-white dark:bg-[#151922] border border-zinc-300 dark:border-zinc-800 rounded-2xl shadow-2xl max-w-[440px] w-full overflow-hidden shrink-0">
+          <div className="fixed inset-0 z-[100000] flex items-center justify-center p-3 sm:p-4 bg-zinc-950/80 backdrop-blur-xs animate-fade-in">
+            <div className="bg-white dark:bg-[#151922] border border-zinc-300 dark:border-zinc-800 rounded-2xl shadow-2xl max-w-[340px] w-full overflow-hidden shrink-0">
               {/* Header compacto */}
-              <div className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-zinc-50 dark:bg-zinc-900/60">
-                <div className="flex items-center space-x-2">
-                  <HardDrive className="w-4 h-4 text-indigo-500" />
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-bold text-zinc-900 dark:text-white text-xs">
-                      Desglose de Almacenamiento:
-                    </span>
-                    <span className="font-bold text-indigo-600 dark:text-indigo-400 text-xs">
-                      {userForStorageDetail.name}
-                    </span>
-                  </div>
+              <div className="px-3.5 py-2.5 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-zinc-50 dark:bg-zinc-900/70">
+                <div className="flex items-center space-x-2 min-w-0">
+                  <HardDrive className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                  <span className="font-bold text-zinc-900 dark:text-white text-xs truncate">
+                    Desglose: <span className="text-indigo-600 dark:text-indigo-400">{userForStorageDetail.name}</span>
+                  </span>
                 </div>
                 <button
                   onClick={() => setUserForStorageDetail(null)}
-                  className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1 rounded-lg transition-colors cursor-pointer"
+                  className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1 rounded-lg transition-colors cursor-pointer shrink-0"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
               </div>
 
-              <div className="p-4 space-y-3">
+              <div className="p-3 space-y-2.5">
                 {/* Tarjeta Resumen y Barra Multicolor */}
-                <div className="p-3 bg-indigo-50/40 dark:bg-indigo-950/20 border border-indigo-200/70 dark:border-indigo-800/50 rounded-xl space-y-2">
-                  <div className="flex items-center justify-between">
+                <div className="p-2.5 bg-indigo-50/40 dark:bg-indigo-950/20 border border-indigo-200/60 dark:border-indigo-800/40 rounded-xl space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
                     <div>
-                      <span className="text-[9px] uppercase font-bold text-zinc-500 dark:text-zinc-400">
-                        Consumo Total del Usuario
+                      <span className="text-[8.5px] uppercase font-bold text-zinc-500 dark:text-zinc-400 block leading-tight">
+                        Consumo Usuario
                       </span>
-                      <p className="text-base font-black text-indigo-600 dark:text-indigo-400 font-mono leading-none mt-0.5">
-                        {userForStorageDetail.storage ? formatBytesPrecise(uTotal) : "0 B"}
-                      </p>
-                      <span className="text-[10px] text-zinc-400 font-mono">
-                        ({uTotal} bytes en D1)
-                      </span>
+                      <div className="flex items-baseline gap-1 mt-0.5">
+                        <span className="text-sm font-black text-indigo-600 dark:text-indigo-400 font-mono">
+                          {userForStorageDetail.storage ? formatBytesPrecise(uTotal) : "0 B"}
+                        </span>
+                        <span className="text-[9px] text-zinc-400 font-mono">
+                          ({uTotal} B)
+                        </span>
+                      </div>
                     </div>
                     <div className="text-right">
-                      <span className="text-[9px] uppercase font-bold text-zinc-500 dark:text-zinc-400">
-                        Impacto en la DB
+                      <span className="text-[8.5px] uppercase font-bold text-zinc-500 dark:text-zinc-400 block leading-tight">
+                        Impacto DB
                       </span>
-                      <p className="text-base font-black text-purple-600 dark:text-purple-400 font-mono leading-none mt-0.5">
-                        {userForStorageDetail.storage?.percentageOfDb || 0}%
-                      </p>
-                      <span className="text-[10px] text-zinc-400 font-mono">
-                        de {dbStats?.totalStorageFormatted || "la DB"}
-                      </span>
+                      <div className="flex items-baseline justify-end gap-1 mt-0.5">
+                        <span className="text-sm font-black text-purple-600 dark:text-purple-400 font-mono">
+                          {userForStorageDetail.storage?.percentageOfDb || 0}%
+                        </span>
+                        <span className="text-[9px] text-zinc-400 font-mono">
+                          de {dbStats?.totalStorageFormatted || "DB"}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Barra Segmentada Multicolor (estilo GitHub / Vercel) */}
+                  {/* Barra Segmentada Multicolor */}
                   <div className="space-y-1">
-                    <div className="w-full h-2 rounded-full overflow-hidden bg-zinc-200 dark:bg-zinc-800 flex shadow-inner">
-                      {projPct > 0 && <div style={{ width: `${projPct}%` }} className="bg-purple-500 h-full" title={`Proyectos: ${projPct}%`} />}
-                      {tasksPct > 0 && <div style={{ width: `${tasksPct}%` }} className="bg-indigo-500 h-full" title={`Tareas: ${tasksPct}%`} />}
-                      {chatPct > 0 && <div style={{ width: `${chatPct}%` }} className="bg-blue-500 h-full" title={`Chat: ${chatPct}%`} />}
-                      {connsPct > 0 && <div style={{ width: `${connsPct}%` }} className="bg-emerald-500 h-full" title={`Conexiones: ${connsPct}%`} />}
-                      {histPct > 0 && <div style={{ width: `${histPct}%` }} className="bg-amber-500 h-full" title={`Historial: ${histPct}%`} />}
-                      {notifPct > 0 && <div style={{ width: `${notifPct}%` }} className="bg-rose-500 h-full" title={`Notificaciones: ${notifPct}%`} />}
-                      {profPct > 0 && <div style={{ width: `${profPct}%` }} className="bg-zinc-500 h-full" title={`Perfil: ${profPct}%`} />}
+                    <div className="w-full h-1.5 rounded-full overflow-hidden bg-zinc-200 dark:bg-zinc-800 flex shadow-inner">
+                      {projPct > 0 && <div style={{ width: `${projPct}%` }} className="bg-purple-500 h-full" />}
+                      {tasksPct > 0 && <div style={{ width: `${tasksPct}%` }} className="bg-indigo-500 h-full" />}
+                      {chatPct > 0 && <div style={{ width: `${chatPct}%` }} className="bg-blue-500 h-full" />}
+                      {connsPct > 0 && <div style={{ width: `${connsPct}%` }} className="bg-emerald-500 h-full" />}
+                      {histPct > 0 && <div style={{ width: `${histPct}%` }} className="bg-amber-500 h-full" />}
+                      {notifPct > 0 && <div style={{ width: `${notifPct}%` }} className="bg-rose-500 h-full" />}
+                      {profPct > 0 && <div style={{ width: `${profPct}%` }} className="bg-zinc-500 h-full" />}
                     </div>
 
                     {/* Mini Etiquetas de categorías activas */}
-                    <div className="flex items-center gap-1.5 flex-wrap text-[9px] text-zinc-500 dark:text-zinc-400 pt-0.5">
+                    <div className="flex items-center gap-1.5 flex-wrap text-[8.5px] text-zinc-500 dark:text-zinc-400 pt-0.5">
                       {projPct > 0 && (
-                        <span className="inline-flex items-center gap-1">
+                        <span className="inline-flex items-center gap-0.5">
                           <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
                           <span>Proyectos ({projPct}%)</span>
                         </span>
                       )}
                       {tasksPct > 0 && (
-                        <span className="inline-flex items-center gap-1">
+                        <span className="inline-flex items-center gap-0.5">
                           <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
                           <span>Tareas ({tasksPct}%)</span>
                         </span>
                       )}
                       {chatPct > 0 && (
-                        <span className="inline-flex items-center gap-1">
+                        <span className="inline-flex items-center gap-0.5">
                           <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
                           <span>Chat ({chatPct}%)</span>
                         </span>
                       )}
                       {connsPct > 0 && (
-                        <span className="inline-flex items-center gap-1">
+                        <span className="inline-flex items-center gap-0.5">
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                           <span>Conexiones ({connsPct}%)</span>
                         </span>
                       )}
                       {histPct > 0 && (
-                        <span className="inline-flex items-center gap-1">
+                        <span className="inline-flex items-center gap-0.5">
                           <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
                           <span>Historial ({histPct}%)</span>
                         </span>
                       )}
                       {notifPct > 0 && (
-                        <span className="inline-flex items-center gap-1">
+                        <span className="inline-flex items-center gap-0.5">
                           <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
                           <span>Notif. ({notifPct}%)</span>
                         </span>
                       )}
                       {profPct > 0 && (
-                        <span className="inline-flex items-center gap-1">
+                        <span className="inline-flex items-center gap-0.5">
                           <span className="w-1.5 h-1.5 rounded-full bg-zinc-500" />
                           <span>Perfil ({profPct}%)</span>
                         </span>
@@ -974,202 +1000,160 @@ export function AdminUsersPanel({
                 </div>
 
                 {/* Lista detallada de consumos por tabla */}
-                <div className="space-y-1.5 text-xs">
-                  <div className="flex items-center justify-between text-[10px] text-zinc-400 font-semibold uppercase tracking-wider px-1">
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between text-[9px] text-zinc-400 font-bold uppercase tracking-wider px-1 mb-0.5">
                     <span>Tabla / Tipo de Dato</span>
-                    <span>Consumo (% Usuario)</span>
+                    <span>Consumo</span>
                   </div>
 
-                  {/* 1. Proyectos & Blueprint */}
-                  <div className="px-3 py-1.5 bg-zinc-50 dark:bg-zinc-900/70 rounded-lg border border-zinc-200/80 dark:border-zinc-800/80 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <FolderGit2 className="w-3.5 h-3.5 text-purple-500 shrink-0" />
-                      <div>
-                        <span className="font-medium text-zinc-900 dark:text-zinc-100 text-[11px]">Proyectos & Blueprint</span>
-                        <span className="text-[10px] text-zinc-400 ml-1.5 font-mono">({counts?.projects || 0} proj)</span>
-                      </div>
+                  {/* 1. Proyectos */}
+                  <div className="px-2.5 py-1 bg-zinc-50/80 dark:bg-zinc-900/60 rounded-md border border-zinc-200/70 dark:border-zinc-800/70 flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <FolderGit2 className="w-3 h-3 text-purple-500 shrink-0" />
+                      <span className="font-medium text-zinc-900 dark:text-zinc-100 text-[10.5px] truncate">
+                        Proyectos & Blueprint
+                      </span>
+                      <span className="text-[9px] text-zinc-400 font-mono shrink-0">({counts?.projects || 0})</span>
                     </div>
-                    {projBytes > 0 ? (
-                      <div className="text-right">
-                        <span className="font-mono font-bold text-zinc-900 dark:text-zinc-100 text-xs">
-                          {formatBytesPrecise(projBytes)}
+                    <div className="text-right shrink-0 pl-1">
+                      {projBytes > 0 ? (
+                        <span className="font-mono text-[10.5px] font-bold text-zinc-900 dark:text-zinc-100">
+                          {formatBytesPrecise(projBytes)} <span className="text-[9px] font-normal text-purple-600 dark:text-purple-400">({projPct}%)</span>
                         </span>
-                        <span className="text-[10px] text-purple-600 dark:text-purple-400 font-mono block font-semibold">
-                          {projPct}% del usuario
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="text-right">
-                        <span className="font-mono text-zinc-400 dark:text-zinc-600 text-xs">-</span>
-                        <span className="text-[10px] text-zinc-400/80 dark:text-zinc-600 block">Sin datos</span>
-                      </div>
-                    )}
+                      ) : (
+                        <span className="font-mono text-[10px] text-zinc-400 dark:text-zinc-600">-</span>
+                      )}
+                    </div>
                   </div>
 
-                  {/* 2. Tareas & Entregables */}
-                  <div className="px-3 py-1.5 bg-zinc-50 dark:bg-zinc-900/70 rounded-lg border border-zinc-200/80 dark:border-zinc-800/80 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <FileCode className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
-                      <div>
-                        <span className="font-medium text-zinc-900 dark:text-zinc-100 text-[11px]">Tareas & Entregables</span>
-                        <span className="text-[10px] text-zinc-400 ml-1.5 font-mono">({counts?.tasks || 0} tareas)</span>
-                      </div>
+                  {/* 2. Tareas */}
+                  <div className="px-2.5 py-1 bg-zinc-50/80 dark:bg-zinc-900/60 rounded-md border border-zinc-200/70 dark:border-zinc-800/70 flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <FileCode className="w-3 h-3 text-indigo-500 shrink-0" />
+                      <span className="font-medium text-zinc-900 dark:text-zinc-100 text-[10.5px] truncate">
+                        Tareas & Entregables
+                      </span>
+                      <span className="text-[9px] text-zinc-400 font-mono shrink-0">({counts?.tasks || 0})</span>
                     </div>
-                    {tasksBytes > 0 ? (
-                      <div className="text-right">
-                        <span className="font-mono font-bold text-zinc-900 dark:text-zinc-100 text-xs">
-                          {formatBytesPrecise(tasksBytes)}
+                    <div className="text-right shrink-0 pl-1">
+                      {tasksBytes > 0 ? (
+                        <span className="font-mono text-[10.5px] font-bold text-zinc-900 dark:text-zinc-100">
+                          {formatBytesPrecise(tasksBytes)} <span className="text-[9px] font-normal text-indigo-600 dark:text-indigo-400">({tasksPct}%)</span>
                         </span>
-                        <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-mono block font-semibold">
-                          {tasksPct}% del usuario
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="text-right">
-                        <span className="font-mono text-zinc-400 dark:text-zinc-600 text-xs">-</span>
-                        <span className="text-[10px] text-zinc-400/80 dark:text-zinc-600 block">Sin datos</span>
-                      </div>
-                    )}
+                      ) : (
+                        <span className="font-mono text-[10px] text-zinc-400 dark:text-zinc-600">-</span>
+                      )}
+                    </div>
                   </div>
 
-                  {/* 3. Historial de Chat & Logs HITL */}
-                  <div className="px-3 py-1.5 bg-zinc-50 dark:bg-zinc-900/70 rounded-lg border border-zinc-200/80 dark:border-zinc-800/80 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <MessageSquare className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                      <div>
-                        <span className="font-medium text-zinc-900 dark:text-zinc-100 text-[11px]">Historial de Chat & IA</span>
-                        <span className="text-[10px] text-zinc-400 ml-1.5 font-mono">({counts?.chatAudits || 0} chats)</span>
-                      </div>
+                  {/* 3. Historial Chat */}
+                  <div className="px-2.5 py-1 bg-zinc-50/80 dark:bg-zinc-900/60 rounded-md border border-zinc-200/70 dark:border-zinc-800/70 flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <MessageSquare className="w-3 h-3 text-blue-500 shrink-0" />
+                      <span className="font-medium text-zinc-900 dark:text-zinc-100 text-[10.5px] truncate">
+                        Historial de Chat & IA
+                      </span>
+                      <span className="text-[9px] text-zinc-400 font-mono shrink-0">({counts?.chatAudits || 0})</span>
                     </div>
-                    {chatBytes > 0 ? (
-                      <div className="text-right">
-                        <span className="font-mono font-bold text-zinc-900 dark:text-zinc-100 text-xs">
-                          {formatBytesPrecise(chatBytes)}
+                    <div className="text-right shrink-0 pl-1">
+                      {chatBytes > 0 ? (
+                        <span className="font-mono text-[10.5px] font-bold text-zinc-900 dark:text-zinc-100">
+                          {formatBytesPrecise(chatBytes)} <span className="text-[9px] font-normal text-blue-600 dark:text-blue-400">({chatPct}%)</span>
                         </span>
-                        <span className="text-[10px] text-blue-600 dark:text-blue-400 font-mono block font-semibold">
-                          {chatPct}% del usuario
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="text-right">
-                        <span className="font-mono text-zinc-400 dark:text-zinc-600 text-xs">-</span>
-                        <span className="text-[10px] text-zinc-400/80 dark:text-zinc-600 block">Sin datos</span>
-                      </div>
-                    )}
+                      ) : (
+                        <span className="font-mono text-[10px] text-zinc-400 dark:text-zinc-600">-</span>
+                      )}
+                    </div>
                   </div>
 
-                  {/* 4. Conexiones & Actividad */}
-                  <div className="px-3 py-1.5 bg-zinc-50 dark:bg-zinc-900/70 rounded-lg border border-zinc-200/80 dark:border-zinc-800/80 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Activity className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                      <div>
-                        <span className="font-medium text-zinc-900 dark:text-zinc-100 text-[11px]">Conexiones & Actividad</span>
-                        <span className="text-[10px] text-zinc-400 ml-1.5 font-mono">({counts?.connections || 0} logs)</span>
-                      </div>
+                  {/* 4. Conexiones */}
+                  <div className="px-2.5 py-1 bg-zinc-50/80 dark:bg-zinc-900/60 rounded-md border border-zinc-200/70 dark:border-zinc-800/70 flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <Activity className="w-3 h-3 text-emerald-500 shrink-0" />
+                      <span className="font-medium text-zinc-900 dark:text-zinc-100 text-[10.5px] truncate">
+                        Conexiones & Actividad
+                      </span>
+                      <span className="text-[9px] text-zinc-400 font-mono shrink-0">({counts?.connections || 0})</span>
                     </div>
-                    {connsBytes > 0 ? (
-                      <div className="text-right">
-                        <span className="font-mono font-bold text-zinc-900 dark:text-zinc-100 text-xs">
-                          {formatBytesPrecise(connsBytes)}
+                    <div className="text-right shrink-0 pl-1">
+                      {connsBytes > 0 ? (
+                        <span className="font-mono text-[10.5px] font-bold text-zinc-900 dark:text-zinc-100">
+                          {formatBytesPrecise(connsBytes)} <span className="text-[9px] font-normal text-emerald-600 dark:text-emerald-400">({connsPct}%)</span>
                         </span>
-                        <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono block font-semibold">
-                          {connsPct}% del usuario
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="text-right">
-                        <span className="font-mono text-zinc-400 dark:text-zinc-600 text-xs">-</span>
-                        <span className="text-[10px] text-zinc-400/80 dark:text-zinc-600 block">Sin datos</span>
-                      </div>
-                    )}
+                      ) : (
+                        <span className="font-mono text-[10px] text-zinc-400 dark:text-zinc-600">-</span>
+                      )}
+                    </div>
                   </div>
 
                   {/* 5. Historial de Cambios */}
-                  <div className="px-3 py-1.5 bg-zinc-50 dark:bg-zinc-900/70 rounded-lg border border-zinc-200/80 dark:border-zinc-800/80 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                      <div>
-                        <span className="font-medium text-zinc-900 dark:text-zinc-100 text-[11px]">Historial de Cambios</span>
-                        <span className="text-[10px] text-zinc-400 ml-1.5 font-mono">({counts?.history || 0} cambios)</span>
-                      </div>
+                  <div className="px-2.5 py-1 bg-zinc-50/80 dark:bg-zinc-900/60 rounded-md border border-zinc-200/70 dark:border-zinc-800/70 flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <Clock className="w-3 h-3 text-amber-500 shrink-0" />
+                      <span className="font-medium text-zinc-900 dark:text-zinc-100 text-[10.5px] truncate">
+                        Historial de Cambios
+                      </span>
+                      <span className="text-[9px] text-zinc-400 font-mono shrink-0">({counts?.history || 0})</span>
                     </div>
-                    {histBytes > 0 ? (
-                      <div className="text-right">
-                        <span className="font-mono font-bold text-zinc-900 dark:text-zinc-100 text-xs">
-                          {formatBytesPrecise(histBytes)}
+                    <div className="text-right shrink-0 pl-1">
+                      {histBytes > 0 ? (
+                        <span className="font-mono text-[10.5px] font-bold text-zinc-900 dark:text-zinc-100">
+                          {formatBytesPrecise(histBytes)} <span className="text-[9px] font-normal text-amber-600 dark:text-amber-400">({histPct}%)</span>
                         </span>
-                        <span className="text-[10px] text-amber-600 dark:text-amber-400 font-mono block font-semibold">
-                          {histPct}% del usuario
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="text-right">
-                        <span className="font-mono text-zinc-400 dark:text-zinc-600 text-xs">-</span>
-                        <span className="text-[10px] text-zinc-400/80 dark:text-zinc-600 block">Sin datos</span>
-                      </div>
-                    )}
+                      ) : (
+                        <span className="font-mono text-[10px] text-zinc-400 dark:text-zinc-600">-</span>
+                      )}
+                    </div>
                   </div>
 
                   {/* 6. Notificaciones */}
-                  <div className="px-3 py-1.5 bg-zinc-50 dark:bg-zinc-900/70 rounded-lg border border-zinc-200/80 dark:border-zinc-800/80 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Bell className="w-3.5 h-3.5 text-rose-500 shrink-0" />
-                      <div>
-                        <span className="font-medium text-zinc-900 dark:text-zinc-100 text-[11px]">Notificaciones</span>
-                        <span className="text-[10px] text-zinc-400 ml-1.5 font-mono">({counts?.notifications || 0} notifs)</span>
-                      </div>
+                  <div className="px-2.5 py-1 bg-zinc-50/80 dark:bg-zinc-900/60 rounded-md border border-zinc-200/70 dark:border-zinc-800/70 flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <Bell className="w-3 h-3 text-rose-500 shrink-0" />
+                      <span className="font-medium text-zinc-900 dark:text-zinc-100 text-[10.5px] truncate">
+                        Notificaciones
+                      </span>
+                      <span className="text-[9px] text-zinc-400 font-mono shrink-0">({counts?.notifications || 0})</span>
                     </div>
-                    {notifBytes > 0 ? (
-                      <div className="text-right">
-                        <span className="font-mono font-bold text-zinc-900 dark:text-zinc-100 text-xs">
-                          {formatBytesPrecise(notifBytes)}
+                    <div className="text-right shrink-0 pl-1">
+                      {notifBytes > 0 ? (
+                        <span className="font-mono text-[10.5px] font-bold text-zinc-900 dark:text-zinc-100">
+                          {formatBytesPrecise(notifBytes)} <span className="text-[9px] font-normal text-rose-600 dark:text-rose-400">({notifPct}%)</span>
                         </span>
-                        <span className="text-[10px] text-rose-600 dark:text-rose-400 font-mono block font-semibold">
-                          {notifPct}% del usuario
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="text-right">
-                        <span className="font-mono text-zinc-400 dark:text-zinc-600 text-xs">-</span>
-                        <span className="text-[10px] text-zinc-400/80 dark:text-zinc-600 block">Sin datos</span>
-                      </div>
-                    )}
+                      ) : (
+                        <span className="font-mono text-[10px] text-zinc-400 dark:text-zinc-600">-</span>
+                      )}
+                    </div>
                   </div>
 
                   {/* 7. Perfil & Credenciales SQL */}
-                  <div className="px-3 py-1.5 bg-zinc-50 dark:bg-zinc-900/70 rounded-lg border border-zinc-200/80 dark:border-zinc-800/80 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <UserIcon className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
-                      <div>
-                        <span className="font-medium text-zinc-900 dark:text-zinc-100 text-[11px]">Perfil & Credenciales SQL</span>
-                        <span className="text-[10px] text-zinc-400 ml-1.5 font-mono">(Registro D1)</span>
-                      </div>
+                  <div className="px-2.5 py-1 bg-zinc-50/80 dark:bg-zinc-900/60 rounded-md border border-zinc-200/70 dark:border-zinc-800/70 flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <UserIcon className="w-3 h-3 text-zinc-400 shrink-0" />
+                      <span className="font-medium text-zinc-900 dark:text-zinc-100 text-[10.5px] truncate">
+                        Perfil & Credenciales SQL
+                      </span>
+                      <span className="text-[9px] text-zinc-400 font-mono shrink-0">(D1)</span>
                     </div>
-                    {profBytes > 0 ? (
-                      <div className="text-right">
-                        <span className="font-mono font-bold text-zinc-900 dark:text-zinc-100 text-xs">
-                          {formatBytesPrecise(profBytes)}
+                    <div className="text-right shrink-0 pl-1">
+                      {profBytes > 0 ? (
+                        <span className="font-mono text-[10.5px] font-bold text-zinc-900 dark:text-zinc-100">
+                          {formatBytesPrecise(profBytes)} <span className="text-[9px] font-normal text-indigo-600 dark:text-indigo-400">({profPct}%)</span>
                         </span>
-                        <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-mono block font-semibold">
-                          {profPct}% del usuario
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="text-right">
-                        <span className="font-mono text-zinc-400 dark:text-zinc-600 text-xs">-</span>
-                        <span className="text-[10px] text-zinc-400/80 dark:text-zinc-600 block">Sin datos</span>
-                      </div>
-                    )}
+                      ) : (
+                        <span className="font-mono text-[10px] text-zinc-400 dark:text-zinc-600">-</span>
+                      )}
+                    </div>
                   </div>
                 </div>
 
                 <div className="pt-2 flex items-center justify-between border-t border-zinc-100 dark:border-zinc-800/80">
-                  <span className="text-[10px] text-zinc-400">
-                    Suma total: <strong className="font-mono text-zinc-700 dark:text-zinc-300">{formatBytesPrecise(uTotal)}</strong>
+                  <span className="text-[10px] text-zinc-500 dark:text-zinc-400">
+                    Suma total: <strong className="font-mono text-zinc-700 dark:text-zinc-300 font-bold">{formatBytesPrecise(uTotal)}</strong>
                   </span>
                   <button
                     onClick={() => setUserForStorageDetail(null)}
-                    className="px-3.5 py-1.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 rounded-lg text-xs font-semibold transition cursor-pointer shadow-xs"
+                    className="px-3 py-1 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 rounded-lg text-xs font-semibold transition cursor-pointer shadow-xs"
                   >
                     Cerrar
                   </button>

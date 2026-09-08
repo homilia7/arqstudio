@@ -926,6 +926,24 @@ export async function createChatLog(data: {
   return res.auditEntry;
 }
 
+export async function deleteChatLog(id: string): Promise<boolean> {
+  await safeFetchJson(`${BASE_URL}/agent/chat-log/${encodeURIComponent(id)}`, { method: "DELETE" }, "Error al eliminar diálogo de chat");
+  return true;
+}
+
+export async function clearChatLogs(projectId?: string): Promise<boolean> {
+  const url = projectId
+    ? `${BASE_URL}/agent/chat-log?projectId=${encodeURIComponent(projectId)}&clearAll=true`
+    : `${BASE_URL}/agent/chat-log?clearAll=true`;
+  await safeFetchJson(url, { method: "DELETE" }, "Error al vaciar historial de chat");
+  return true;
+}
+
+export async function cleanMockData(): Promise<boolean> {
+  await safeFetchJson(`${BASE_URL}/admin/clean-mock-data`, { method: "POST" }, "Error al limpiar datos de prueba");
+  return true;
+}
+
 export async function fetchRagMemory(
   projectId: string,
   query?: string,

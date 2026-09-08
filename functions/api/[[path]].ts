@@ -502,6 +502,44 @@ export async function onRequest(context: any) {
       }))), { headers: jsonHeaders });
     }
 
+    // --- ELIMINAR REGISTROS DE CHAT AUDIT (DELETE /api/agent/chat-log) ---
+    if ((pathname.startsWith("/api/agent/chat-log/") || pathname === "/api/agent/chat-log") && request.method === "DELETE") {
+      const parts = pathname.split("/");
+      const id = (parts.length > 4 && parts[4]) ? parts[4] : url.searchParams.get("id");
+      const projectId = url.searchParams.get("projectId");
+      const clearAll = url.searchParams.get("clearAll") === "true";
+
+      if (env && env.DB) {
+        if (id) {
+          await env.DB.prepare("DELETE FROM antigravity_chat_audit WHERE id = ?").bind(id).run();
+          return new Response(JSON.stringify({ success: true, message: "Registro de chat eliminado correctamente." }), { headers: jsonHeaders });
+        }
+        if (clearAll && projectId) {
+          await env.DB.prepare("DELETE FROM antigravity_chat_audit WHERE project_id = ?").bind(projectId).run();
+          return new Response(JSON.stringify({ success: true, message: "Historial de chat del proyecto vaciado correctamente." }), { headers: jsonHeaders });
+        }
+        if (clearAll && !projectId) {
+          await env.DB.prepare("DELETE FROM antigravity_chat_audit").run();
+          return new Response(JSON.stringify({ success: true, message: "Todos los registros de chat han sido eliminados." }), { headers: jsonHeaders });
+        }
+      }
+
+      return new Response(JSON.stringify({ error: "Falta ID de chat o parámetro para eliminar." }), { status: 400, headers: jsonHeaders });
+    }
+
+    // --- LIMPIAR DATOS DE PRUEBA Y ASEGURAR ESPACIO LIMPIO (POST /api/admin/clean-mock-data) ---
+    if (pathname === "/api/admin/clean-mock-data" && request.method === "POST") {
+      if (env && env.DB) {
+        // 1. Eliminar los chats de prueba / simulados
+        await env.DB.prepare("DELETE FROM antigravity_chat_audit WHERE user_prompt LIKE '%Consulta de prueba%' OR user_prompt LIKE '%Conectar el proyecto con el conector%'").run().catch(() => {});
+        // 2. Limpiar conexiones automáticas falsas de registro web
+        await env.DB.prepare("DELETE FROM antigravity_agent_connections WHERE action_description LIKE 'Nuevo registro de usuario en la plataforma%'").run().catch(() => {});
+        // 3. Limpiar entradas falsas de historial de registro
+        await env.DB.prepare("DELETE FROM antigravity_history WHERE task_title LIKE '👤 REGISTRO DE USUARIO%'").run().catch(() => {});
+      }
+      return new Response(JSON.stringify({ success: true, message: "Datos simulados y de prueba limpiados exitosamente de Cloudflare D1." }), { headers: jsonHeaders });
+    }
+
     // --- SIMULADOR DE AGENTE IA CON REGISTRO DE MODELO (POST /api/agent/simulate) ---
     if (pathname === "/api/agent/simulate" && request.method === "POST") {
       const body = await request.json().catch(() => ({}));
@@ -1106,39 +1144,6 @@ export async function onRequest(context: any) {
           "SISTEMA ARQAI",
           "👤 ¡NUEVO USUARIO REGISTRADO EN LA WEB!",
           `El usuario '${newUser.name}' (${newUser.email || "Sin correo"}) se acaba de registrar en la plataforma.`,
-          newUser.created_at
-        ).run().catch(() => {});
-
-        const registeringAgent = (
-          request.headers.get("x-agent-name") ||
-          body.agentName ||
-          body.agent_name ||
-          body.author ||
-          "SISTEMA ARQAI"
-        ).trim();
-
-        await env.DB.prepare(`
-          INSERT INTO antigravity_agent_connections (id, agent_name, connected_at, action_description, project_name, user_id)
-          VALUES (?, ?, ?, ?, ?, ?)
-        `).bind(
-          "conn-" + Date.now(),
-          registeringAgent,
-          new Date().toISOString(),
-          `Nuevo registro de usuario en la plataforma: '${newUser.name}' por ${registeringAgent}`,
-          "Registro Web",
-          newUser.id
-        ).run().catch(() => {});
-
-        await env.DB.prepare(`
-          INSERT INTO antigravity_history (id, task_id, project_id, task_title, action, previous_status, new_status, details, work_url, author, timestamp)
-          VALUES (?, null, ?, ?, 'user_registered', '', 'registered', ?, ?, ?, ?)
-        `).bind(
-          "hist-user-" + Date.now(),
-          "",
-          `👤 REGISTRO DE USUARIO: ${newUser.name}`,
-          `👤 ¡NUEVO REGISTRO EN LA PLATAFORMA! Se ha registrado el usuario '${newUser.name}' (${newUser.email || "Sin correo"}) con rol '${newUser.access_type}'.`,
-          "https://arqaistudio.pages.dev",
-          "SISTEMA ARQAI",
           newUser.created_at
         ).run().catch(() => {});
       }
