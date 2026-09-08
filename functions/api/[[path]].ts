@@ -950,15 +950,23 @@ export async function onRequest(context: any) {
 
     // --- PROYECTOS ---
     if (pathname === "/api/projects" && request.method === "GET") {
-      const userId = url.searchParams.get("userId");
+      const rawUserId = url.searchParams.get("userId") || request.headers.get("x-user-id");
+      const userId = rawUserId ? rawUserId.trim() : "";
       let projects: any[] = [];
       if (env && env.DB) {
         if (userId) {
-          const res = await env.DB.prepare("SELECT * FROM antigravity_projects WHERE user_id = ? ORDER BY created_at DESC").bind(userId).all();
-          projects = res.results || [];
+          const userObj = await env.DB.prepare("SELECT access_type FROM antigravity_users WHERE id = ?").bind(userId).first().catch(() => null);
+          const isSuperAdmin = userObj && (userObj.access_type === "admin" || userObj.access_type === "superadmin" || userId === "usr-admin-1");
+          if (isSuperAdmin && url.searchParams.get("all") === "true") {
+            const res = await env.DB.prepare("SELECT * FROM antigravity_projects ORDER BY created_at DESC").all();
+            projects = res.results || [];
+          } else {
+            const res = await env.DB.prepare("SELECT * FROM antigravity_projects WHERE user_id = ? ORDER BY created_at DESC").bind(userId).all();
+            projects = res.results || [];
+          }
         } else {
-          const res = await env.DB.prepare("SELECT * FROM antigravity_projects ORDER BY created_at DESC").all();
-          projects = res.results || [];
+          // Seguridad y Aislamiento Estricto: Si no hay usuario autenticado, cuenta limpia (0 proyectos)
+          projects = [];
         }
       }
       return new Response(

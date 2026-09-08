@@ -102,14 +102,7 @@ export default function App() {
     } catch (e) {
       console.warn("Error sesión:", e);
     }
-    return {
-      id: "usr-admin",
-      name: "Elena Rostova",
-      pin: "1234",
-      accessType: "superadmin",
-      role: "superadmin",
-      createdAt: new Date().toISOString()
-    };
+    return null;
   });
 
   const handleUpdateCurrentUser = (user: User | null) => {
@@ -119,10 +112,26 @@ export default function App() {
         localStorage.setItem("antigravity_current_user", JSON.stringify(user));
         sessionStorage.setItem("antigravity_current_user", JSON.stringify(user));
         localStorage.removeItem("antigravity_logged_out");
+        localStorage.removeItem("antigravity_active_project_id");
+        // Asegurar que la pantalla arranque limpia de inmediato
+        setActiveProject(null);
+        setProjects([]);
+        setTasks([]);
+        setModules([]);
+        setStages([]);
+        setHistory([]);
+        loadData(false, null, user);
       } else {
         localStorage.removeItem("antigravity_current_user");
         sessionStorage.removeItem("antigravity_current_user");
         localStorage.setItem("antigravity_logged_out", "true");
+        localStorage.removeItem("antigravity_active_project_id");
+        setActiveProject(null);
+        setProjects([]);
+        setTasks([]);
+        setModules([]);
+        setStages([]);
+        setHistory([]);
       }
     } catch (e) {
       console.warn("Error sesión:", e);
@@ -159,11 +168,22 @@ export default function App() {
     setTimeout(() => setToast(null), 3500);
   };
 
-  // Carga inicial y cambio de proyectos
-  const loadData = useCallback(async (isSilent = false, overrideProject?: Project | null) => {
+  // Carga inicial y cambio de proyectos con aislamiento estricto por usuario
+  const loadData = useCallback(async (isSilent = false, overrideProject?: Project | null, overrideUser?: User | null) => {
+    const userToUse = overrideUser !== undefined ? overrideUser : currentUser;
+    if (!userToUse || !userToUse.id) {
+      setProjects([]);
+      setActiveProject(null);
+      setTasks([]);
+      setModules([]);
+      setStages([]);
+      setHistory([]);
+      return;
+    }
+
     if (!isSilent) setIsRefreshing(true);
     try {
-      const projs = await api.fetchProjects(currentUser?.id);
+      const projs = await api.fetchProjects(userToUse.id);
       setProjects(projs);
 
       const savedId = localStorage.getItem("antigravity_active_project_id");
@@ -202,8 +222,17 @@ export default function App() {
   }, [activeProject, currentUser]);
 
   useEffect(() => {
-    loadData(true);
-  }, []);
+    if (currentUser?.id) {
+      loadData(true, undefined, currentUser);
+    } else {
+      setProjects([]);
+      setActiveProject(null);
+      setTasks([]);
+      setModules([]);
+      setStages([]);
+      setHistory([]);
+    }
+  }, [currentUser?.id]);
 
   const handleSelectProject = async (proj: Project) => {
     setActiveProject(proj);
@@ -347,6 +376,7 @@ export default function App() {
         allProjects={projects}
         onSelectProject={handleSelectProject}
         onOpenNewProject={() => setCreateProjectModalOpen(true)}
+        onDeleteProject={handleDeleteProject}
         approvedTasksCount={approvedTasksCount}
         onRunAgentLoop={handleRunAgentLoop}
         isAgentRunning={isAgentRunning}

@@ -10,7 +10,8 @@ import {
   BookOpen,
   ChevronDown,
   Check,
-  Folder
+  Folder,
+  Trash2
 } from 'lucide-react';
 import { Project, WorkspaceTab } from '../types';
 
@@ -19,6 +20,7 @@ interface ProjectCommandBarProps {
   allProjects: Project[];
   onSelectProject: (p: Project) => void;
   onOpenNewProject: () => void;
+  onDeleteProject?: (p: Project) => void;
   approvedTasksCount: number;
   onRunAgentLoop: () => void;
   isAgentRunning: boolean;
@@ -34,6 +36,7 @@ export const ProjectCommandBar: React.FC<ProjectCommandBarProps> = ({
   allProjects,
   onSelectProject,
   onOpenNewProject,
+  onDeleteProject,
   approvedTasksCount,
   onRunAgentLoop,
   isAgentRunning,
@@ -84,26 +87,42 @@ export const ProjectCommandBar: React.FC<ProjectCommandBarProps> = ({
                   {allProjects.map((p) => {
                     const isSelected = activeProject?.id === p.id;
                     return (
-                      <button
+                      <div
                         key={p.id}
-                        onClick={() => { onSelectProject(p); setProjectDropdownOpen(false); }}
-                        className={`w-full text-left px-3 py-1.5 flex items-center justify-between gap-2 cursor-pointer transition-colors ${
+                        className={`group w-full text-left px-3 py-1.5 flex items-center justify-between gap-2 cursor-pointer transition-colors ${
                           isSelected
                             ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 font-bold'
                             : 'hover:bg-zinc-100 dark:hover:bg-zinc-800/80 text-zinc-800 dark:text-zinc-200'
                         }`}
+                        onClick={() => { onSelectProject(p); setProjectDropdownOpen(false); }}
                       >
-                        <div className="flex items-center gap-2 truncate">
+                        <div className="flex items-center gap-2 truncate flex-1 min-w-0">
                           <Folder className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
                           <span className="truncate">{p.name}</span>
                         </div>
-                        {isSelected && <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />}
-                      </button>
+                        <div className="flex items-center gap-1 shrink-0">
+                          {isSelected && <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />}
+                          {onDeleteProject && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onDeleteProject(p);
+                              }}
+                              title={`Eliminar "${p.name}"`}
+                              className="opacity-0 group-hover:opacity-100 p-1 hover:bg-rose-100 dark:hover:bg-rose-950/70 text-zinc-400 hover:text-rose-600 rounded transition-all cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
                     );
                   })}
                   {allProjects.length === 0 && (
-                    <div className="px-3 py-2 text-center text-zinc-500 italic text-[11px]">
-                      No hay proyectos aún.
+                    <div className="px-3 py-4 text-center text-zinc-500 italic text-[11px] space-y-1">
+                      <div>Tu cuenta está limpia (0 proyectos).</div>
+                      <div className="text-[10px] text-zinc-400">Haz clic en '+ Crear Nuevo Proyecto' para iniciar.</div>
                     </div>
                   )}
                 </div>
