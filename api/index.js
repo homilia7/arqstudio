@@ -2399,13 +2399,14 @@ app.get("/api/health", (req, res) => {
 });
 app.post("/api/auth/login", async (req, res) => {
   const { name, pin, email } = req.body;
-  if (!name || !name.trim()) return res.status(400).json({ error: "Ingresa tu nombre de usuario." });
-  if (!pin || typeof pin !== "string" || pin.trim().length !== 4) {
-    return res.status(400).json({ error: "Ingresa un PIN de 4 d\xEDgitos v\xE1lido." });
+  if (!name || !name.trim()) return res.status(400).json({ error: "Ingresa tu usuario o correo electr\xF3nico." });
+  const pinStr = pin ? pin.toString().trim() : "";
+  if (!pinStr || pinStr.length < 4 || pinStr.length > 6) {
+    return res.status(400).json({ error: "Ingresa un PIN de acceso v\xE1lido (m\xE1ximo 6 d\xEDgitos)." });
   }
   if (!db.users) db.users = [];
   const cleanName = name.trim();
-  const cleanPin = pin.trim();
+  const cleanPin = pinStr;
   const cleanEmail = email ? email.trim() : "";
   const lowerName = cleanName.toLowerCase();
   let user = null;
@@ -2467,12 +2468,13 @@ var handleRegisterUser = async (req, res) => {
   if (!name || !name.trim()) {
     return res.status(400).json({ error: "El nombre de usuario es obligatorio." });
   }
-  if (!pin || typeof pin !== "string" || pin.trim().length !== 4) {
-    return res.status(400).json({ error: "El PIN debe ser exactamente de 4 d\xEDgitos num\xE9ricos." });
+  const pinStr = pin ? pin.toString().trim() : "";
+  if (!pinStr || pinStr.length < 4 || pinStr.length > 6) {
+    return res.status(400).json({ error: "El PIN o contrase\xF1a debe tener entre 4 y 6 d\xEDgitos." });
   }
   if (!db.users) db.users = [];
   const cleanName = name.trim();
-  const cleanPin = pin.trim();
+  const cleanPin = pinStr;
   const cleanEmail = email ? email.trim() : "";
   const cleanAccess = accessType ? accessType.trim() : "Acceso Full";
   const lowerName = cleanName.toLowerCase();

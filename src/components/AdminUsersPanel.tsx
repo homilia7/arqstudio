@@ -55,8 +55,8 @@ export function AdminUsersPanel({ currentUser, refreshKey }: AdminUsersPanelProp
       setFormError("El nombre de usuario es obligatorio.");
       return;
     }
-    if (pin.length !== 4) {
-      setFormError("El PIN debe tener exactamente 4 dígitos.");
+    if (pin.length < 4 || pin.length > 6) {
+      setFormError("El PIN o contraseña debe tener entre 4 y 6 dígitos.");
       return;
     }
 
@@ -281,17 +281,17 @@ export function AdminUsersPanel({ currentUser, refreshKey }: AdminUsersPanelProp
 
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
-                  PIN de Acceso (4 dígitos) <span className="text-rose-500">*</span>
+                  PIN / Contraseña (hasta 6 dígitos) <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
                   <Lock className="w-4 h-4 text-zinc-600 dark:text-zinc-400 absolute left-3 top-3" />
                   <input
                     type="password"
                     required
-                    maxLength={4}
+                    maxLength={6}
                     value={pin}
-                    onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                    placeholder="••••"
+                    onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                    placeholder="••••••"
                     className="w-full pl-9 pr-3 py-2 bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-xl text-sm font-mono tracking-widest text-zinc-800 dark:text-zinc-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>

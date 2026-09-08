@@ -674,47 +674,47 @@ export async function onRequest(context: any) {
       const { name, pin, email } = body;
       if (!name || !pin) {
         return new Response(
-          JSON.stringify({ error: "Ingresa tu nombre de usuario y PIN de 4 dígitos." }),
+          JSON.stringify({ error: "Ingresa tu usuario o correo y tu PIN de acceso (máximo 6 dígitos)." }),
           { status: 400, headers: jsonHeaders }
         );
       }
 
       const cleanName = name.trim();
-      const cleanPin = pin.trim();
+      const cleanPin = pin.toString().trim();
       let user: any = null;
 
       if (env && env.DB) {
-        user = await env.DB.prepare("SELECT * FROM antigravity_users WHERE LOWER(name) = ?")
-          .bind(cleanName.toLowerCase())
+        user = await env.DB.prepare("SELECT * FROM antigravity_users WHERE LOWER(name) = ? OR (email IS NOT NULL AND LOWER(email) = ?)")
+          .bind(cleanName.toLowerCase(), cleanName.toLowerCase())
           .first();
       }
 
-      if (!user && cleanName.toLowerCase() === "admin" && cleanPin === "1234") {
+      if (!user && cleanName.toLowerCase() === "admin" && (cleanPin === "1234" || cleanPin === "123456")) {
         user = {
           id: "usr-admin-1",
           name: "Super Admin",
           email: email || "admin@arqai.dev",
-          pin: "1234",
+          pin: cleanPin,
           access_type: "admin",
         };
         if (env && env.DB) {
           await env.DB.prepare(`
             INSERT OR IGNORE INTO antigravity_users (id, name, email, pin, access_type)
-            VALUES ('usr-admin-1', 'Super Admin', 'admin@arqai.dev', '1234', 'admin')
-          `).run();
+            VALUES ('usr-admin-1', 'Super Admin', 'admin@arqai.dev', ?, 'admin')
+          `).bind(cleanPin).run();
         }
       }
 
       if (!user) {
         return new Response(
-          JSON.stringify({ error: `El usuario "${cleanName}" no está registrado. Haz clic en 'Crear Cuenta' para registrarte.` }),
+          JSON.stringify({ error: `El usuario o correo "${cleanName}" no está registrado. Haz clic en 'Crear Cuenta' para registrarte.` }),
           { status: 404, headers: jsonHeaders }
         );
       }
 
       if (user.pin !== cleanPin) {
         return new Response(
-          JSON.stringify({ error: "PIN incorrecto. Verifica tus 4 dígitos." }),
+          JSON.stringify({ error: "PIN o contraseña incorrecta. Verifica tus dígitos." }),
           { status: 401, headers: jsonHeaders }
         );
       }
@@ -779,9 +779,10 @@ export async function onRequest(context: any) {
           { status: 400, headers: jsonHeaders }
         );
       }
-      if (!pin || pin.toString().trim().length !== 4) {
+      const pinStr = pin ? pin.toString().trim() : "";
+      if (!pinStr || pinStr.length < 4 || pinStr.length > 6) {
         return new Response(
-          JSON.stringify({ error: "El PIN debe tener exactamente 4 dígitos." }),
+          JSON.stringify({ error: "El PIN o contraseña debe tener entre 4 y 6 dígitos (máximo 6 dígitos)." }),
           { status: 400, headers: jsonHeaders }
         );
       }
