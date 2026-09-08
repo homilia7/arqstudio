@@ -576,6 +576,72 @@ export async function onRequest(context: any) {
       }), { status: 201, headers: jsonHeaders });
     }
 
+    // --- SINCRONIZACIÓN BIDIRECCIONAL DE LOCKFILE Y CONECTOR .arqai.json (GET & POST /api/agent/sync-lockfile) ---
+    if ((pathname === "/api/agent/sync-lockfile" || pathname === "/api/agent/locked-files") && (request.method === "GET" || request.method === "POST")) {
+      let projectId = url.searchParams.get("projectId");
+      let localFiles: string[] = [];
+
+      if (request.method === "POST") {
+        const body = await request.json().catch(() => ({}));
+        if (body.projectId) projectId = body.projectId;
+        if (Array.isArray(body.lockedFiles)) localFiles = body.lockedFiles;
+      }
+
+      let lockedFiles: string[] = [];
+      let project: any = null;
+
+      if (env && env.DB && projectId) {
+        project = await env.DB.prepare("SELECT * FROM antigravity_projects WHERE id = ?").bind(projectId).first().catch(() => null);
+        if (project && project.locked_files) {
+          try {
+            lockedFiles = JSON.parse(project.locked_files);
+          } catch (e) {
+            lockedFiles = [];
+          }
+        }
+
+        // Si se enviaron archivos locales, fusionar con D1
+        if (localFiles.length > 0) {
+          const merged = Array.from(new Set([...lockedFiles, ...localFiles]));
+          if (merged.length !== lockedFiles.length) {
+            await env.DB.prepare("UPDATE antigravity_projects SET locked_files = ?, updated_at = datetime('now') WHERE id = ?")
+              .bind(JSON.stringify(merged), projectId).run().catch(() => {});
+            lockedFiles = merged;
+          }
+        }
+      }
+
+      const connectorConfig = {
+        hub: {
+          apiUrl: "https://arqaistudio.pages.dev/api",
+          apiKey: project?.api_key || "arqai_sec_...",
+          projectId: project?.id || projectId,
+          projectName: project?.name || "Proyecto",
+        },
+        security: {
+          lockedFiles: lockedFiles,
+          enforceLock: true,
+          notice: "LOS ARCHIVOS EN lockedFiles TIENEN CANDADO DE CALIDAD INMUTABLE. NO EDITARLOS SIN AUTORIZACIÓN.",
+        },
+        sync: {
+          autoSync: true,
+          chatAudit: true,
+          ragEnabled: true,
+          lastSyncedAt: new Date().toISOString(),
+        }
+      };
+
+      return new Response(JSON.stringify({
+        success: true,
+        projectId,
+        projectName: project?.name,
+        lockedFiles,
+        connectorConfig,
+        lastSyncedAt: new Date().toISOString(),
+        message: "Lockfile sincronizado exitosamente entre la nube y el entorno local."
+      }), { headers: jsonHeaders });
+    }
+
     // --- AI SPECIFICATION ---
     if (pathname === "/api/ai-spec") {
       return new Response(

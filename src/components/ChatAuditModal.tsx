@@ -17,9 +17,12 @@ import {
   FileCode,
   Sparkles,
   RefreshCw,
+  Calendar,
+  ArrowRightLeft,
+  Download,
 } from "lucide-react";
 import { ChatAuditEntry, Project, TaskItem } from "../types";
-import { fetchChatLogs, verifyAndLockTask, rejectTask } from "../services/api";
+import { fetchChatLogs, verifyAndLockTask, rejectTask, syncLockfile } from "../services/api";
 
 interface ChatAuditModalProps {
   onClose: () => void;
@@ -40,6 +43,8 @@ export const ChatAuditModal: React.FC<ChatAuditModalProps> = ({
   const [feedbackNote, setFeedbackNote] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [syncingLockfile, setSyncingLockfile] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<string | null>(null);
 
   const loadAuditLogs = async () => {
     if (!currentProject?.id) return;
@@ -60,6 +65,21 @@ export const ChatAuditModal: React.FC<ChatAuditModalProps> = ({
   useEffect(() => {
     loadAuditLogs();
   }, [currentProject?.id, currentTask?.id]);
+
+  const handleSyncLockfile = async () => {
+    if (!currentProject?.id) return;
+    setSyncingLockfile(true);
+    try {
+      const res = await syncLockfile(currentProject.id, currentProject.lockedFiles);
+      setSyncStatus(`¡Sincronizado! ${res.lockedFiles.length} archivos protegidos.`);
+      setTimeout(() => setSyncStatus(null), 3000);
+    } catch (e: any) {
+      setSyncStatus("Error al sincronizar: " + (e.message || e));
+      setTimeout(() => setSyncStatus(null), 3000);
+    } finally {
+      setSyncingLockfile(false);
+    }
+  };
 
   const handleApprove = async (entry: ChatAuditEntry) => {
     if (!entry.taskId) {
@@ -110,6 +130,39 @@ export const ChatAuditModal: React.FC<ChatAuditModalProps> = ({
     setTimeout(() => setCopiedId(null), 2000);
   };
 
+  // Agrupación de registros por Día / Fecha
+  const getDayGroupLabel = (isoDateStr: string) => {
+    try {
+      const d = new Date(isoDateStr);
+      const today = new Date();
+      const yesterday = new Date();
+      yesterday.setDate(today.getDate() - 1);
+
+      const isToday = d.toDateString() === today.toDateString();
+      const isYesterday = d.toDateString() === yesterday.toDateString();
+
+      const dateLabel = d.toLocaleDateString("es-ES", {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      });
+
+      if (isToday) return `Hoy (${dateLabel})`;
+      if (isYesterday) return `Ayer (${dateLabel})`;
+      return dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1);
+    } catch {
+      return "Historial Anterior";
+    }
+  };
+
+  const groupedLogs = logs.reduce<{ [day: string]: ChatAuditEntry[] }>((acc, log) => {
+    const key = getDayGroupLabel(log.createdAt);
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(log);
+    return acc;
+  }, {});
+
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-fadeIn">
       <div className="relative w-full max-w-4xl max-h-[90vh] flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl overflow-hidden">
@@ -153,11 +206,17 @@ export const ChatAuditModal: React.FC<ChatAuditModalProps> = ({
 
         {/* Content Body */}
         <div className="flex-1 overflow-hidden flex flex-col md:flex-row">
-          {/* Left Column: List of entries */}
-          <div className="w-full md:w-72 border-r border-slate-200 dark:border-slate-800 overflow-y-auto p-3 space-y-2 bg-slate-50/50 dark:bg-slate-950/30">
-            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-2 py-1">
-              Registros ({logs.length})
+          {/* Left Column: List of entries grouped by Day */}
+          <div className="w-full md:w-80 border-r border-slate-200 dark:border-slate-800 overflow-y-auto p-3 space-y-3 bg-slate-50/50 dark:bg-slate-950/30">
+            <div className="flex items-center justify-between px-2 py-1">
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                Días de Actividad ({Object.keys(groupedLogs).length})
+              </span>
+              <span className="text-[10px] font-mono text-slate-400">
+                {logs.length} registros
+              </span>
             </div>
+
             {loading && logs.length === 0 ? (
               <div className="p-4 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
                 <RefreshCw className="w-4 h-4 animate-spin text-indigo-500" />
@@ -169,45 +228,66 @@ export const ChatAuditModal: React.FC<ChatAuditModalProps> = ({
                 No hay diálogos registrados aún para este proyecto.
               </div>
             ) : (
-              logs.map((entry) => {
-                const isSelected = selectedEntry?.id === entry.id;
+              Object.keys(groupedLogs).map((dayKey) => {
+                const dayEntries = groupedLogs[dayKey];
                 return (
-                  <button
-                    key={entry.id}
-                    onClick={() => setSelectedEntry(entry)}
-                    className={`w-full text-left p-3 rounded-lg border transition-all ${
-                      isSelected
-                        ? "bg-white dark:bg-slate-800 border-indigo-500 shadow-sm"
-                        : "bg-white/60 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between gap-1 mb-1">
-                      <span className="text-[10px] font-mono text-slate-400 flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {new Date(entry.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  <div key={dayKey} className="space-y-1.5">
+                    {/* Day Header Accordion Badge */}
+                    <div className="flex items-center justify-between px-2.5 py-1.5 bg-slate-200/80 dark:bg-slate-800/80 rounded-md text-[11px] font-bold text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 shadow-2xs">
+                      <span className="flex items-center gap-1.5 truncate">
+                        <Calendar className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                        <span className="truncate">{dayKey}</span>
                       </span>
-                      <span
-                        className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${
-                          entry.status === "verified"
-                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400"
-                            : entry.status === "needs_revision"
-                            ? "bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400"
-                            : "bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
-                        }`}
-                      >
-                        {entry.status === "verified" ? "Aprobado" : entry.status === "needs_revision" ? "Revisión" : "Pendiente"}
+                      <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-300 font-mono font-bold border border-slate-200 dark:border-slate-700">
+                        {dayEntries.length} {dayEntries.length === 1 ? "chat" : "chats"}
                       </span>
                     </div>
-                    <p className="text-xs font-medium text-slate-800 dark:text-slate-200 line-clamp-2">
-                      {entry.userPrompt}
-                    </p>
-                    {entry.agentName && (
-                      <span className="text-[10px] text-indigo-600 dark:text-indigo-400 flex items-center gap-1 mt-1 font-mono">
-                        <Bot className="w-2.5 h-2.5" />
-                        {entry.agentName}
-                      </span>
-                    )}
-                  </button>
+
+                    {/* Entries under this day */}
+                    <div className="space-y-1.5 pl-1">
+                      {dayEntries.map((entry) => {
+                        const isSelected = selectedEntry?.id === entry.id;
+                        return (
+                          <button
+                            key={entry.id}
+                            onClick={() => setSelectedEntry(entry)}
+                            className={`w-full text-left p-2.5 rounded-lg border transition-all ${
+                              isSelected
+                                ? "bg-white dark:bg-slate-800 border-indigo-500 shadow-sm ring-1 ring-indigo-500/20"
+                                : "bg-white/70 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-1 mb-1">
+                              <span className="text-[10px] font-mono text-slate-400 flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                {new Date(entry.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                              </span>
+                              <span
+                                className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${
+                                  entry.status === "verified"
+                                    ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400"
+                                    : entry.status === "needs_revision"
+                                    ? "bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400"
+                                    : "bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+                                }`}
+                              >
+                                {entry.status === "verified" ? "Aprobado" : entry.status === "needs_revision" ? "Revisión" : "Pendiente"}
+                              </span>
+                            </div>
+                            <p className="text-xs font-medium text-slate-800 dark:text-slate-200 line-clamp-2">
+                              {entry.userPrompt}
+                            </p>
+                            {entry.agentName && (
+                              <span className="text-[10px] text-indigo-600 dark:text-indigo-400 flex items-center gap-1 mt-1 font-mono">
+                                <Bot className="w-2.5 h-2.5" />
+                                {entry.agentName}
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
                 );
               })
             )}
@@ -271,8 +351,25 @@ export const ChatAuditModal: React.FC<ChatAuditModalProps> = ({
                         </>
                       )}
                     </button>
+
+                    <button
+                      onClick={handleSyncLockfile}
+                      disabled={syncingLockfile}
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 border border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-xs font-medium rounded-lg transition-colors cursor-pointer"
+                      title="Sincronizar candados de archivos con el conector local .arqai.json"
+                    >
+                      <ArrowRightLeft className={`w-3.5 h-3.5 ${syncingLockfile ? "animate-spin" : ""}`} />
+                      <span>{syncingLockfile ? "Sincronizando..." : "Sincronizar .arqai.json"}</span>
+                    </button>
                   </div>
                 </div>
+
+                {syncStatus && (
+                  <div className="p-2.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs flex items-center gap-2 animate-fadeIn">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>{syncStatus}</span>
+                  </div>
+                )}
 
                 {/* Human Prompt Card */}
                 <div className="p-4 rounded-lg border border-blue-200 dark:border-blue-900/60 bg-blue-50/50 dark:bg-blue-950/20">

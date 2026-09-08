@@ -968,6 +968,21 @@ export async function connectAgentAutonomous(data: {
   );
 }
 
+export async function syncLockfile(
+  projectId: string,
+  localLockedFiles?: string[]
+): Promise<{ success: boolean; lockedFiles: string[]; connectorConfig: any; lastSyncedAt: string }> {
+  return safeFetchJson<{ success: boolean; lockedFiles: string[]; connectorConfig: any; lastSyncedAt: string }>(
+    `${BASE_URL}/agent/sync-lockfile`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ projectId, lockedFiles: localLockedFiles }),
+    },
+    "Error al sincronizar lockfile"
+  );
+}
+
 
 
 
