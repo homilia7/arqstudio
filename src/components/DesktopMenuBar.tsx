@@ -130,14 +130,42 @@ export const DesktopMenuBar: React.FC<DesktopMenuBarProps> = ({
               </button>
               
               {activeDropdown === 'archivo' && (
-                <div className="absolute left-0 mt-0.5 w-52 bg-white dark:bg-[#12151b] border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-2xl py-1 z-50 text-zinc-800 dark:text-zinc-200 text-xs animate-in fade-in zoom-in-95 duration-100">
+                <div className="absolute left-0 mt-0.5 w-64 bg-white dark:bg-[#12151b] border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-2xl py-1 z-50 text-zinc-800 dark:text-zinc-200 text-xs animate-in fade-in zoom-in-95 duration-100">
                   <button
                     onClick={() => { onOpenNewProject(); closeDropdown(); }}
-                    className="w-full text-left px-3 py-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 hover:text-zinc-900 dark:hover:text-white flex items-center gap-2 cursor-pointer transition-colors"
+                    className="w-full text-left px-3 py-1.5 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 flex items-center gap-2 cursor-pointer transition-colors font-bold"
                   >
-                    <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Nuevo Proyecto</span>
+                    <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
+                    <span>+ Crear Nuevo Proyecto</span>
                   </button>
+                  <div className="h-px bg-zinc-200 dark:bg-zinc-800 my-1" />
+                  
+                  <div className="px-3 py-1 text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
+                    Mis Proyectos ({allProjects.length})
+                  </div>
+                  <div className="max-h-48 overflow-y-auto py-0.5">
+                    {allProjects.map((p) => {
+                      const isSelected = activeProject?.id === p.id;
+                      return (
+                        <button
+                          key={p.id}
+                          onClick={() => { onSelectProject(p); closeDropdown(); }}
+                          className={`w-full text-left px-3 py-1.5 flex items-center justify-between gap-2 cursor-pointer transition-colors ${
+                            isSelected
+                              ? 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-900 dark:text-indigo-300 font-bold'
+                              : 'hover:bg-zinc-100 dark:hover:bg-zinc-800/80 text-zinc-800 dark:text-zinc-200'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2 truncate">
+                            <FolderGit2 className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                            <span className="truncate">{p.name}</span>
+                          </div>
+                          {isSelected && <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400">Activo</span>}
+                        </button>
+                      );
+                    })}
+                  </div>
+
                   <div className="h-px bg-zinc-200 dark:bg-zinc-800 my-1" />
                   <button
                     onClick={() => { onOpenMyAccount(); closeDropdown(); }}

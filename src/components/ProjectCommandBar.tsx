@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Play, 
   Plus, 
@@ -7,7 +7,10 @@ import {
   Lock, 
   Sparkles,
   Layers,
-  BookOpen
+  BookOpen,
+  ChevronDown,
+  Check,
+  Folder
 } from 'lucide-react';
 import { Project, WorkspaceTab } from '../types';
 
@@ -40,22 +43,89 @@ export const ProjectCommandBar: React.FC<ProjectCommandBarProps> = ({
   isLeftSidebarOpen,
   isRightSidebarOpen,
 }) => {
+  const [projectDropdownOpen, setProjectDropdownOpen] = useState(false);
+
   return (
     <div className="h-11 bg-white dark:bg-[#16191f] border-b border-zinc-200 dark:border-[#21262d] px-3 flex items-center justify-between text-xs select-none text-zinc-700 dark:text-[#c9d1d9] font-sans shadow-xs dark:shadow-none">
       {/* Botones de Acción Izquierda */}
       <div className="flex items-center gap-2">
-        <button
-          onClick={onOpenNewProject}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-zinc-100 hover:bg-zinc-200 text-zinc-800 dark:bg-[#1e222b] dark:hover:bg-[#282e3a] dark:text-[#c9d1d9] dark:hover:text-white border border-zinc-300 dark:border-[#2d333f] font-medium transition-colors cursor-pointer"
-        >
-          <span>+</span> Nuevo historial de cambios
-        </button>
+        
+        {/* Selector de Proyecto Activo */}
+        <div className="relative">
+          <button
+            onClick={() => setProjectDropdownOpen(!projectDropdownOpen)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-zinc-100 hover:bg-zinc-200 text-zinc-900 dark:bg-[#1e222b] dark:hover:bg-[#282e3a] dark:text-white border border-zinc-300 dark:border-[#2d333f] font-bold transition-colors cursor-pointer text-xs shadow-2xs"
+            title="Seleccionar o Cambiar de Proyecto"
+          >
+            <FolderGit2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+            <span className="truncate max-w-[140px] sm:max-w-[200px]">
+              {activeProject?.name || 'Seleccionar Proyecto'}
+            </span>
+            <ChevronDown className="w-3 h-3 opacity-60" />
+          </button>
+
+          {projectDropdownOpen && (
+            <>
+              <div 
+                className="fixed inset-0 z-40 bg-transparent cursor-default" 
+                onClick={() => setProjectDropdownOpen(false)} 
+              />
+              <div className="absolute left-0 mt-1 w-64 bg-white dark:bg-[#12151b] border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-2xl py-1 z-50 text-zinc-800 dark:text-zinc-200 text-xs animate-in fade-in zoom-in-95 duration-100">
+                <div className="px-3 py-1.5 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+                  <span className="font-bold text-[10px] text-zinc-500 uppercase tracking-wider">Mis Proyectos ({allProjects.length})</span>
+                  <button
+                    onClick={() => { setProjectDropdownOpen(false); onOpenNewProject(); }}
+                    className="text-[10px] font-bold text-emerald-600 hover:underline flex items-center gap-0.5 cursor-pointer"
+                  >
+                    <Plus className="w-3 h-3" /> Nuevo
+                  </button>
+                </div>
+                <div className="max-h-56 overflow-y-auto py-1">
+                  {allProjects.map((p) => {
+                    const isSelected = activeProject?.id === p.id;
+                    return (
+                      <button
+                        key={p.id}
+                        onClick={() => { onSelectProject(p); setProjectDropdownOpen(false); }}
+                        className={`w-full text-left px-3 py-1.5 flex items-center justify-between gap-2 cursor-pointer transition-colors ${
+                          isSelected
+                            ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 font-bold'
+                            : 'hover:bg-zinc-100 dark:hover:bg-zinc-800/80 text-zinc-800 dark:text-zinc-200'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 truncate">
+                          <Folder className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                          <span className="truncate">{p.name}</span>
+                        </div>
+                        {isSelected && <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />}
+                      </button>
+                    );
+                  })}
+                  {allProjects.length === 0 && (
+                    <div className="px-3 py-2 text-center text-zinc-500 italic text-[11px]">
+                      No hay proyectos aún.
+                    </div>
+                  )}
+                </div>
+                <div className="border-t border-zinc-200 dark:border-zinc-800 p-1">
+                  <button
+                    onClick={() => { setProjectDropdownOpen(false); onOpenNewProject(); }}
+                    className="w-full text-left px-2.5 py-1.5 rounded bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 font-bold flex items-center gap-1.5 cursor-pointer text-xs"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Crear Nuevo Proyecto</span>
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
 
         <button
           onClick={onOpenNewProject}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-zinc-100 hover:bg-zinc-200 text-zinc-800 dark:bg-[#1e222b] dark:hover:bg-[#282e3a] dark:text-[#c9d1d9] dark:hover:text-white border border-zinc-300 dark:border-[#2d333f] font-medium transition-colors cursor-pointer"
         >
-          <span className="text-emerald-400 font-bold">+</span> Nueva Tarea
+          <span className="text-emerald-500 font-bold">+</span> Crear Proyecto
         </button>
 
         {/* Botón Principal Verde: Ejecutar Bucle Agéntico */}
