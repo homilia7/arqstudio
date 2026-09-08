@@ -80,6 +80,7 @@ export function AdminUsersPanel({
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleteSuccessNotice, setDeleteSuccessNotice] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -153,8 +154,11 @@ export function AdminUsersPanel({
     setDeleting(true);
     setDeleteError(null);
     try {
+      const deletedName = userToDelete.name;
       await deleteUser(userToDelete.id);
       setUserToDelete(null);
+      setDeleteSuccessNotice(`✅ El usuario '${deletedName}' y todos sus datos asociados fueron eliminados permanentemente.`);
+      setTimeout(() => setDeleteSuccessNotice(null), 4500);
       await loadData();
     } catch (err: any) {
       setDeleteError(err.message || "Error al eliminar el usuario de la base de datos.");
@@ -445,6 +449,23 @@ export function AdminUsersPanel({
           </div>
         </div>
 
+        {/* Notificación de eliminación exitosa */}
+        {deleteSuccessNotice && (
+          <div className="mx-5 my-2.5 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-xs text-emerald-700 dark:text-emerald-300 flex items-center justify-between animate-fade-in shadow-xs">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-500" />
+              <span className="font-medium">{deleteSuccessNotice}</span>
+            </div>
+            <button
+              onClick={() => setDeleteSuccessNotice(null)}
+              className="p-1 hover:bg-emerald-500/20 rounded-lg text-emerald-600 dark:text-emerald-400 cursor-pointer transition"
+              title="Cerrar aviso"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
+
         {/* Barra de Búsqueda y Filtros */}
         <div className="p-3 bg-white dark:bg-zinc-950/40 border-b border-zinc-200 dark:border-zinc-800/80 flex flex-col sm:flex-row items-center justify-between gap-2.5">
           <div className="relative w-full sm:w-72">
@@ -581,8 +602,9 @@ export function AdminUsersPanel({
                 </thead>
                 <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/60 text-xs">
                   {filteredAndSortedUsers.map((user) => {
+                    const isProtectedAdmin = user.id === "usr-admin-1" || user.name.toLowerCase() === "admin";
                     const isSuperAdmin =
-                      user.name.toLowerCase() === "admin" ||
+                      isProtectedAdmin ||
                       (user.accessType && user.accessType.toLowerCase().includes("admin"));
                     const isSelf = currentUser && (currentUser.id === user.id || (currentUser.name?.toLowerCase() === "admin" && user.name?.toLowerCase() === "admin"));
                     const isPinVisible = showPins[user.id];
@@ -752,16 +774,16 @@ export function AdminUsersPanel({
                               setDeleteError(null);
                               setUserToDelete(user);
                             }}
-                            disabled={isSuperAdmin && user.name.toLowerCase() === "admin"}
+                            disabled={isProtectedAdmin}
                             title={
-                              isSuperAdmin && user.name.toLowerCase() === "admin"
+                              isProtectedAdmin
                                 ? "La cuenta principal del Super Admin no puede ser eliminada"
-                                : "Eliminar usuario de Cloudflare D1"
+                                : `Eliminar usuario '${user.name}' de Cloudflare D1`
                             }
                             className={`inline-flex items-center justify-center p-1.5 rounded-lg transition-colors border ${
-                              isSuperAdmin && user.name.toLowerCase() === "admin"
-                                ? "opacity-30 cursor-not-allowed text-zinc-400 border-zinc-200 dark:border-zinc-800"
-                                : "text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/60 border-rose-200 dark:border-rose-900/40 cursor-pointer"
+                              isProtectedAdmin
+                                ? "opacity-25 cursor-not-allowed text-zinc-400 border-zinc-200 dark:border-zinc-800"
+                                : "text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/60 border-rose-200 dark:border-rose-900/40 cursor-pointer hover:shadow-xs"
                             }`}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -1136,27 +1158,44 @@ export function AdminUsersPanel({
                 ¿Estás seguro de que deseas eliminar permanentemente a este usuario de la base de datos Cloudflare D1?
               </p>
 
-              <div className="bg-zinc-50 dark:bg-zinc-900/80 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-1.5 text-xs">
-                <div className="flex justify-between">
-                  <span className="text-zinc-400">Usuario:</span>
-                  <span className="font-bold text-zinc-900 dark:text-zinc-100">{userToDelete.name}</span>
+              <div className="bg-zinc-50 dark:bg-zinc-900/80 p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-800 space-y-2 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-zinc-500 dark:text-zinc-400">Usuario:</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-bold text-zinc-900 dark:text-zinc-100">{userToDelete.name}</span>
+                    <span className="text-[9px] font-semibold px-1.5 py-0.2 rounded uppercase bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">
+                      {userToDelete.accessType || "Usuario"}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-zinc-400">Correo:</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-zinc-500 dark:text-zinc-400">Correo Electrónico:</span>
                   <span className="text-zinc-700 dark:text-zinc-300 font-mono text-[11px]">{userToDelete.email || "No registrado"}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-zinc-400">PIN:</span>
-                  <span className="font-mono text-zinc-700 dark:text-zinc-300">{userToDelete.pin}</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-zinc-500 dark:text-zinc-400">PIN de Acceso:</span>
+                  <span className="font-mono font-bold text-zinc-800 dark:text-zinc-200 bg-zinc-200/60 dark:bg-zinc-800 px-1.5 py-0.5 rounded text-[11px]">{userToDelete.pin}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-zinc-400">Almacenamiento ocupado:</span>
-                  <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400">{userToDelete.storage?.formatted || "0 B"}</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-zinc-500 dark:text-zinc-400">Proyectos Asociados:</span>
+                  <span className="font-mono font-bold text-purple-600 dark:text-purple-400">{userToDelete.projectsCount || 0} proyectos</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-zinc-500 dark:text-zinc-400">Almacenamiento a Liberar:</span>
+                  <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400">
+                    {userToDelete.storage?.formatted || "0 B"} ({userToDelete.storage?.percentageOfDb || 0}% de DB)
+                  </span>
                 </div>
               </div>
 
-              <div className="p-2.5 bg-amber-500/10 border border-amber-500/20 rounded-xl text-[11px] text-amber-600 dark:text-amber-400">
-                ⚠️ <strong>Atención:</strong> Esta acción borrará permanentemente sus credenciales de acceso y liberará el almacenamiento ocupado en la base de datos.
+              <div className="p-3 bg-amber-500/10 border border-amber-500/25 rounded-xl text-[11px] text-amber-700 dark:text-amber-300 space-y-1">
+                <div className="flex items-center gap-1.5 font-bold">
+                  <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                  <span>Acción irreversible en Cloudflare D1:</span>
+                </div>
+                <p className="text-[11px] leading-relaxed text-amber-800/90 dark:text-amber-200/90">
+                  Esta acción eliminará de forma permanente las credenciales del usuario, todos sus proyectos y tareas asociadas, liberando su almacenamiento ocupado en la base de datos SQL.
+                </p>
               </div>
 
               <div className="pt-2 flex items-center justify-end space-x-2">
@@ -1164,7 +1203,7 @@ export function AdminUsersPanel({
                   type="button"
                   onClick={() => setUserToDelete(null)}
                   disabled={deleting}
-                  className="px-3.5 py-1.5 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg text-xs font-medium transition cursor-pointer"
+                  className="px-3.5 py-1.5 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg text-xs font-medium transition cursor-pointer disabled:opacity-50"
                 >
                   Cancelar
                 </button>
@@ -1174,7 +1213,17 @@ export function AdminUsersPanel({
                   disabled={deleting}
                   className="px-4 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-semibold shadow-sm transition disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
                 >
-                  {deleting ? "Eliminando..." : "Sí, Eliminar Usuario"}
+                  {deleting ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Eliminando de D1...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Sí, Eliminar Usuario</span>
+                    </>
+                  )}
                 </button>
               </div>
             </div>

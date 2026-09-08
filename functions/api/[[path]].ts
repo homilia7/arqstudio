@@ -1169,12 +1169,69 @@ export async function onRequest(context: any) {
         return new Response(JSON.stringify({ error: "ID de usuario requerido para eliminar." }), { status: 400, headers: jsonHeaders });
       }
 
+      if (targetId === "usr-admin-1") {
+        return new Response(
+          JSON.stringify({ error: "No es posible eliminar la cuenta principal del Super Administrador." }),
+          { status: 403, headers: jsonHeaders }
+        );
+      }
+
+      let deletedUserName = targetId;
+
       if (env && env.DB) {
+        const targetUser = await env.DB.prepare("SELECT name FROM antigravity_users WHERE id = ?").bind(targetId).first().catch(() => null);
+        if (targetUser && targetUser.name && targetUser.name.toLowerCase() === "admin") {
+          return new Response(
+            JSON.stringify({ error: "No es posible eliminar la cuenta principal del Super Administrador." }),
+            { status: 403, headers: jsonHeaders }
+          );
+        }
+        if (targetUser && targetUser.name) {
+          deletedUserName = targetUser.name;
+        }
+
+        // 1. Obtener proyectos del usuario para eliminación en cascada
+        const userProjectsRes = await env.DB.prepare("SELECT id FROM antigravity_projects WHERE user_id = ?").bind(targetId).all().catch(() => ({ results: [] }));
+        const projIds = (userProjectsRes.results || []).map((p: any) => p.id);
+
+        for (const pid of projIds) {
+          await env.DB.prepare("DELETE FROM antigravity_tasks WHERE project_id = ?").bind(pid).run().catch(() => {});
+          await env.DB.prepare("DELETE FROM antigravity_chat_audit WHERE project_id = ?").bind(pid).run().catch(() => {});
+          await env.DB.prepare("DELETE FROM antigravity_history WHERE project_id = ?").bind(pid).run().catch(() => {});
+          await env.DB.prepare("DELETE FROM antigravity_modules WHERE project_id = ?").bind(pid).run().catch(() => {});
+          await env.DB.prepare("DELETE FROM antigravity_rag_memory WHERE project_id = ?").bind(pid).run().catch(() => {});
+        }
+
+        // 2. Eliminar proyectos del usuario
+        await env.DB.prepare("DELETE FROM antigravity_projects WHERE user_id = ?").bind(targetId).run().catch(() => {});
+
+        // 3. Eliminar conexiones de agentes y notificaciones del usuario
+        await env.DB.prepare("DELETE FROM antigravity_agent_connections WHERE user_id = ?").bind(targetId).run().catch(() => {});
+        await env.DB.prepare("DELETE FROM antigravity_notifications WHERE user_id = ?").bind(targetId).run().catch(() => {});
+
+        // 4. Eliminar el registro del usuario
         await env.DB.prepare("DELETE FROM antigravity_users WHERE id = ?").bind(targetId).run();
+
+        // 5. Registrar la acción de auditoría
+        const adminRequester = request.headers.get("x-user-id") || "Super Admin";
+        await env.DB.prepare(`
+          INSERT INTO antigravity_agent_connections (id, agent_name, connected_at, action_description, project_name, user_id)
+          VALUES (?, ?, datetime('now'), ?, ?, ?)
+        `).bind(
+          "conn-del-" + Date.now(),
+          "ADMIN CONTROL",
+          `Usuario '${deletedUserName}' (ID: ${targetId}) y sus proyectos asociados eliminados de Cloudflare D1 por el Administrador.`,
+          "Gestión de Usuarios",
+          adminRequester
+        ).run().catch(() => {});
       }
 
       return new Response(
-        JSON.stringify({ success: true, message: "Usuario eliminado correctamente de la base de datos." }),
+        JSON.stringify({
+          success: true,
+          message: `Usuario '${deletedUserName}' y sus datos asociados eliminados permanentemente de la base de datos.`,
+          deletedUserId: targetId,
+        }),
         { headers: jsonHeaders }
       );
     }
@@ -1224,15 +1281,6 @@ export async function onRequest(context: any) {
       );
     }
 
-    // ELIMINAR USUARIO (DELETE /api/users/:id)
-    if (pathname.startsWith("/api/users/") && request.method === "DELETE") {
-      const parts = pathname.split("/");
-      const id = parts[3];
-      if (env && env.DB && id) {
-        await env.DB.prepare("DELETE FROM antigravity_users WHERE id = ?").bind(id).run();
-      }
-      return new Response(JSON.stringify({ success: true, deletedUserId: id }), { headers: jsonHeaders });
-    }
 
     // --- PROYECTOS ---
     if (pathname === "/api/projects" && request.method === "GET") {
