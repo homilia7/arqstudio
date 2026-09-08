@@ -156,19 +156,23 @@ export default function App() {
     setTimeout(() => setToast(null), 3500);
   };
 
-  // Carga inicial de datos
-  const loadData = useCallback(async (isSilent = false) => {
+  // Carga inicial y cambio de proyectos
+  const loadData = useCallback(async (isSilent = false, overrideProject?: Project | null) => {
     if (!isSilent) setIsRefreshing(true);
     try {
       const projs = await api.fetchProjects(currentUser?.id);
       setProjects(projs);
 
-      let current = activeProject;
-      if (!current && projs.length > 0) {
-        const savedId = localStorage.getItem("antigravity_active_project_id");
-        current = projs.find((p) => p.id === savedId) || projs[0];
-        setActiveProject(current);
+      const savedId = localStorage.getItem("antigravity_active_project_id");
+      let current: Project | null = overrideProject !== undefined ? overrideProject : null;
+      if (!current && activeProject) {
+        current = projs.find((p) => p.id === activeProject.id) || null;
       }
+      if (!current && projs.length > 0) {
+        current = projs.find((p) => p.id === savedId) || projs[0];
+      }
+
+      setActiveProject(current);
 
       if (current) {
         const [loadedTasks, loadedModules, loadedStages, loadedHistory] = await Promise.all([
@@ -181,6 +185,11 @@ export default function App() {
         setModules(loadedModules);
         setStages(loadedStages);
         setHistory(loadedHistory);
+      } else {
+        setTasks([]);
+        setModules([]);
+        setStages([]);
+        setHistory([]);
       }
     } catch (e) {
       console.error("Error al cargar datos:", e);
@@ -193,10 +202,11 @@ export default function App() {
     loadData(true);
   }, []);
 
-  const handleSelectProject = (proj: Project) => {
+  const handleSelectProject = async (proj: Project) => {
     setActiveProject(proj);
     localStorage.setItem("antigravity_active_project_id", proj.id);
-    loadData(false);
+    showToast(`Proyecto activo: "${proj.name}"`, "success");
+    await loadData(false, proj);
   };
 
   const handleCreateProjectModalSubmit = async (data: { name: string; description?: string; mainUrl?: string }) => {
@@ -209,7 +219,9 @@ export default function App() {
       });
       setProjects((prev) => [created, ...prev]);
       setActiveProject(created);
-      showToast("Proyecto creado con éxito.", "success");
+      localStorage.setItem("antigravity_active_project_id", created.id);
+      showToast(`¡Proyecto "${created.name}" creado y activado!`, "success");
+      await loadData(false, created);
     } catch (e) {
       showToast("Error al crear proyecto", "error");
       throw e;
