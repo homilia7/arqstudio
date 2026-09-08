@@ -73,21 +73,7 @@ export default function App() {
   const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState<boolean>(true);
   const [isRightSidebarOpen, setIsRightSidebarOpen] = useState<boolean>(true);
 
-  const [commits, setCommits] = useState<AgentCommit[]>([
-    {
-      id: "c-1",
-      projectId: "default",
-      agentName: "Antigravity AI",
-      commitHash: "a8f1b2c",
-      commitMessage: "feat: Arquitectura y persistencia Cloudflare D1",
-      diffContent: "+ export async function init() {}",
-      additions: 14,
-      deletions: 0,
-      tokensUsed: 620,
-      isReverted: false,
-      timestamp: "2026-09-05 11:45",
-    }
-  ]);
+  const [commits, setCommits] = useState<AgentCommit[]>([]);
 
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
     try {
@@ -456,7 +442,7 @@ export default function App() {
           isOpen={isRightSidebarOpen}
           onClose={() => setIsRightSidebarOpen(false)}
           activeProject={activeProject}
-          ragCount={2}
+          ragCount={0}
           activeTokens={0}
         />
       </div>
