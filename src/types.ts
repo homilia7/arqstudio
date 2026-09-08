@@ -37,6 +37,7 @@ export interface Project {
   description?: string;
   apiKey: string;
   blueprint?: ProjectBlueprint;
+  lockedFiles?: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -91,6 +92,7 @@ export interface TaskItem {
   subtasks?: SubTaskItem[];
   gitBranch?: string;
   gitCommit?: string;
+  modifiedFiles?: string[];
   createdAt: string;
   updatedAt: string;
   completedAt?: string;
@@ -151,4 +153,26 @@ export interface BlockedAgent {
   reason?: string;
 }
 
+export interface ChatAuditEntry {
+  id: string;
+  projectId: string;
+  taskId?: string;
+  userPrompt: string;
+  aiSummary?: string;
+  modifiedFiles?: string[];
+  workUrl?: string;
+  status: "pending_review" | "verified" | "needs_revision";
+  agentName?: string;
+  createdAt: string;
+}
 
+export interface RagMemorySnippet {
+  id: string;
+  projectId: string;
+  componentTag?: string;
+  title: string;
+  contentSnippet: string;
+  rulesSummary?: string;
+  tokenWeight?: number;
+  createdAt: string;
+}

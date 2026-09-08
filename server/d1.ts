@@ -127,6 +127,32 @@ export async function initD1Tables(db: any): Promise<void> {
         );
       `),
       db.prepare(`
+        CREATE TABLE IF NOT EXISTS antigravity_chat_audit (
+          id TEXT PRIMARY KEY,
+          project_id TEXT NOT NULL,
+          task_id TEXT,
+          user_prompt TEXT NOT NULL,
+          ai_summary TEXT,
+          modified_files TEXT,
+          work_url TEXT,
+          status TEXT DEFAULT 'pending_review',
+          agent_name TEXT,
+          created_at TEXT NOT NULL DEFAULT (datetime('now'))
+        );
+      `),
+      db.prepare(`
+        CREATE TABLE IF NOT EXISTS antigravity_rag_memory (
+          id TEXT PRIMARY KEY,
+          project_id TEXT NOT NULL,
+          component_tag TEXT,
+          title TEXT NOT NULL,
+          content_snippet TEXT NOT NULL,
+          rules_summary TEXT,
+          token_weight INTEGER DEFAULT 0,
+          created_at TEXT NOT NULL DEFAULT (datetime('now'))
+        );
+      `),
+      db.prepare(`
         INSERT OR IGNORE INTO antigravity_users (id, name, email, pin, access_type, created_at)
         VALUES ('usr-admin-1', 'Super Admin', 'admin@arqai.dev', '1234', 'admin', datetime('now'));
       `),
@@ -134,6 +160,13 @@ export async function initD1Tables(db: any): Promise<void> {
         DELETE FROM antigravity_notifications WHERE user_id IS NULL OR user_id = '';
       `)
     ]);
+
+    try {
+      await db.prepare("ALTER TABLE antigravity_projects ADD COLUMN locked_files TEXT").run();
+    } catch (e) {}
+    try {
+      await db.prepare("ALTER TABLE antigravity_tasks ADD COLUMN modified_files TEXT").run();
+    } catch (e) {}
   } catch (err) {
     console.error("[D1 Init Error]:", err);
   }

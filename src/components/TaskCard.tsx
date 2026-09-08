@@ -21,6 +21,8 @@ import {
   AlertTriangle,
   X,
   Send,
+  MessageSquare,
+  FileCode,
 } from "lucide-react";
 import { TaskItem, TaskStatus } from "../types";
 
@@ -32,6 +34,7 @@ interface TaskCardProps {
   onDelete: (taskId: string) => Promise<void>;
   onSimulate: (taskId: string, actionType: "start" | "complete") => void;
   onOpenContextMemory: (task: TaskItem) => void;
+  onOpenChatAudit?: (task: TaskItem) => void;
   onRejectTask?: (taskId: string, feedback: string) => Promise<void>;
 }
 
@@ -43,6 +46,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   onDelete,
   onSimulate,
   onOpenContextMemory,
+  onOpenChatAudit,
   onRejectTask,
 }) => {
   const [isVerifying, setIsVerifying] = useState(false);
@@ -477,6 +481,25 @@ export const TaskCard: React.FC<TaskCardProps> = ({
           </div>
         )}
 
+        {/* Archivos Modificados / Protegidos */}
+        {task.modifiedFiles && task.modifiedFiles.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5 py-1 px-2 rounded bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+            <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1">
+              <FileCode className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+              <span>Archivos Protegidos ({task.modifiedFiles.length}):</span>
+            </span>
+            {task.modifiedFiles.map((f, i) => (
+              <span
+                key={i}
+                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shadow-2xs"
+              >
+                <Lock className="w-2.5 h-2.5 text-amber-500" />
+                {f}
+              </span>
+            ))}
+          </div>
+        )}
+
         {/* SECCIÓN DE URL DE TRABAJO, MEMORIA DE CONTEXTO & BOTÓN DE REVISIÓN */}
         <div className="pt-1.5 border-t border-zinc-200 dark:border-zinc-800 flex flex-wrap items-center justify-between gap-2">
           {/* URL Info */}
@@ -504,6 +527,18 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
           {/* Action Buttons */}
           <div className="flex items-center flex-wrap gap-1.5">
+            {/* Botón para ver Auditoría de Diálogo Humano-IA */}
+            {onOpenChatAudit && (
+              <button
+                onClick={() => onOpenChatAudit(task)}
+                className="inline-flex items-center space-x-1 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-blue-400 text-[11px] font-semibold rounded border border-blue-200 dark:border-zinc-700 shadow-2xs transition-colors cursor-pointer"
+                title="Auditoría de Diálogo Humano-IA y Quality Gate"
+              >
+                <MessageSquare className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                <span>Diálogo Chat</span>
+              </button>
+            )}
+
             {/* Botón para ver Ficha de Memoria de Contexto */}
             <button
               onClick={() => onOpenContextMemory(task)}

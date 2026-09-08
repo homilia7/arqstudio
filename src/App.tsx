@@ -29,6 +29,7 @@ import { MyAccount } from "./components/MyAccount";
 import { AdminUsersPanel } from "./components/AdminUsersPanel";
 import { NotificationsDrawer } from "./components/NotificationsDrawer";
 import { ProjectChangelogView } from "./components/ProjectChangelogView";
+import { ChatAuditModal } from "./components/ChatAuditModal";
 import {
   Project,
   TaskItem,
@@ -141,6 +142,8 @@ export default function App() {
   const [simulateTask, setSimulateTask] = useState<TaskItem | null>(null);
   const [planGeneratorOpen, setPlanGeneratorOpen] = useState(false);
   const [d1ModalOpen, setD1ModalOpen] = useState(false);
+  const [chatAuditOpen, setChatAuditOpen] = useState(false);
+  const [chatAuditTask, setChatAuditTask] = useState<TaskItem | null>(null);
   const [agentConnectionsOpen, setAgentConnectionsOpen] = useState(false);
   const [myAccountOpen, setMyAccountOpen] = useState(false);
   const [adminUsersOpen, setAdminUsersOpen] = useState(false);
@@ -327,6 +330,7 @@ export default function App() {
         onOpenNotifications={() => setNotificationsDrawerOpen(true)}
         onOpenD1Modal={() => setD1ModalOpen(true)}
         onOpenAuditHistory={() => setIsLeftSidebarOpen(!isLeftSidebarOpen)}
+        onOpenChatAudit={() => { setChatAuditTask(null); setChatAuditOpen(true); }}
         onOpenUserManual={() => setUserManualOpen(true)}
         onOpenApiKeyOnboarding={() => setApiKeyOnboardingOpen(true)}
         onOpenCloudflareEdge={() => setCloudflareEdgeOpen(true)}
@@ -411,6 +415,7 @@ export default function App() {
               onCreateStage={(modId, title) => activeProject && api.createStage(modId, activeProject.id, title).then(() => loadData(true))}
               onDeleteModule={(modId) => api.deleteModule(modId).then(() => loadData(true))}
               onOpenPlanGenerator={() => setPlanGeneratorOpen(true)}
+              onOpenChatAudit={(t) => { setChatAuditTask(t); setChatAuditOpen(true); }}
               onRejectTask={handleRejectTask}
             />
           </div>
@@ -578,6 +583,21 @@ export default function App() {
 
       {agentConnectionsOpen && (
         <AgentConnectionsModal onClose={() => setAgentConnectionsOpen(false)} currentUser={currentUser} />
+      )}
+
+      {chatAuditOpen && (
+        <ChatAuditModal
+          onClose={() => {
+            setChatAuditOpen(false);
+            setChatAuditTask(null);
+          }}
+          currentProject={activeProject}
+          currentTask={chatAuditTask}
+          onTaskUpdated={(updated) => {
+            setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
+            loadData(true);
+          }}
+        />
       )}
 
       <NotificationsDrawer

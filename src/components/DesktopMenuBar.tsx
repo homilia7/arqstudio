@@ -20,7 +20,8 @@ import {
   Settings,
   HelpCircle,
   FileCode,
-  Layers
+  Layers,
+  MessageSquare,
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { User, Project } from '../types';
@@ -38,6 +39,7 @@ interface DesktopMenuBarProps {
   onOpenNotifications: () => void;
   onOpenD1Modal: () => void;
   onOpenAuditHistory: () => void;
+  onOpenChatAudit?: () => void;
   onOpenUserManual?: () => void;
   onOpenApiKeyOnboarding?: () => void;
   onOpenCloudflareEdge?: () => void;
@@ -61,6 +63,7 @@ export const DesktopMenuBar: React.FC<DesktopMenuBarProps> = ({
   onOpenNotifications,
   onOpenD1Modal,
   onOpenAuditHistory,
+  onOpenChatAudit,
   onOpenUserManual,
   onOpenApiKeyOnboarding,
   onOpenCloudflareEdge,
@@ -216,6 +219,13 @@ export const DesktopMenuBar: React.FC<DesktopMenuBarProps> = ({
                   >
                     <Key className="w-3.5 h-3.5 text-amber-400" />
                     <span>API Keys & Onboarding IA</span>
+                  </button>
+                  <button
+                    onClick={() => { onOpenChatAudit?.(); closeDropdown(); }}
+                    className="w-full text-left px-3 py-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 hover:text-zinc-900 dark:hover:text-white flex items-center gap-2 cursor-pointer transition-colors"
+                  >
+                    <MessageSquare className="w-3.5 h-3.5 text-blue-400" />
+                    <span>Auditoría de Diálogo (HITL)</span>
                   </button>
                   <div className="h-px bg-zinc-200 dark:bg-zinc-800 my-1" />
                   <button

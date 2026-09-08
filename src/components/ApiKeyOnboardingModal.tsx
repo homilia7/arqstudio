@@ -23,16 +23,14 @@ export const ApiKeyOnboardingModal: React.FC<ApiKeyOnboardingModalProps> = ({
 
   const baseUrl = "https://arqaistudio.pages.dev/api";
 
-  const systemPrompt = `Actuar como un Agente Autónomo subordinado a la plataforma de supervisión ARQAISTUDIO (v2.4 Full Autonomous).
-Conéctate al centro de mando con las siguientes credenciales:
-- Base URL: \${baseUrl}
-- API Key: \${apiKey}
-- Project ID: \${projectId}
-- Protocolo: REST + WebSockets/SSE
-- Lockfile obligatorio: historial.md (ESTRICTAMENTE INMUTABLE)
-- Flujo: Genera "Lista de tareas" y "Plan de implementación" antes de escribir código. Al terminar, provee un "Walkthrough".
-- Definition of Done (DoD): Ejecuta pruebas TDD deterministas y linter estricto. Máximo 5 intentos antes del Freno de Emergencia.
-- Notificación obligatoria: POST \${baseUrl}/agent/notify-user con estado de progreso en vivo.`;
+  const systemPrompt = `CONECTA ESTE PROYECTO AUTÓNOMAMENTE A ARQAISTUDIO:
+1. Ejecuta POST ${baseUrl}/agent/connect con:
+   Header: 'x-api-key': '${apiKey}'
+   Body: { "projectName": "${projectName}", "agentName": "Antigravity AI" }
+2. Guarda la respuesta recibida en la raíz de tu proyecto local bajo el archivo '.arqai.json'.
+3. Consulta fragmentos RAG en GET ${baseUrl}/agent/rag-context?projectId=${projectId} para ahorrar tokens.
+4. NUNCA toques ningún archivo que aparezca en 'security.lockedFiles' (.arqai.json). Tienen Quality Gate inmutable.
+5. Cada vez que completes una instrucción del usuario, registra el diálogo en POST ${baseUrl}/agent/chat-log con el prompt del humano, tu resumen técnico y la URL de prueba.`;
 
   const copyToClipboard = (text: string, isPrompt = false) => {
     navigator.clipboard.writeText(text);
@@ -123,9 +121,9 @@ Conéctate al centro de mando con las siguientes credenciales:
           <div className="p-3.5 rounded-lg bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 space-y-2 text-[11px]">
             <span className="font-bold text-zinc-900 dark:text-zinc-200">Protocolo de Endpoints REST:</span>
             <div className="space-y-1.5 font-mono text-zinc-700 dark:text-zinc-400">
-              <div><span className="text-emerald-700 dark:text-emerald-400 font-bold">GET</span> /api/agent/welcome <span className="text-zinc-500 font-sans">- Handshake y bienvenida</span></div>
-              <div><span className="text-emerald-700 dark:text-emerald-400 font-bold">GET</span> /api/agent/next-task?projectId={projectId} <span className="text-zinc-500 font-sans">- Tarea asignada</span></div>
-              <div><span className="text-blue-700 dark:text-blue-400 font-bold">POST</span> /api/projects/{projectId}/plan/batch <span className="text-zinc-500 font-sans">- Cargar plan JSON</span></div>
+              <div><span className="text-emerald-700 dark:text-emerald-400 font-bold">POST</span> /api/agent/connect <span className="text-zinc-500 font-sans">- Handshake 1-clic y auto-creación</span></div>
+              <div><span className="text-blue-700 dark:text-blue-400 font-bold">POST</span> /api/agent/chat-log <span className="text-zinc-500 font-sans">- Auditoría HITL y Quality Gate</span></div>
+              <div><span className="text-purple-700 dark:text-purple-400 font-bold">GET</span> /api/agent/rag-context?projectId={projectId} <span className="text-zinc-500 font-sans">- Memoria RAG (ahorro tokens)</span></div>
               <div><span className="text-amber-700 dark:text-amber-400 font-bold">POST</span> /api/agent/notify-user <span className="text-zinc-500 font-sans">- Notificación en pantalla</span></div>
             </div>
           </div>

@@ -37,6 +37,7 @@ interface TaskListProps {
   onCreateStage: (moduleId: string, title: string) => Promise<void>;
   onDeleteModule: (id: string) => Promise<void>;
   onOpenPlanGenerator: () => void;
+  onOpenChatAudit?: (task: TaskItem) => void;
   onRejectTask?: (taskId: string, feedback: string) => Promise<void>;
 }
 
@@ -57,6 +58,7 @@ export const TaskList: React.FC<TaskListProps> = ({
   onCreateStage,
   onDeleteModule,
   onOpenPlanGenerator,
+  onOpenChatAudit,
   onRejectTask,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -311,6 +313,7 @@ export const TaskList: React.FC<TaskListProps> = ({
                   onDelete={onDeleteTask}
                   onSimulate={onSimulateTask}
                   onOpenContextMemory={onOpenContextMemory}
+                  onOpenChatAudit={onOpenChatAudit}
                   onRejectTask={onRejectTask}
                 />
               ))}

@@ -11,6 +11,8 @@ import {
   User,
   AgentNotification,
   BlockedAgent,
+  ChatAuditEntry,
+  RagMemorySnippet,
 } from "../types";
 
 const BASE_URL = "/api";
@@ -878,6 +880,94 @@ export async function toggleBlockAgent(agentName: string, userId?: string, reaso
     "Error al cambiar estado de bloqueo del agente"
   );
 }
+
+export async function fetchChatLogs(projectId?: string, taskId?: string): Promise<ChatAuditEntry[]> {
+  const params = new URLSearchParams();
+  if (projectId) params.set("projectId", projectId);
+  if (taskId) params.set("taskId", taskId);
+  const qs = params.toString();
+  const url = qs ? `${BASE_URL}/agent/chat-log?${qs}` : `${BASE_URL}/agent/chat-log`;
+  return safeFetchJson<ChatAuditEntry[]>(url, {}, "Error al obtener historial de chat").catch(() => []);
+}
+
+export async function createChatLog(data: {
+  projectId: string;
+  taskId?: string;
+  userPrompt: string;
+  aiSummary?: string;
+  modifiedFiles?: string[];
+  workUrl?: string;
+  agentName?: string;
+}): Promise<ChatAuditEntry> {
+  const res = await safeFetchJson<{ success: boolean; auditEntry: ChatAuditEntry }>(
+    `${BASE_URL}/agent/chat-log`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    },
+    "Error al registrar diálogo de chat"
+  );
+  return res.auditEntry;
+}
+
+export async function fetchRagMemory(
+  projectId: string,
+  query?: string,
+  tag?: string
+): Promise<{ snippets: RagMemorySnippet[]; count: number; estimatedTokensSaved: number }> {
+  const params = new URLSearchParams({ projectId });
+  if (query) params.set("query", query);
+  if (tag) params.set("tag", tag);
+  return safeFetchJson<{ snippets: RagMemorySnippet[]; count: number; estimatedTokensSaved: number }>(
+    `${BASE_URL}/agent/rag-context?${params.toString()}`,
+    {},
+    "Error al obtener fragmentos RAG"
+  ).catch(() => ({ snippets: [], count: 0, estimatedTokensSaved: 0 }));
+}
+
+export async function createRagMemory(data: {
+  projectId: string;
+  componentTag?: string;
+  title: string;
+  contentSnippet: string;
+  rulesSummary?: string;
+  tokenWeight?: number;
+}): Promise<{ success: boolean; id: string }> {
+  return safeFetchJson<{ success: boolean; id: string }>(
+    `${BASE_URL}/agent/rag-memory`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    },
+    "Error al indexar fragmento de memoria RAG"
+  );
+}
+
+export async function connectAgentAutonomous(data: {
+  apiKey?: string;
+  projectName?: string;
+  localPath?: string;
+  agentName?: string;
+  userId?: string;
+}): Promise<any> {
+  return safeFetchJson<any>(
+    `${BASE_URL}/agent/connect`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(data.apiKey ? { "x-api-key": data.apiKey } : {}),
+        ...(data.agentName ? { "x-agent-name": data.agentName } : {}),
+        ...(data.userId ? { "x-user-id": data.userId } : {}),
+      },
+      body: JSON.stringify(data),
+    },
+    "Error al conectar agente autónomamente"
+  );
+}
+
 
 
 

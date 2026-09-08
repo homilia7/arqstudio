@@ -157,6 +157,425 @@ export async function onRequest(context: any) {
       );
     }
 
+    // --- CONEXIÓN AUTÓNOMA Y GENERACIÓN DE CONNECTOR LOCAL (POST /api/agent/connect) ---
+    if (pathname === "/api/agent/connect" && request.method === "POST") {
+      const body = await request.json().catch(() => ({}));
+      const apiKeyHeader = request.headers.get("x-api-key") || body.apiKey;
+      const agentName = request.headers.get("x-agent-name") || body.agentName || "Antigravity AI";
+      const projectName = body.projectName || body.name || "Proyecto Conectado";
+      const localPath = body.localPath || body.workspacePath || "";
+
+      if (env && env.DB && (await isAgentBlocked(env.DB, agentName, null))) {
+        return new Response(JSON.stringify({
+          error: `Acceso Denegado: El agente '${agentName}' ha sido bloqueado por el usuario en ARQAI.`,
+          blocked: true,
+          agentName,
+        }), { status: 403, headers: jsonHeaders });
+      }
+
+      let targetUserId: string | null = null;
+      if (env && env.DB && apiKeyHeader) {
+        targetUserId = await resolveUserIdFromApiKey(env.DB, apiKeyHeader);
+      }
+
+      if (!targetUserId) {
+        targetUserId = request.headers.get("x-user-id") || body.userId || "usr-admin-1";
+      }
+
+      // Asegurar existencia del usuario en antigravity_users
+      if (env && env.DB && targetUserId) {
+        const userObj = await env.DB.prepare("SELECT id FROM antigravity_users WHERE id = ?").bind(targetUserId).first().catch(() => null);
+        if (!userObj) {
+          await env.DB.prepare(`
+            INSERT OR IGNORE INTO antigravity_users (id, name, email, pin, access_type, created_at)
+            VALUES (?, ?, ?, '1234', 'user', datetime('now'))
+          `).bind(targetUserId, "Usuario", `${targetUserId}@arqai.dev`).run().catch(() => {});
+        }
+      }
+
+      let project: any = null;
+      let wasCreated = false;
+
+      if (env && env.DB) {
+        // 1. Buscar por API Key
+        if (apiKeyHeader) {
+          project = await env.DB.prepare("SELECT * FROM antigravity_projects WHERE api_key = ?").bind(apiKeyHeader).first().catch(() => null);
+        }
+        // 2. Si no, buscar por nombre de proyecto
+        if (!project && projectName) {
+          project = await env.DB.prepare("SELECT * FROM antigravity_projects WHERE name = ?").bind(projectName).first().catch(() => null);
+        }
+
+        if (!project) {
+          wasCreated = true;
+          const newId = "proj-" + Date.now().toString(36) + "-" + Math.random().toString(36).substring(2, 6);
+          const finalKey = apiKeyHeader || ("arqai_sec_" + Math.random().toString(36).substring(2, 10));
+          await env.DB.prepare(`
+            INSERT INTO antigravity_projects (id, user_id, name, main_url, description, api_key, locked_files, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, '[]', datetime('now'), datetime('now'))
+          `).bind(
+            newId,
+            targetUserId,
+            projectName,
+            "https://arqaistudio.pages.dev",
+            `Proyecto auto-creado y sincronizado autónomamente desde ${agentName} (Ruta: ${localPath || "local"})`,
+            finalKey
+          ).run().catch((e: any) => console.warn("Error auto-creando proyecto:", e));
+
+          project = await env.DB.prepare("SELECT * FROM antigravity_projects WHERE id = ?").bind(newId).first().catch(() => null);
+
+          // Crear entrada en el historial de cambios
+          const histId = "hist-" + Date.now() + "-" + Math.random().toString(36).substring(2, 6);
+          await env.DB.prepare(`
+            INSERT INTO antigravity_history (id, task_id, project_id, task_title, action, previous_status, new_status, details, work_url, author, timestamp)
+            VALUES (?, ?, ?, ?, 'autonomous_project_init', '', 'active', ?, ?, ?, datetime('now'))
+          `).bind(
+            histId,
+            newId,
+            newId,
+            `Inicialización Autónoma: ${projectName}`,
+            `Proyecto y bitácora creados automáticamente tras handshake con ${agentName}.`,
+            "https://arqaistudio.pages.dev",
+            agentName
+          ).run().catch(() => {});
+
+          // Registrar conexión del agente
+          await env.DB.prepare(`
+            INSERT INTO antigravity_agent_connections (id, agent_name, connected_at, action_description, project_name, user_id)
+            VALUES (?, ?, datetime('now'), ?, ?, ?)
+          `).bind(
+            "conn-" + Date.now(),
+            agentName,
+            `Conexión inicial y registro autónomo de proyecto '${projectName}'`,
+            projectName,
+            targetUserId
+          ).run().catch(() => {});
+
+          // Notificar al usuario
+          await env.DB.prepare(`
+            INSERT INTO antigravity_notifications (id, agent_name, title, message, type, project_id, user_id, read, created_at)
+            VALUES (?, ?, ?, ?, 'project_connected', ?, ?, 0, datetime('now'))
+          `).bind(
+            "notif-" + Date.now(),
+            agentName,
+            `🚀 Conexión Autónoma: ${projectName}`,
+            `El agente ${agentName} se ha conectado y sincronizado el proyecto en ARQAISTUDIO con su historial activo.`,
+            newId,
+            targetUserId
+          ).run().catch(() => {});
+        }
+      }
+
+      // Extraer lista de archivos bloqueados
+      let lockedFilesList: string[] = [];
+      try {
+        if (project && project.locked_files) {
+          lockedFilesList = JSON.parse(project.locked_files);
+        }
+      } catch (e) {
+        lockedFilesList = [];
+      }
+
+      // Obtener fragmentos RAG existentes para este proyecto
+      let ragSnippets: any[] = [];
+      if (env && env.DB && project) {
+        const ragRes = await env.DB.prepare("SELECT * FROM antigravity_rag_memory WHERE project_id = ? ORDER BY created_at DESC LIMIT 20").bind(project.id).all().catch(() => ({ results: [] }));
+        ragSnippets = (ragRes.results || []).map((r: any) => ({
+          id: r.id,
+          componentTag: r.component_tag,
+          title: r.title,
+          contentSnippet: r.content_snippet,
+          rulesSummary: r.rules_summary,
+          tokenWeight: r.token_weight,
+          createdAt: r.created_at
+        }));
+      }
+
+      const connectorConfig = {
+        hub: {
+          apiUrl: "https://arqaistudio.pages.dev/api",
+          apiKey: project?.api_key || apiKeyHeader,
+          projectId: project?.id,
+          projectName: project?.name
+        },
+        security: {
+          lockedFiles: lockedFilesList,
+          enforceLock: true,
+          notice: "LOS ARCHIVOS EN lockedFiles TIENEN CANDADO DE CALIDAD INMUTABLE. NO EDITARLOS SIN AUTORIZACIÓN."
+        },
+        sync: {
+          autoSync: true,
+          chatAudit: true,
+          ragEnabled: true
+        }
+      };
+
+      return new Response(JSON.stringify({
+        success: true,
+        message: wasCreated 
+          ? `Proyecto '${projectName}' auto-creado y registrado con su historial de cambios en ARQAISTUDIO.`
+          : `Conectado exitosamente al proyecto existente '${project?.name}'.`,
+        project: {
+          id: project?.id,
+          name: project?.name,
+          userId: project?.user_id,
+          apiKey: project?.api_key || apiKeyHeader,
+          isNew: wasCreated,
+          createdAt: project?.created_at
+        },
+        connectorConfig,
+        lockedFiles: lockedFilesList,
+        ragSnippets,
+        instructionsForAgent: [
+          "1. Guarda el objeto 'connectorConfig' en la raíz del proyecto local en '.arqai.json'.",
+          "2. Antes de realizar modificaciones, verifica que ningún archivo esté en 'lockedFiles'.",
+          "3. Al completar requerimientos del humano, registra el log en POST /api/agent/chat-log.",
+          "4. Consulta fragmentos RAG en GET /api/agent/rag-context para ahorrar tokens."
+        ]
+      }), { headers: jsonHeaders });
+    }
+
+    // --- REGISTRO DE AUDITORÍA DE CHAT Y VALIDACIÓN HUMANA HITL (POST /api/agent/chat-log) ---
+    if (pathname === "/api/agent/chat-log" && request.method === "POST") {
+      const body = await request.json().catch(() => ({}));
+      const projectId = body.projectId || url.searchParams.get("projectId");
+      const taskId = body.taskId || null;
+      const userPrompt = body.userPrompt || body.prompt || "";
+      const aiSummary = body.aiSummary || body.summary || "";
+      let modifiedFiles: string[] = [];
+      if (Array.isArray(body.modifiedFiles)) {
+        modifiedFiles = body.modifiedFiles;
+      } else if (typeof body.modifiedFiles === "string") {
+        try {
+          modifiedFiles = JSON.parse(body.modifiedFiles);
+        } catch {
+          modifiedFiles = body.modifiedFiles.split(",").map((s: string) => s.trim()).filter(Boolean);
+        }
+      }
+      const workUrl = body.workUrl || body.testUrl || "";
+      const agentName = request.headers.get("x-agent-name") || body.agentName || "Antigravity AI";
+
+      if (env && env.DB && (await isAgentBlocked(env.DB, agentName, null))) {
+        return new Response(JSON.stringify({
+          error: `Acceso Denegado: El agente '${agentName}' ha sido bloqueado por el usuario en ARQAI.`,
+          blocked: true,
+          agentName,
+        }), { status: 403, headers: jsonHeaders });
+      }
+
+      if (!projectId || !userPrompt) {
+        return new Response(JSON.stringify({
+          error: "Faltan campos obligatorios: projectId y userPrompt son requeridos."
+        }), { status: 400, headers: jsonHeaders });
+      }
+
+      if (env && env.DB) {
+        // ENFORCE LOCKFILE: Verificar si alguno de modifiedFiles está bloqueado
+        const proj = await env.DB.prepare("SELECT locked_files, user_id FROM antigravity_projects WHERE id = ?").bind(projectId).first().catch(() => null);
+        let lockedFiles: string[] = [];
+        try {
+          if (proj && proj.locked_files) {
+            lockedFiles = JSON.parse(proj.locked_files);
+          }
+        } catch (e) {
+          lockedFiles = [];
+        }
+
+        const violatedFiles = modifiedFiles.filter(f => lockedFiles.includes(f));
+        if (violatedFiles.length > 0) {
+          return new Response(JSON.stringify({
+            error: `ESCUDO DE CÓDIGO ACTIVO (HTTP 403): Los siguientes archivos están protegidos por Quality Gate inmutable y NO pueden modificarse: ${violatedFiles.join(", ")}. Desbloquea la funcionalidad en la web si deseas alterarlos.`,
+            violatedFiles,
+            locked: true
+          }), { status: 403, headers: jsonHeaders });
+        }
+
+        const auditId = "audit-" + Date.now() + "-" + Math.random().toString(36).substring(2, 6);
+        await env.DB.prepare(`
+          INSERT INTO antigravity_chat_audit (id, project_id, task_id, user_prompt, ai_summary, modified_files, work_url, status, agent_name, created_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, 'pending_review', ?, datetime('now'))
+        `).bind(
+          auditId,
+          projectId,
+          taskId,
+          userPrompt,
+          aiSummary,
+          JSON.stringify(modifiedFiles),
+          workUrl,
+          agentName
+        ).run();
+
+        // Si hay taskId vinculado, actualizar la tarea
+        if (taskId) {
+          await env.DB.prepare(`
+            UPDATE antigravity_tasks 
+            SET modified_files = ?, work_url = CASE WHEN ? != '' THEN ? ELSE work_url END, status = 'ready_for_review', updated_at = datetime('now')
+            WHERE id = ?
+          `).bind(JSON.stringify(modifiedFiles), workUrl, workUrl, taskId).run().catch(() => {});
+        }
+
+        // Registrar en historial de cambios
+        const histId = "hist-" + Date.now() + "-" + Math.random().toString(36).substring(2, 6);
+        await env.DB.prepare(`
+          INSERT INTO antigravity_history (id, task_id, project_id, task_title, action, previous_status, new_status, details, work_url, author, timestamp)
+          VALUES (?, ?, ?, ?, 'chat_audit_logged', 'in_progress', 'ready_for_review', ?, ?, ?, datetime('now'))
+        `).bind(
+          histId,
+          taskId || projectId,
+          projectId,
+          `Diálogo Registrado: ${userPrompt.slice(0, 45)}...`,
+          `Prompt Humano: "${userPrompt.slice(0, 100)}..." | Modificados: ${modifiedFiles.join(", ") || "Ninguno"}`,
+          workUrl,
+          agentName
+        ).run().catch(() => {});
+
+        // Notificar al usuario en pantalla
+        await env.DB.prepare(`
+          INSERT INTO antigravity_notifications (id, agent_name, title, message, type, project_id, user_id, read, created_at)
+          VALUES (?, ?, ?, ?, 'chat_audit', ?, ?, 0, datetime('now'))
+        `).bind(
+          "notif-" + Date.now(),
+          agentName,
+          `💬 Diálogo Registrado para Revisión`,
+          `El humano solicitó: "${userPrompt.slice(0, 80)}...". Esperando validación humana.`,
+          projectId,
+          proj?.user_id || "usr-admin-1"
+        ).run().catch(() => {});
+
+        return new Response(JSON.stringify({
+          success: true,
+          message: "Diálogo registrado en auditoría y enviado a validación humana.",
+          auditEntry: {
+            id: auditId,
+            projectId,
+            taskId,
+            userPrompt,
+            aiSummary,
+            modifiedFiles,
+            workUrl,
+            status: "pending_review",
+            agentName,
+            createdAt: new Date().toISOString()
+          }
+        }), { status: 201, headers: jsonHeaders });
+      }
+
+      return new Response(JSON.stringify({ success: false, error: "Base de datos no disponible" }), { status: 500, headers: jsonHeaders });
+    }
+
+    // --- CONSULTA DE AUDITORÍA DE CHAT (GET /api/agent/chat-log) ---
+    if (pathname === "/api/agent/chat-log" && request.method === "GET") {
+      const projectId = url.searchParams.get("projectId");
+      const taskId = url.searchParams.get("taskId");
+      let entries: any[] = [];
+      if (env && env.DB) {
+        let query = "SELECT * FROM antigravity_chat_audit WHERE 1=1";
+        const params: any[] = [];
+        if (projectId) {
+          query += " AND project_id = ?";
+          params.push(projectId);
+        }
+        if (taskId) {
+          query += " AND task_id = ?";
+          params.push(taskId);
+        }
+        query += " ORDER BY created_at DESC LIMIT 50";
+        const res = await env.DB.prepare(query).bind(...params).all().catch(() => ({ results: [] }));
+        entries = res.results || [];
+      }
+
+      return new Response(JSON.stringify(entries.map((e: any) => ({
+        id: e.id,
+        projectId: e.project_id,
+        taskId: e.task_id,
+        userPrompt: e.user_prompt,
+        aiSummary: e.ai_summary,
+        modifiedFiles: e.modified_files ? JSON.parse(e.modified_files) : [],
+        workUrl: e.work_url,
+        status: e.status,
+        agentName: e.agent_name,
+        createdAt: e.created_at
+      }))), { headers: jsonHeaders });
+    }
+
+    // --- CONSULTA DE MEMORIA RAG (GET /api/agent/rag-context) ---
+    if (pathname === "/api/agent/rag-context" && request.method === "GET") {
+      const projectId = url.searchParams.get("projectId");
+      const query = (url.searchParams.get("query") || url.searchParams.get("q") || "").toLowerCase().trim();
+      const tag = (url.searchParams.get("tag") || "").toLowerCase().trim();
+
+      let snippets: any[] = [];
+      if (env && env.DB) {
+        let sql = "SELECT * FROM antigravity_rag_memory WHERE 1=1";
+        const params: any[] = [];
+        if (projectId) {
+          sql += " AND project_id = ?";
+          params.push(projectId);
+        }
+        if (tag) {
+          sql += " AND LOWER(component_tag) LIKE ?";
+          params.push(`%${tag}%`);
+        }
+        sql += " ORDER BY created_at DESC LIMIT 30";
+        const res = await env.DB.prepare(sql).bind(...params).all().catch(() => ({ results: [] }));
+        snippets = (res.results || []).map((r: any) => ({
+          id: r.id,
+          projectId: r.project_id,
+          componentTag: r.component_tag,
+          title: r.title,
+          contentSnippet: r.content_snippet,
+          rulesSummary: r.rules_summary,
+          tokenWeight: r.token_weight,
+          createdAt: r.created_at,
+        }));
+
+        if (query) {
+          snippets = snippets.filter(s => 
+            s.title.toLowerCase().includes(query) || 
+            s.contentSnippet.toLowerCase().includes(query) ||
+            (s.rulesSummary && s.rulesSummary.toLowerCase().includes(query)) ||
+            (s.componentTag && s.componentTag.toLowerCase().includes(query))
+          );
+        }
+      }
+
+      return new Response(JSON.stringify({
+        success: true,
+        count: snippets.length,
+        estimatedTokensSaved: snippets.reduce((acc, s) => acc + (s.tokenWeight || 150), 0),
+        snippets
+      }), { headers: jsonHeaders });
+    }
+
+    // --- INSERTAR CÁPSULA EN MEMORIA RAG (POST /api/agent/rag-memory) ---
+    if (pathname === "/api/agent/rag-memory" && request.method === "POST") {
+      const body = await request.json().catch(() => ({}));
+      const projectId = body.projectId;
+      const title = body.title || "Fragmento de Memoria";
+      const contentSnippet = body.contentSnippet || body.snippet || "";
+      const componentTag = body.componentTag || "general";
+      const rulesSummary = body.rulesSummary || "";
+      const tokenWeight = body.tokenWeight || Math.round(contentSnippet.length / 4);
+
+      if (!projectId || !contentSnippet) {
+        return new Response(JSON.stringify({ error: "projectId y contentSnippet son requeridos." }), { status: 400, headers: jsonHeaders });
+      }
+
+      const ragId = "rag-" + Date.now() + "-" + Math.random().toString(36).substring(2, 6);
+      if (env && env.DB) {
+        await env.DB.prepare(`
+          INSERT INTO antigravity_rag_memory (id, project_id, component_tag, title, content_snippet, rules_summary, token_weight, created_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))
+        `).bind(ragId, projectId, componentTag, title, contentSnippet, rulesSummary, tokenWeight).run();
+      }
+
+      return new Response(JSON.stringify({
+        success: true,
+        message: "Cápsula de memoria RAG indexada.",
+        id: ragId
+      }), { status: 201, headers: jsonHeaders });
+    }
+
     // --- AI SPECIFICATION ---
     if (pathname === "/api/ai-spec") {
       return new Response(
@@ -484,6 +903,7 @@ export async function onRequest(context: any) {
           description: p.description,
           apiKey: p.api_key,
           blueprint: p.blueprint ? JSON.parse(p.blueprint) : undefined,
+          lockedFiles: p.locked_files ? JSON.parse(p.locked_files) : [],
           createdAt: p.created_at,
           updatedAt: p.updated_at,
         }))),
@@ -1099,6 +1519,7 @@ export async function onRequest(context: any) {
           assignedAgent: t.assigned_agent,
           subtasks: t.subtasks ? JSON.parse(t.subtasks) : [],
           contextMemory: t.context_memory ? JSON.parse(t.context_memory) : {},
+          modifiedFiles: t.modified_files ? JSON.parse(t.modified_files) : [],
           createdAt: t.created_at,
           updatedAt: t.updated_at,
         }))),
@@ -1517,6 +1938,62 @@ export async function onRequest(context: any) {
         const updated = await env.DB.prepare("SELECT * FROM antigravity_tasks WHERE id = ?").bind(taskId).first() as any;
 
         if (updated) {
+          // Extraer archivos modificados para bloquearlos inmutablemente
+          let filesToLock: string[] = [];
+          try {
+            if (updated.modified_files) {
+              const p = JSON.parse(updated.modified_files);
+              if (Array.isArray(p)) filesToLock.push(...p);
+            }
+          } catch (e) {}
+
+          const audits = await env.DB.prepare("SELECT modified_files FROM antigravity_chat_audit WHERE task_id = ?").bind(taskId).all().catch(() => ({ results: [] }));
+          for (const a of (audits.results || [])) {
+            try {
+              if (a.modified_files) {
+                const parsed = JSON.parse(a.modified_files);
+                if (Array.isArray(parsed)) filesToLock.push(...parsed);
+              }
+            } catch (e) {}
+          }
+          filesToLock = Array.from(new Set(filesToLock.filter(Boolean)));
+
+          // Agregar al candado inmutable de locked_files en antigravity_projects
+          if (updated.project_id && filesToLock.length > 0) {
+            const proj = await env.DB.prepare("SELECT locked_files FROM antigravity_projects WHERE id = ?").bind(updated.project_id).first().catch(() => null);
+            let currentLocked: string[] = [];
+            try {
+              if (proj && proj.locked_files) {
+                currentLocked = JSON.parse(proj.locked_files);
+              }
+            } catch (e) {}
+            const newLocked = Array.from(new Set([...currentLocked, ...filesToLock]));
+            await env.DB.prepare("UPDATE antigravity_projects SET locked_files = ?, updated_at = datetime('now') WHERE id = ?")
+              .bind(JSON.stringify(newLocked), updated.project_id)
+              .run().catch(() => {});
+          }
+
+          // Actualizar estado de auditorías de chat asociadas
+          await env.DB.prepare("UPDATE antigravity_chat_audit SET status = 'verified' WHERE task_id = ?").bind(taskId).run().catch(() => {});
+
+          // Auto-indexar cápsula en antigravity_rag_memory para ahorro de tokens
+          if (updated.project_id) {
+            const ragId = "rag-" + Date.now() + "-" + Math.random().toString(36).substring(2, 6);
+            const snippetContent = `[APROBADO]: ${updated.title}\nFeedback Humano: ${body.notes || updated.instruction || "Verificado correctamente."}\nArchivos Inmutables: ${filesToLock.join(", ") || "N/A"}`;
+            await env.DB.prepare(`
+              INSERT INTO antigravity_rag_memory (id, project_id, component_tag, title, content_snippet, rules_summary, token_weight, created_at)
+              VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))
+            `).bind(
+              ragId,
+              updated.project_id,
+              (updated.title || "general").slice(0, 30),
+              `Aprobado: ${updated.title}`,
+              snippetContent,
+              `Archivos bloqueados bajo Quality Gate: ${filesToLock.join(", ") || "N/A"}`,
+              Math.round(snippetContent.length / 4)
+            ).run().catch(() => {});
+          }
+
           const histId = "hist-" + Date.now() + "-" + Math.random().toString(36).substring(2, 6);
           await env.DB.prepare(`
             INSERT INTO antigravity_history (id, task_id, project_id, task_title, action, previous_status, new_status, details, work_url, author, timestamp)
@@ -1526,7 +2003,7 @@ export async function onRequest(context: any) {
             updated.id,
             updated.project_id || "",
             updated.title || "Funcionalidad Aprobada",
-            `✅ FUNCIONALIDAD APROBADA POR HUMANO: ${body.notes || updated.instruction || "Verificada y aprobada correctamente."}`,
+            `✅ FUNCIONALIDAD APROBADA POR HUMANO: ${body.notes || updated.instruction || "Verificada y blindada con Quality Gate."} (${filesToLock.length} archivos protegidos)`,
             updated.work_url || "",
             body.author || request.headers.get("x-user-name") || "USUARIO HUMANO",
             new Date().toISOString()
@@ -1546,6 +2023,7 @@ export async function onRequest(context: any) {
         await env.DB.prepare("UPDATE antigravity_tasks SET status = 'needs_revision', locked = 0, human_feedback = ? WHERE id = ?")
           .bind(feedbackText, taskId)
           .run();
+        await env.DB.prepare("UPDATE antigravity_chat_audit SET status = 'needs_revision' WHERE task_id = ?").bind(taskId).run().catch(() => {});
         const updated = await env.DB.prepare("SELECT * FROM antigravity_tasks WHERE id = ?").bind(taskId).first() as any;
 
         if (updated) {
@@ -1586,6 +2064,7 @@ export async function onRequest(context: any) {
       const taskId = pathname.split("/")[3];
       if (env && env.DB && taskId) {
         await env.DB.prepare("UPDATE antigravity_tasks SET status = 'pending', locked = 0 WHERE id = ?").bind(taskId).run();
+        await env.DB.prepare("UPDATE antigravity_chat_audit SET status = 'pending_review' WHERE task_id = ?").bind(taskId).run().catch(() => {});
         const updated = await env.DB.prepare("SELECT * FROM antigravity_tasks WHERE id = ?").bind(taskId).first();
         return new Response(JSON.stringify({ success: true, task: updated }), { headers: jsonHeaders });
       }
