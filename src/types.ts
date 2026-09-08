@@ -167,6 +167,7 @@ export interface ChatAuditEntry {
   workUrl?: string;
   status: "pending_review" | "verified" | "needs_revision";
   agentName?: string;
+  aiModel?: string;
   createdAt: string;
 }
 

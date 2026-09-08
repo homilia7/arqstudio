@@ -522,6 +522,8 @@ export async function simulateAgentAction(data: {
   actionType: "start" | "complete";
   workUrl?: string;
   customNotes?: string;
+  aiModel?: string;
+  agentName?: string;
 }): Promise<{ success: boolean; task: TaskItem }> {
   return safeFetchJson(
     `${BASE_URL}/agent/simulate`,
@@ -898,6 +900,7 @@ export async function createChatLog(data: {
   modifiedFiles?: string[];
   workUrl?: string;
   agentName?: string;
+  aiModel?: string;
 }): Promise<ChatAuditEntry> {
   const res = await safeFetchJson<{ success: boolean; auditEntry: ChatAuditEntry }>(
     `${BASE_URL}/agent/chat-log`,

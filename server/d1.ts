@@ -137,6 +137,7 @@ export async function initD1Tables(db: any): Promise<void> {
           work_url TEXT,
           status TEXT DEFAULT 'pending_review',
           agent_name TEXT,
+          ai_model TEXT DEFAULT 'Gemini 2.5 Pro',
           created_at TEXT NOT NULL DEFAULT (datetime('now'))
         );
       `),
@@ -166,6 +167,9 @@ export async function initD1Tables(db: any): Promise<void> {
     } catch (e) {}
     try {
       await db.prepare("ALTER TABLE antigravity_tasks ADD COLUMN modified_files TEXT").run();
+    } catch (e) {}
+    try {
+      await db.prepare("ALTER TABLE antigravity_chat_audit ADD COLUMN ai_model TEXT").run();
     } catch (e) {}
   } catch (err) {
     console.error("[D1 Init Error]:", err);

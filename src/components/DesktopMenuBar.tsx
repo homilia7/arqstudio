@@ -225,7 +225,7 @@ export const DesktopMenuBar: React.FC<DesktopMenuBarProps> = ({
                     className="w-full text-left px-3 py-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 hover:text-zinc-900 dark:hover:text-white flex items-center gap-2 cursor-pointer transition-colors"
                   >
                     <MessageSquare className="w-3.5 h-3.5 text-blue-400" />
-                    <span>Auditoría de Diálogo (HITL)</span>
+                    <span>Historial de Chat & Modelos IA</span>
                   </button>
                   <div className="h-px bg-zinc-200 dark:bg-zinc-800 my-1" />
                   <button
@@ -397,6 +397,17 @@ export const DesktopMenuBar: React.FC<DesktopMenuBarProps> = ({
               className="p-1 rounded bg-indigo-50 border border-indigo-200 text-indigo-800 hover:bg-indigo-100 dark:bg-indigo-950/70 dark:border-indigo-800/80 dark:text-indigo-300 dark:hover:bg-indigo-900 transition-colors cursor-pointer flex items-center gap-1"
             >
               <Users className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+            </button>
+          )}
+
+          {/* Botón Historial de Chat & Modelo IA */}
+          {onOpenChatAudit && (
+            <button
+              onClick={onOpenChatAudit}
+              title="Historial del Chat & Modelo de IA"
+              className="p-1 rounded bg-blue-50 border border-blue-200 text-blue-800 hover:bg-blue-100 dark:bg-blue-950/70 dark:border-blue-800/80 dark:text-blue-300 dark:hover:bg-blue-900 transition-colors cursor-pointer flex items-center gap-1"
+            >
+              <MessageSquare className="w-3.5 h-3.5 text-blue-500" />
             </button>
           )}
 

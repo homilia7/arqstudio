@@ -354,6 +354,7 @@ export async function onRequest(context: any) {
       }
       const workUrl = body.workUrl || body.testUrl || "";
       const agentName = request.headers.get("x-agent-name") || body.agentName || "Antigravity AI";
+      const aiModel = request.headers.get("x-ai-model") || body.aiModel || body.model || "Gemini 2.5 Pro";
 
       if (env && env.DB && (await isAgentBlocked(env.DB, agentName, null))) {
         return new Response(JSON.stringify({
@@ -392,8 +393,8 @@ export async function onRequest(context: any) {
 
         const auditId = "audit-" + Date.now() + "-" + Math.random().toString(36).substring(2, 6);
         await env.DB.prepare(`
-          INSERT INTO antigravity_chat_audit (id, project_id, task_id, user_prompt, ai_summary, modified_files, work_url, status, agent_name, created_at)
-          VALUES (?, ?, ?, ?, ?, ?, ?, 'pending_review', ?, datetime('now'))
+          INSERT INTO antigravity_chat_audit (id, project_id, task_id, user_prompt, ai_summary, modified_files, work_url, status, agent_name, ai_model, created_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, 'pending_review', ?, ?, datetime('now'))
         `).bind(
           auditId,
           projectId,
@@ -402,7 +403,8 @@ export async function onRequest(context: any) {
           aiSummary,
           JSON.stringify(modifiedFiles),
           workUrl,
-          agentName
+          agentName,
+          aiModel
         ).run();
 
         // Si hay taskId vinculado, actualizar la tarea
@@ -414,7 +416,7 @@ export async function onRequest(context: any) {
           `).bind(JSON.stringify(modifiedFiles), workUrl, workUrl, taskId).run().catch(() => {});
         }
 
-        // Registrar en historial de cambios
+        // Registrar en historial de cambios con el modelo de IA
         const histId = "hist-" + Date.now() + "-" + Math.random().toString(36).substring(2, 6);
         await env.DB.prepare(`
           INSERT INTO antigravity_history (id, task_id, project_id, task_title, action, previous_status, new_status, details, work_url, author, timestamp)
@@ -423,8 +425,8 @@ export async function onRequest(context: any) {
           histId,
           taskId || projectId,
           projectId,
-          `Diálogo Registrado: ${userPrompt.slice(0, 45)}...`,
-          `Prompt Humano: "${userPrompt.slice(0, 100)}..." | Modificados: ${modifiedFiles.join(", ") || "Ninguno"}`,
+          `Diálogo [${aiModel}]: ${userPrompt.slice(0, 45)}...`,
+          `Prompt Humano: "${userPrompt.slice(0, 85)}..." | Modelo IA: ${aiModel} | Agente: ${agentName} | Modificados: ${modifiedFiles.join(", ") || "Ninguno"}`,
           workUrl,
           agentName
         ).run().catch(() => {});
@@ -436,8 +438,8 @@ export async function onRequest(context: any) {
         `).bind(
           "notif-" + Date.now(),
           agentName,
-          `💬 Diálogo Registrado para Revisión`,
-          `El humano solicitó: "${userPrompt.slice(0, 80)}...". Esperando validación humana.`,
+          `💬 Diálogo [${aiModel}] Registrado`,
+          `El humano consultó: "${userPrompt.slice(0, 75)}..." ejecutado con modelo ${aiModel}.`,
           projectId,
           proj?.user_id || "usr-admin-1"
         ).run().catch(() => {});
@@ -455,6 +457,7 @@ export async function onRequest(context: any) {
             workUrl,
             status: "pending_review",
             agentName,
+            aiModel,
             createdAt: new Date().toISOString()
           }
         }), { status: 201, headers: jsonHeaders });
@@ -479,7 +482,7 @@ export async function onRequest(context: any) {
           query += " AND task_id = ?";
           params.push(taskId);
         }
-        query += " ORDER BY created_at DESC LIMIT 50";
+        query += " ORDER BY created_at DESC LIMIT 100";
         const res = await env.DB.prepare(query).bind(...params).all().catch(() => ({ results: [] }));
         entries = res.results || [];
       }
@@ -493,9 +496,70 @@ export async function onRequest(context: any) {
         modifiedFiles: e.modified_files ? JSON.parse(e.modified_files) : [],
         workUrl: e.work_url,
         status: e.status,
-        agentName: e.agent_name,
+        agentName: e.agent_name || "Antigravity AI",
+        aiModel: e.ai_model || "Gemini 2.5 Pro",
         createdAt: e.created_at
       }))), { headers: jsonHeaders });
+    }
+
+    // --- SIMULADOR DE AGENTE IA CON REGISTRO DE MODELO (POST /api/agent/simulate) ---
+    if (pathname === "/api/agent/simulate" && request.method === "POST") {
+      const body = await request.json().catch(() => ({}));
+      const { taskId, actionType, workUrl, customNotes } = body;
+      const aiModel = body.aiModel || body.model || "Gemini 2.5 Pro";
+      const agentName = body.agentName || "Antigravity AI";
+
+      if (!taskId) {
+        return new Response(JSON.stringify({ error: "Falta taskId obligatorio" }), { status: 400, headers: jsonHeaders });
+      }
+
+      if (env && env.DB) {
+        const task = await env.DB.prepare("SELECT * FROM antigravity_tasks WHERE id = ?").bind(taskId).first();
+        if (!task) {
+          return new Response(JSON.stringify({ error: "Tarea no encontrada" }), { status: 404, headers: jsonHeaders });
+        }
+
+        if (task.locked) {
+          return new Response(JSON.stringify({ error: "La tarea está bloqueada y verificada.", locked: true }), { status: 403, headers: jsonHeaders });
+        }
+
+        const project = await env.DB.prepare("SELECT main_url, user_id FROM antigravity_projects WHERE id = ?").bind(task.project_id).first().catch(() => null);
+        const resolvedUrl = workUrl || task.work_url || (project ? project.main_url : "") || "https://preview.app.run.app";
+
+        if (actionType === "start") {
+          await env.DB.prepare("UPDATE antigravity_tasks SET status = 'in_progress', updated_at = datetime('now') WHERE id = ?").bind(taskId).run();
+        } else {
+          // Complete
+          const notesText = customNotes || `Se atendió la tarea usando el modelo de IA: ${aiModel}. Lista para revisión.`;
+          await env.DB.prepare(`
+            UPDATE antigravity_tasks 
+            SET status = 'ready_for_review', work_url = ?, ai_output = ?, ai_notes = ?, updated_at = datetime('now') 
+            WHERE id = ?
+          `).bind(resolvedUrl, `Completado por ${agentName} con modelo ${aiModel}`, notesText, taskId).run();
+
+          // Registrar en antigravity_chat_audit
+          const auditId = "audit-sim-" + Date.now();
+          await env.DB.prepare(`
+            INSERT INTO antigravity_chat_audit (id, project_id, task_id, user_prompt, ai_summary, modified_files, work_url, status, agent_name, ai_model, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 'ready_for_review', ?, ?, datetime('now'))
+          `).bind(
+            auditId,
+            task.project_id,
+            taskId,
+            task.title,
+            notesText,
+            task.modified_files || "[]",
+            resolvedUrl,
+            agentName,
+            aiModel
+          ).run().catch(() => {});
+        }
+
+        const updatedTask = await env.DB.prepare("SELECT * FROM antigravity_tasks WHERE id = ?").bind(taskId).first();
+        return new Response(JSON.stringify({ success: true, task: updatedTask }), { headers: jsonHeaders });
+      }
+
+      return new Response(JSON.stringify({ success: false, error: "Base de datos no disponible" }), { status: 500, headers: jsonHeaders });
     }
 
     // --- CONSULTA DE MEMORIA RAG (GET /api/agent/rag-context) ---

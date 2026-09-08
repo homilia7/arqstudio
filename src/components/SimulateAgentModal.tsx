@@ -18,7 +18,8 @@ interface SimulateAgentModalProps {
     taskId: string,
     actionType: "start" | "complete",
     workUrl?: string,
-    notes?: string
+    notes?: string,
+    aiModel?: string
   ) => Promise<void>;
 }
 
@@ -30,6 +31,7 @@ export const SimulateAgentModal: React.FC<SimulateAgentModalProps> = ({
 }) => {
   if (!task) return null;
 
+  const [aiModel, setAiModel] = useState("Gemini 2.5 Pro");
   const [workUrl, setWorkUrl] = useState(
     task.workUrl ||
       activeProject?.mainUrl ||
@@ -49,7 +51,8 @@ export const SimulateAgentModal: React.FC<SimulateAgentModalProps> = ({
         task.id,
         actionType,
         workUrl.trim() || undefined,
-        notes.trim() || undefined
+        notes.trim() || undefined,
+        aiModel
       );
       onClose();
     } catch (err) {
@@ -120,6 +123,29 @@ export const SimulateAgentModal: React.FC<SimulateAgentModalProps> = ({
                 2. Completar y Entregar URL
               </button>
             </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1 flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+                <span>Modelo de IA que ejecutó la tarea:</span>
+              </span>
+              <span className="text-[10px] text-zinc-400 font-mono">Queda registrado en el historial</span>
+            </label>
+            <select
+              value={aiModel}
+              onChange={(e) => setAiModel(e.target.value)}
+              className="w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded px-2.5 py-1.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            >
+              <option value="Gemini 2.5 Pro">Gemini 2.5 Pro (Google DeepMind - Antigravity)</option>
+              <option value="Gemini 2.5 Flash">Gemini 2.5 Flash (Google DeepMind - Fast)</option>
+              <option value="Claude 3.7 Sonnet">Claude 3.7 Sonnet (Anthropic - Hybrid Reasoning)</option>
+              <option value="Claude 3.5 Sonnet">Claude 3.5 Sonnet (Anthropic)</option>
+              <option value="GPT-4o">GPT-4o (OpenAI Omni)</option>
+              <option value="o3-mini">o3-mini (OpenAI Reasoning)</option>
+              <option value="DeepSeek R1">DeepSeek R1 (Open Reasoning)</option>
+            </select>
           </div>
 
           {actionType === "complete" && (

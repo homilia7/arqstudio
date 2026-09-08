@@ -554,9 +554,9 @@ export default function App() {
         task={simulateTask}
         activeProject={activeProject}
         onClose={() => setSimulateTask(null)}
-        onExecuteSimulation={async (taskId, output, notes, workUrl) => {
-          await api.simulateAgentAction(taskId, { output, notes, workUrl });
-          showToast("Simulación de entrega completada.", "success");
+        onExecuteSimulation={async (taskId, actionType, workUrl, notes, aiModel) => {
+          await api.simulateAgentAction({ taskId, actionType, workUrl, customNotes: notes, aiModel });
+          showToast(`Simulación registrada con éxito [${aiModel || 'Gemini 2.5 Pro'}].`, "success");
           setSimulateTask(null);
           loadData(true);
         }}
