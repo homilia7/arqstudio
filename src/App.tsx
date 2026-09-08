@@ -137,16 +137,16 @@ export default function App() {
   const [simulateTask, setSimulateTask] = useState<TaskItem | null>(null);
   const [planGeneratorOpen, setPlanGeneratorOpen] = useState(false);
   const [d1ModalOpen, setD1ModalOpen] = useState(false);
-  const [chatAuditOpen, setChatAuditOpen] = useState(false);
   const [chatAuditTask, setChatAuditTask] = useState<TaskItem | null>(null);
   const [agentConnectionsOpen, setAgentConnectionsOpen] = useState(false);
   const [myAccountOpen, setMyAccountOpen] = useState(false);
   
-  // Routing interno para entornos/páginas independientes: "workspace" | "admin_users"
-  const [currentView, setCurrentView] = useState<"workspace" | "admin_users">(() => {
+  // Routing interno para entornos/páginas independientes: "workspace" | "admin_users" | "chat_audit"
+  const [currentView, setCurrentView] = useState<"workspace" | "admin_users" | "chat_audit">(() => {
     try {
       const h = window.location.hash;
       if (h === "#admin-users" || h === "#usuarios") return "admin_users";
+      if (h === "#chat-audit" || h === "#chat-historial") return "chat_audit";
     } catch {}
     return "workspace";
   });
@@ -156,7 +156,9 @@ export default function App() {
       const h = window.location.hash;
       if (h === "#admin-users" || h === "#usuarios") {
         setCurrentView("admin_users");
-      } else if (currentView === "admin_users" && (!h || h === "#")) {
+      } else if (h === "#chat-audit" || h === "#chat-historial") {
+        setCurrentView("chat_audit");
+      } else if ((currentView === "admin_users" || currentView === "chat_audit") && (!h || h === "#")) {
         setCurrentView("workspace");
       }
     };
@@ -170,6 +172,20 @@ export default function App() {
   };
 
   const handleCloseAdminUsers = () => {
+    setCurrentView("workspace");
+    if (window.location.hash) {
+      window.history.pushState(null, "", window.location.pathname + window.location.search);
+    }
+  };
+
+  const handleOpenChatAudit = (task?: TaskItem | null) => {
+    setChatAuditTask(task || null);
+    setCurrentView("chat_audit");
+    window.location.hash = "chat-audit";
+  };
+
+  const handleCloseChatAudit = () => {
+    setChatAuditTask(null);
     setCurrentView("workspace");
     if (window.location.hash) {
       window.history.pushState(null, "", window.location.pathname + window.location.search);
@@ -380,7 +396,8 @@ export default function App() {
         onOpenNotifications={() => setNotificationsDrawerOpen(true)}
         onOpenD1Modal={() => setD1ModalOpen(true)}
         onOpenAuditHistory={() => setIsLeftSidebarOpen(!isLeftSidebarOpen)}
-        onOpenChatAudit={() => { setChatAuditTask(null); setChatAuditOpen(true); }}
+        onOpenChatAudit={() => handleOpenChatAudit(null)}
+        isChatAuditView={currentView === "chat_audit"}
         onOpenUserManual={() => setUserManualOpen(true)}
         onOpenApiKeyOnboarding={() => setApiKeyOnboardingOpen(true)}
         onOpenCloudflareEdge={() => setCloudflareEdgeOpen(true)}
@@ -391,12 +408,22 @@ export default function App() {
         unreadNotificationsCount={notifications.filter((n) => !n.read).length}
       />
 
-      {/* 2. Vista Principal: Entorno de Directorio de Usuarios o Espacio de Trabajo */}
+      {/* 2. Vista Principal: Entorno de Directorio de Usuarios, Historial de Chat o Espacio de Trabajo */}
       {currentView === "admin_users" ? (
         <AdminUsersPanel
           isOpen={true}
           onClose={handleCloseAdminUsers}
           currentUser={currentUser}
+        />
+      ) : currentView === "chat_audit" ? (
+        <ChatAuditModal
+          onClose={handleCloseChatAudit}
+          currentProject={activeProject}
+          currentTask={chatAuditTask}
+          onTaskUpdated={(updated) => {
+            setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
+            loadData(true);
+          }}
         />
       ) : (
         <>
@@ -475,7 +502,7 @@ export default function App() {
                   onCreateStage={(modId, title) => activeProject && api.createStage(modId, activeProject.id, title).then(() => loadData(true))}
                   onDeleteModule={(modId) => api.deleteModule(modId).then(() => loadData(true))}
                   onOpenPlanGenerator={() => setPlanGeneratorOpen(true)}
-                  onOpenChatAudit={(t) => { setChatAuditTask(t); setChatAuditOpen(true); }}
+                  onOpenChatAudit={(t) => handleOpenChatAudit(t)}
                   onRejectTask={handleRejectTask}
                 />
               </div>
@@ -645,21 +672,6 @@ export default function App() {
 
       {agentConnectionsOpen && (
         <AgentConnectionsModal onClose={() => setAgentConnectionsOpen(false)} currentUser={currentUser} />
-      )}
-
-      {chatAuditOpen && (
-        <ChatAuditModal
-          onClose={() => {
-            setChatAuditOpen(false);
-            setChatAuditTask(null);
-          }}
-          currentProject={activeProject}
-          currentTask={chatAuditTask}
-          onTaskUpdated={(updated) => {
-            setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
-            loadData(true);
-          }}
-        />
       )}
 
       <NotificationsDrawer

@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { createPortal } from "react-dom";
 import {
   X,
   MessageSquare,
@@ -25,6 +24,7 @@ import {
   Search,
   Zap,
   Trash2,
+  ArrowLeft,
 } from "lucide-react";
 import { ChatAuditEntry, Project, TaskItem } from "../types";
 import {
@@ -325,70 +325,108 @@ export const ChatAuditModal: React.FC<ChatAuditModalProps> = ({
     }, {});
   }, [filteredLogs]);
 
-  return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-zinc-950/80 backdrop-blur-xs animate-fade-in">
-      <div className="relative w-full max-w-5xl max-h-[92vh] flex flex-col bg-white dark:bg-[#12151b] border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl overflow-hidden text-xs">
-        {/* Header Superior */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between px-5 py-3.5 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/70 gap-3">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 rounded-xl border border-indigo-200 dark:border-indigo-800 shrink-0">
-              <MessageSquare className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white tracking-tight flex items-center gap-1.5">
-                  Historial de Chat & Modelo IA (Auditoría HITL)
-                </h2>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-bold">
-                  Quality Gate
-                </span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 font-medium">
-                  Organizado por Día
-                </span>
-              </div>
-              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
-                Proyecto: <span className="font-semibold text-zinc-800 dark:text-zinc-200">{currentProject?.name || "Activo"}</span>
-                {currentTask && (
-                  <> • Tarea: <span className="font-semibold text-zinc-800 dark:text-zinc-200">{currentTask.title}</span></>
-                )}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
-            {logs.length > 0 && (
-              <button
-                onClick={handleClearAllLogs}
-                disabled={actionLoading}
-                className="flex items-center space-x-1 px-2.5 py-1.5 border border-rose-200 dark:border-rose-900/60 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg text-xs font-semibold shadow-2xs transition-all cursor-pointer"
-                title="Eliminar todos los registros de chat de este proyecto"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Vaciar Historial</span>
-              </button>
-            )}
-            <button
-              onClick={() => setIsRegisterOpen(true)}
-              className="flex items-center space-x-1 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold shadow-sm transition-all cursor-pointer"
-            >
-              <PlusCircle className="w-3.5 h-3.5" />
-              <span>Registrar Consulta</span>
-            </button>
-            <button
-              onClick={loadAuditLogs}
-              title="Recargar bitácora de chat"
-              className="p-1.5 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-indigo-500" : ""}`} />
-            </button>
+  return (
+    <div className="flex-1 w-full bg-zinc-50 dark:bg-[#07090c] text-zinc-800 dark:text-zinc-200 flex flex-col overflow-y-auto animate-fade-in pb-12">
+      {/* Barra de navegación superior / Breadcrumb */}
+      <div className="bg-white/90 dark:bg-[#0b0d10]/90 backdrop-blur-sm border-b border-zinc-200 dark:border-[#1c2027] px-4 sm:px-6 py-2.5 flex items-center justify-between sticky top-0 z-30 shadow-2xs">
+        <div className="flex items-center gap-3">
+          {onClose && (
             <button
               onClick={onClose}
-              className="p-1.5 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800/80 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 transition-colors font-semibold text-xs cursor-pointer group shadow-2xs"
+              title="Volver a los Proyectos y Flujo de Trabajo"
             >
-              <X className="w-4 h-4" />
+              <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5 text-indigo-500" />
+              <span>← Volver al Espacio de Trabajo</span>
             </button>
+          )}
+
+          <div className="hidden sm:flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+            <span className="text-zinc-400 font-mono">AgentOS</span>
+            <span>/</span>
+            <span className="font-semibold text-zinc-800 dark:text-zinc-200">Auditoría HITL</span>
+            <span>/</span>
+            <span className="font-mono text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded border border-indigo-200 dark:border-indigo-900/60 text-[11px]">
+              Historial de Chat & Modelo IA
+            </span>
           </div>
         </div>
+
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] text-zinc-400 font-mono hidden md:inline">
+            Proyecto: <strong className="text-zinc-700 dark:text-zinc-200">{currentProject?.name || "Activo"}</strong>
+          </span>
+        </div>
+      </div>
+
+      {/* Main Page Container */}
+      <div className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-4">
+        <div className="bg-white dark:bg-[#12151b] border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm overflow-hidden flex flex-col text-xs min-h-[78vh]">
+          {/* Header Superior */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between px-5 py-3.5 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/70 gap-3">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 rounded-xl border border-indigo-200 dark:border-indigo-800 shrink-0">
+                <MessageSquare className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h2 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white tracking-tight flex items-center gap-1.5">
+                    Historial de Chat & Modelo IA (Auditoría HITL)
+                  </h2>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-bold">
+                    Quality Gate
+                  </span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 font-medium">
+                    Organizado por Día
+                  </span>
+                </div>
+                <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
+                  Proyecto: <span className="font-semibold text-zinc-800 dark:text-zinc-200">{currentProject?.name || "Activo"}</span>
+                  {currentTask && (
+                    <> • Tarea: <span className="font-semibold text-zinc-800 dark:text-zinc-200">{currentTask.title}</span></>
+                  )}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+              {logs.length > 0 && (
+                <button
+                  onClick={handleClearAllLogs}
+                  disabled={actionLoading}
+                  className="flex items-center space-x-1 px-2.5 py-1.5 border border-rose-200 dark:border-rose-900/60 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg text-xs font-semibold shadow-2xs transition-all cursor-pointer"
+                  title="Eliminar todos los registros de chat de este proyecto"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Vaciar Historial</span>
+                </button>
+              )}
+              <button
+                onClick={() => setIsRegisterOpen(true)}
+                className="flex items-center space-x-1 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold shadow-sm transition-all cursor-pointer"
+              >
+                <PlusCircle className="w-3.5 h-3.5" />
+                <span>Registrar Consulta</span>
+              </button>
+              <button
+                onClick={loadAuditLogs}
+                title="Recargar bitácora de chat"
+                className="p-1.5 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-indigo-500" : ""}`} />
+              </button>
+              {onClose && (
+                <button
+                  onClick={onClose}
+                  title="Volver al Espacio de Trabajo / Proyectos"
+                  className="px-2.5 py-1.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 border border-zinc-300 dark:border-zinc-700 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition-colors cursor-pointer"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5 text-indigo-500" />
+                  <span>Volver</span>
+                </button>
+              )}
+            </div>
+          </div>
 
         {/* Barra de Filtros por Modelo y Búsqueda */}
         <div className="px-5 py-2.5 bg-zinc-50/50 dark:bg-zinc-900/40 border-b border-zinc-200 dark:border-zinc-800/80 flex flex-col sm:flex-row items-center justify-between gap-2">
@@ -890,7 +928,7 @@ export const ChatAuditModal: React.FC<ChatAuditModalProps> = ({
           </div>
         </div>
       )}
-    </div>,
-    document.body
+      </div>
+    </div>
   );
 };

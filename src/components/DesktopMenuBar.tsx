@@ -49,6 +49,7 @@ interface DesktopMenuBarProps {
   onLogout?: () => void;
   unreadNotificationsCount: number;
   isAdminUsersView?: boolean;
+  isChatAuditView?: boolean;
 }
 
 export const DesktopMenuBar: React.FC<DesktopMenuBarProps> = ({
@@ -60,6 +61,7 @@ export const DesktopMenuBar: React.FC<DesktopMenuBarProps> = ({
   onOpenMyAccount,
   onOpenAdminUsers,
   isAdminUsersView,
+  isChatAuditView,
   onOpenApiDocs,
   onOpenAgentConnections,
   onOpenNotifications,
@@ -411,10 +413,15 @@ export const DesktopMenuBar: React.FC<DesktopMenuBarProps> = ({
           {onOpenChatAudit && (
             <button
               onClick={onOpenChatAudit}
-              title="Historial del Chat & Modelo de IA"
-              className="p-1 rounded bg-blue-50 border border-blue-200 text-blue-800 hover:bg-blue-100 dark:bg-blue-950/70 dark:border-blue-800/80 dark:text-blue-300 dark:hover:bg-blue-900 transition-colors cursor-pointer flex items-center gap-1"
+              title="Historial de Chat & Modelo de IA (Auditoría HITL)"
+              className={`px-2 py-1 rounded border transition-colors cursor-pointer flex items-center gap-1.5 text-xs font-semibold ${
+                isChatAuditView
+                  ? 'bg-blue-600 border-blue-500 text-white shadow-xs'
+                  : 'bg-blue-50 border-blue-200 text-blue-800 hover:bg-blue-100 dark:bg-blue-950/70 dark:border-blue-800/80 dark:text-blue-300 dark:hover:bg-blue-900'
+              }`}
             >
-              <MessageSquare className="w-3.5 h-3.5 text-blue-500" />
+              <MessageSquare className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Historial Chat</span>
             </button>
           )}
 
