@@ -1,4 +1,4 @@
-﻿# 🤖 GUÍA NORMATIVA Y MANUAL OPERATIVO PARA AGENTES IA (ARQAISTUDIO)
+# 🤖 GUÍA NORMATIVA Y MANUAL OPERATIVO PARA AGENTES IA (ARQAISTUDIO)
 
 Esta es la **directiva oficial y obligatoria** para cualquier Agente de Inteligencia Artificial (**Antigravity AI, Claude, Codex, Hermes, GPT, Cursor, Windsurf, Devin**, etc.) que se conecte a la plataforma **ARQAISTUDIO** (`https://arqaistudio.pages.dev`).
 
@@ -21,6 +21,9 @@ Esta es la **directiva oficial y obligatoria** para cualquier Agente de Intelige
 
 Toda IA que opere en ARQAISTUDIO tiene la obligación técnica de seguir este protocolo paso a paso, sin omitir ningún campo ni acción:
 
+0. **Paso Cero: Lectura Inmediata de `CONTEXTO_PROYECTO.md` (Ahorro de Tokens):**
+   - Al abrir CUALQUIER chat nuevo, lee de inmediato `CONTEXTO_PROYECTO.md` en la raíz local.
+   - Si no existe, créalo con la plantilla estándar. Absorbe el estado actual en menos de 25 líneas para arrancar al instante sin pedirle al usuario que te repita nada.
 1. **Handshake & Conexión Inicial (`POST /api/agent/connect`):**
    - Registra el proyecto y guarda la configuración en `.arqai.json` en la raíz de tu proyecto local.
 2. **Respetar el Lockfile (`security.lockedFiles`):**
@@ -36,10 +39,16 @@ Toda IA que opere en ARQAISTUDIO tiene la obligación técnica de seguir este pr
 7. **OBLIGATORIO: Entregar la Tarea con DOS URLs (`POST /api/agent/complete-task`):**
    - `gitUrl`: Enlace al repositorio, rama o commit de GitHub.
    - `workUrl`: Enlace al proyecto web desplegado en vivo en Cloudflare Pages para que el usuario pueda hacer clic e ir a ver el cambio.
-8. **Registrar Auditoría HITL y Diálogo (`POST /api/agent/chat-log`):**
+8. **Actualizar `CONTEXTO_PROYECTO.md` (Hito de Tarea):**
+   - Reescribe `CONTEXTO_PROYECTO.md` con el estado final (máximo 25 líneas): última tarea terminada, commit hash, deploy URL y siguiente paso pendiente.
+9. **Registrar Auditoría HITL y Diálogo (`POST /api/agent/chat-log`):**
    - Registra el prompt del usuario, resumen técnico, archivos modificados y modelo de IA.
-9. **Notificar al Usuario en Pantalla en Vivo (`POST /api/agent/notify-user`):**
-   - Dispara una alerta emergente instantánea en el dashboard del usuario.
+10. **Notificar al Usuario en Pantalla en Vivo (`POST /api/agent/notify-user`):**
+    - Dispara una alerta emergente instantánea en el dashboard del usuario.
+11. **Alerta Proactiva de Límite de 40.000 Tokens:**
+    - Si el chat acumula ~40.000 tokens (o ~15 a 18 turnos de trabajo intenso), la IA DEBE incluir obligatoriamente al final de su mensaje:
+      > 🟡 **Aviso de Rendimiento (Límite 40.000 tokens alcanzado):**
+      > *El estado actual y avances ya están guardados de forma segura en `CONTEXTO_PROYECTO.md`. Te recomiendo cerrar esta sesión y abrir un chat nuevo para ahorrar costos de tokens y mantener respuestas rápidas.*
 
 ---
 

@@ -167,6 +167,11 @@ export async function onRequest(context: any) {
           purpose: "Hub Central de Arquitectura de Software, Supervisión HITL (Human-in-the-Loop) y Quality Gate.",
           coreRules: [
             {
+              rule: "0. Paso Cero: Lectura Inmediata de CONTEXTO_PROYECTO.md (Ahorro de Tokens)",
+              endpoint: "GET /api/projects/:id/context",
+              action: "Al abrir CUALQUIER chat nuevo, leer CONTEXTO_PROYECTO.md local o consultar GET /api/projects/:id/context para absorber el estado actual en <25 líneas e iniciar sin pedirle contexto al usuario."
+            },
+            {
               rule: "1. Handshake & Conexión Inicial",
               endpoint: "POST /api/agent/connect",
               action: "Conectar proyecto y guardar .arqai.json en raíz local."
@@ -197,22 +202,32 @@ export async function onRequest(context: any) {
               action: "DEBES proporcionar obligatoriamente dos URLs: 1) 'gitUrl': URL del repositorio/commit de Git, y 2) 'workUrl': URL del proyecto web en vivo para que el humano pueda ir a ver el cambio en directo."
             },
             {
-              rule: "7. Auditoría HITL y Diálogo",
+              rule: "7. Actualización de CONTEXTO_PROYECTO.md (Hito de Tarea)",
+              endpoint: "POST /api/projects/:id/context",
+              action: "Al completar cualquier tarea, actualizar CONTEXTO_PROYECTO.md con el estado final (máximo 25 líneas) y enviarlo para ahorro de tokens."
+            },
+            {
+              rule: "8. Auditoría HITL y Diálogo",
               endpoint: "POST /api/agent/chat-log",
               action: "Registrar prompt del usuario, resumen técnico, archivos modificados y ambas URLs."
             },
             {
-              rule: "8. Alerta Emergente en Vivo",
+              rule: "9. Alerta Emergente en Vivo",
               endpoint: "POST /api/agent/notify-user",
               action: "Disparar notificación en pantalla del usuario al finalizar tareas o módulos."
             },
             {
-              rule: "9. Memoria RAG para ahorro de tokens",
+              rule: "10. Memoria RAG para ahorro de tokens",
               endpoint: "GET /api/agent/rag-context",
               action: "Consultar fragmentos técnicos previos antes de pedir reexplicaciones al usuario."
             },
             {
-              rule: "10. Prohibición de Auto-aprobación",
+              rule: "11. Alerta Proactiva de Límite de 40.000 Tokens",
+              endpoint: "N/A",
+              action: "Si el chat alcanza ~40.000 tokens (o 15-18 turnos de trabajo intenso), la IA DEBE incluir al final de su mensaje la recomendación obligatoria de cerrar la sesión y abrir un chat nuevo."
+            },
+            {
+              rule: "12. Prohibición de Auto-aprobación",
               endpoint: "POST /api/tasks/:id/verify",
               action: "PROHIBIDO autoverificarse (status='verified' o locked=true). Solo el evaluador humano tiene esa potestad."
             }
@@ -220,6 +235,79 @@ export async function onRequest(context: any) {
         }),
         { headers: jsonHeaders }
       );
+    }
+
+    // --- CONTEXTO DE PROYECTO (GET & POST /api/projects/:id/context & /api/agent/project-context) ---
+    if ((pathname.startsWith("/api/projects/") && pathname.endsWith("/context")) || pathname === "/api/agent/project-context") {
+      let projectId = url.searchParams.get("projectId");
+      if (!projectId && pathname.startsWith("/api/projects/")) {
+        projectId = pathname.split("/")[3];
+      }
+
+      if (request.method === "GET") {
+        let snapshot = null;
+        if (env && env.DB && projectId) {
+          const row = await env.DB.prepare(
+            "SELECT * FROM antigravity_rag_memory WHERE project_id = ? AND component_tag = 'project_context_snapshot' ORDER BY created_at DESC LIMIT 1"
+          ).bind(projectId).first().catch(() => null) as any;
+
+          if (row) {
+            snapshot = {
+              projectId: row.project_id,
+              title: row.title,
+              contextMarkdown: row.content_snippet,
+              updatedAt: row.created_at,
+              tokenWeight: row.token_weight
+            };
+          }
+        }
+
+        return new Response(JSON.stringify({
+          success: true,
+          projectId,
+          context: snapshot || {
+            projectId,
+            contextMarkdown: "# Estado & Contexto del Proyecto\n- **Estado:** Inicial\n- **Siguiente Paso:** Iniciar primera tarea de desarrollo.",
+            note: "Contexto inicial por defecto. Actualizar mediante POST /api/projects/:id/context"
+          }
+        }), { headers: jsonHeaders });
+      }
+
+      if (request.method === "POST") {
+        const body = await request.json().catch(() => ({}));
+        const contextMarkdown = body.contextMarkdown || body.contextSummary || body.markdown || "";
+        const agentName = request.headers.get("x-agent-name") || body.agentName || "Antigravity AI";
+        const title = body.title || "Estado & Contexto de Proyecto";
+
+        if (env && env.DB && projectId && contextMarkdown) {
+          const ragId = "ctx-" + Date.now() + "-" + Math.random().toString(36).substring(2, 6);
+          const tokenWeight = Math.round(contextMarkdown.length / 4);
+
+          await env.DB.prepare(`
+            INSERT INTO antigravity_rag_memory (id, project_id, component_tag, title, content_snippet, rules_summary, token_weight, created_at)
+            VALUES (?, ?, 'project_context_snapshot', ?, ?, ?, ?, datetime('now'))
+          `).bind(
+            ragId,
+            projectId,
+            title,
+            contextMarkdown,
+            `Actualizado por ${agentName} tras hito de tarea.`,
+            tokenWeight
+          ).run().catch(() => {});
+
+          return new Response(JSON.stringify({
+            success: true,
+            message: "Contexto de sesión guardado y sincronizado con éxito.",
+            ragId,
+            tokenWeight,
+            projectId
+          }), { status: 201, headers: jsonHeaders });
+        }
+
+        return new Response(JSON.stringify({
+          error: "Falta projectId o contextMarkdown para guardar el contexto."
+        }), { status: 400, headers: jsonHeaders });
+      }
     }
 
     // --- CONEXIÓN AUTÓNOMA Y GENERACIÓN DE CONNECTOR LOCAL (POST /api/agent/connect) ---
@@ -2351,6 +2439,23 @@ export async function onRequest(context: any) {
           taskOwnerUserId,
           new Date().toISOString()
         ).run().catch(() => {});
+
+        const contextSummary = body.projectContext || body.contextSummary || body.markdownContext;
+        if (contextSummary && taskObj?.project_id) {
+          const ragId = "ctx-" + Date.now() + "-" + Math.random().toString(36).substring(2, 6);
+          const tokenWeight = Math.round(contextSummary.length / 4);
+          await env.DB.prepare(`
+            INSERT INTO antigravity_rag_memory (id, project_id, component_tag, title, content_snippet, rules_summary, token_weight, created_at)
+            VALUES (?, ?, 'project_context_snapshot', ?, ?, ?, ?, datetime('now'))
+          `).bind(
+            ragId,
+            taskObj.project_id,
+            `Contexto tras tarea ${taskId}`,
+            contextSummary,
+            `Actualizado por ${agentName} al completar tarea.`,
+            tokenWeight
+          ).run().catch(() => {});
+        }
       }
 
       return new Response(JSON.stringify({

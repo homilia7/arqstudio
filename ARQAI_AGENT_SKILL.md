@@ -8,6 +8,14 @@
 > 1. `gitUrl`: **URL del Git** (Repositorio, rama o commit en GitHub, ej: `https://github.com/homilia7/SinpePay` o `.../commit/7b89459`).
 > 2. `workUrl` / `projectUrl`: **URL del Proyecto Web en Vivo** (Despliegue activo en Cloudflare Pages o Web, ej: `https://sinpepay.pages.dev`), para que cuando el evaluador humano haga clic ahí pueda ir inmediatamente al proyecto a ver y probar el cambio en vivo.
 
+## 💾 REGLA OBLIGATORIA DE CONTEXTO POR HITOS & AHORRO DE TOKENS (`CONTEXTO_PROYECTO.md`)
+> **Para ahorrar tokens y garantizar memoria continua entre sesiones sin releer historiales masivos:**
+> 1. **Lectura de Arranque (Paso 0):** Al abrir cualquier nuevo chat, la IA DEBE leer `CONTEXTO_PROYECTO.md` en la raíz del proyecto para absorber el estado actual en menos de 25 líneas e iniciar de inmediato.
+> 2. **Actualización por Tarea (Hito):** Al finalizar cualquier tarea (commit/deploy), la IA DEBE actualizar `CONTEXTO_PROYECTO.md` con el estado final (máximo 25 líneas).
+> 3. **Alerta de Límite de 40.000 Tokens:** Si la sesión de chat acumula aproximadamente 40.000 tokens (o ~15 a 18 turnos de trabajo intenso), la IA DEBE añadir al final de su mensaje:
+>    > 🟡 **Aviso de Rendimiento (Límite 40.000 tokens alcanzado):**
+>    > *El estado actual y avances ya están guardados de forma segura en `CONTEXTO_PROYECTO.md`. Te recomiendo cerrar esta sesión y abrir un chat nuevo para ahorrar costos de tokens y mantener respuestas rápidas.*
+
 ---
 
 ## Overview
@@ -203,3 +211,5 @@ POST /api/agent/notify-user
 1. **Never attempt to self-approve or verify tasks (`status = "verified"` or `locked = true`).** Only human users have permission to verify and lock tasks.
 2. **Respect `locked = true` tasks.** Never edit or delete a task that is locked.
 3. **Always provide BOTH URLs (`gitUrl` and `workUrl` / `projectUrl`) in every task or action.** Never leave one missing: the user needs to inspect the code in Git AND open the live project in a browser to see the change in real time.
+4. **Always update `CONTEXTO_PROYECTO.md` upon completing any task.** Keep it concise (<25 lines) with current state, last completed task, and immediate next step.
+5. **Always alert the user when session exceeds ~40.000 tokens.** Recommend starting a fresh chat to maintain high performance and token economy.

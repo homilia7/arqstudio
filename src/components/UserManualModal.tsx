@@ -265,23 +265,25 @@ export const UserManualModal: React.FC<UserManualModalProps> = ({
             </p>
           </div>
 
-          {/* Protocolo de 9 pasos */}
+          {/* Protocolo de Pasos Obligatorios */}
           <div className="space-y-2">
             <h4 className="text-xs font-bold text-zinc-900 dark:text-white flex items-center gap-1.5 uppercase tracking-wider">
               <ListChecks className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-              Protocolo Obligatorio de 9 Pasos
+              Protocolo Obligatorio de Pasos para Agentes
             </h4>
             <div className="grid grid-cols-1 gap-1.5 text-[11px]">
               {[
+                { step: "0", color: "indigo", title: "Paso Cero: Leer Contexto → CONTEXTO_PROYECTO.md", desc: "Al abrir cualquier chat nuevo, absorber el estado del proyecto en <25 líneas para arrancar de inmediato sin gastar tokens." },
                 { step: "1", color: "emerald", title: "Conectar → POST /api/agent/connect", desc: "Enviar agentId, projectId, agentName, model. Guardar el token devuelto." },
                 { step: "2", color: "blue", title: "Obtener Proyecto → GET /api/projects/:id", desc: "Leer contexto del proyecto: nombre, descripción, stack tecnológico." },
                 { step: "3", color: "violet", title: "Obtener Tarea → GET /api/tasks?projectId=:id&status=pending", desc: "Seleccionar la primera tarea pendiente. Registrar su taskId." },
                 { step: "4", color: "amber", title: "Reclamar Tarea → PATCH /api/tasks/:id", desc: 'Cambiar status a "in_progress". Incluir agentId en el body.' },
                 { step: "5", color: "orange", title: "Registrar Chat → POST /api/agent/chat-log", desc: "Loggear cada acción significativa durante la ejecución." },
                 { step: "6", color: "pink", title: "Completar Tarea → POST /api/agent/complete-task", desc: "Enviar OBLIGATORIAMENTE: gitUrl (GitHub) + workUrl (URL pública del deploy)." },
-                { step: "7", color: "teal", title: "Crear Historial → POST /api/history", desc: "Registrar el resumen técnico de lo que se hizo, con ambas URLs." },
-                { step: "8", color: "indigo", title: "Crear Notificación → POST /api/notifications", desc: "Avisar al supervisor que la tarea está lista para revisión." },
-                { step: "9", color: "red", title: "Desconectar → POST /api/agent/disconnect", desc: "Liberar la conexión una vez completado el ciclo." },
+                { step: "7", color: "cyan", title: "Actualizar Contexto → CONTEXTO_PROYECTO.md", desc: "Actualizar el archivo local (<25 líneas) y sincronizarlo con POST /api/projects/:id/context." },
+                { step: "8", color: "teal", title: "Crear Historial → POST /api/history", desc: "Registrar el resumen técnico de lo que se hizo, con ambas URLs." },
+                { step: "9", color: "indigo", title: "Crear Notificación → POST /api/notifications", desc: "Avisar al supervisor que la tarea está lista para revisión." },
+                { step: "10", color: "red", title: "Desconectar → POST /api/agent/disconnect", desc: "Liberar la conexión una vez completado el ciclo." },
               ].map(({ step, color, title, desc }) => (
                 <div key={step} className={`flex gap-2.5 p-2.5 rounded bg-${color}-50/40 dark:bg-zinc-900 border border-${color}-200 dark:border-zinc-800`}>
                   <span className={`shrink-0 w-5 h-5 rounded-full bg-${color}-600 dark:bg-${color}-700 text-white text-[10px] font-bold flex items-center justify-center`}>{step}</span>
@@ -291,6 +293,20 @@ export const UserManualModal: React.FC<UserManualModalProps> = ({
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Regla del Límite de 40.000 Tokens */}
+          <div className="p-3 rounded-lg bg-amber-50/70 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800 space-y-1.5">
+            <h4 className="text-xs font-bold text-amber-800 dark:text-amber-400 flex items-center gap-1.5 uppercase tracking-wider">
+              <AlertTriangle className="w-3.5 h-3.5" />
+              Regla de Límite de 40.000 Tokens (Rotación de Chat)
+            </h4>
+            <p className="text-zinc-700 dark:text-zinc-400">
+              Para garantizar respuestas ultrarrápidas y ahorrar costos, si la conversación de la IA supera los <strong className="text-zinc-900 dark:text-zinc-100">40.000 tokens</strong> (o ~15 a 18 turnos), la IA DEBE incluir esta alerta al final de su mensaje:
+            </p>
+            <div className="p-2 rounded bg-white dark:bg-zinc-900 border border-amber-200 dark:border-amber-900/60 text-[11px] text-amber-900 dark:text-amber-300 font-mono">
+              🟡 <strong>Aviso de Rendimiento:</strong> Esta sesión ya acumula ~40.000 tokens. El contexto del proyecto está seguro en <code>CONTEXTO_PROYECTO.md</code>. Te sugiero cerrar este chat y abrir uno nuevo para mantener velocidad y ahorro de tokens.
             </div>
           </div>
 
@@ -329,6 +345,8 @@ export const UserManualModal: React.FC<UserManualModalProps> = ({
             </h4>
             <div className="grid grid-cols-1 gap-1 text-[10px] font-mono">
               {[
+                { method: "GET",  path: "/api/projects/:id/context", color: "indigo", note: "Consultar último contexto del proyecto" },
+                { method: "POST", path: "/api/projects/:id/context", color: "cyan",   note: "Guardar nuevo snapshot de contexto" },
                 { method: "POST", path: "/api/agent/connect", color: "emerald", note: "Conexión y autenticación" },
                 { method: "GET",  path: "/api/agent/guide",   color: "violet",  note: "Esta guía en formato JSON" },
                 { method: "GET",  path: "/api/projects/:id",  color: "blue",    note: "Detalle del proyecto" },
@@ -358,6 +376,8 @@ export const UserManualModal: React.FC<UserManualModalProps> = ({
             </h4>
             <ul className="space-y-1 text-[11px] text-red-800 dark:text-red-300">
               {[
+                "No omitir la lectura de CONTEXTO_PROYECTO.md al iniciar un nuevo chat.",
+                "No exceder ~40.000 tokens en la sesión sin alertar proactivamente al usuario para rotar chat.",
                 "No marcar una tarea como completada sin gitUrl Y workUrl.",
                 "No omitir el registro en /api/agent/chat-log durante la ejecución.",
                 "No completar tareas sin pasar por el flujo HITL (ready_for_review → aprobación).",

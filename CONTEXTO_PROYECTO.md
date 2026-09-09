@@ -1,0 +1,16 @@
+﻿# Estado & Contexto del Proyecto: ARQAISTUDIO
+- **Última Actualización:** 2026-09-08 20:15 GMT-6
+- **Versión Actual:** 2.4.0 (Autonomous / Cloudflare D1 + Pages)
+- **Última Tarea Completada:** Guía Normativa Completa para Agentes IA en Manual de Usuario y endpoint `/api/agent/guide` (Commit `fc48ac1`)
+- **Deploy en Vivo:** `https://arqaistudio.pages.dev`
+- **Repositorio Git:** `https://github.com/homilia7/arqstudio.git` (rama `main`)
+- **Estado Actual del Sistema:**
+  - Supervisor HITL, autenticación D1 por usuario, gestión de proyectos y tareas con dos URLs obligatorias (`gitUrl` + `workUrl`).
+  - Historial de conexiones de agentes IA, auditoría de chat y telemetría de almacenamiento.
+  - Manual de Usuario con Guía Normativa para Agentes IA.
+- **Siguiente Paso Inmediato:** Integrar endpoint de sincronización de contexto de sesión (`/api/projects/:id/context`) y regla proactiva de alerta de 40.000 tokens.
+- **Decisiones Técnicas Inmutables:**
+  - Cloudflare Pages Functions (`functions/api/[[path]].ts`).
+  - D1 SQLite con tablas `antigravity_*`. Capacidad 500 MB.
+  - En cada tarea completada: entregar exactamente dos URLs (`gitUrl` y `workUrl`).
+  - No modificar `HISTORIAL_DE_CAMBIOS_APROBADOS.md` sin orden explícita del usuario.
