@@ -667,15 +667,16 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             </button>
 
             {/* Botón rápido de Aprobar y Bloquear */}
+            {/* Botón rápido de 1-Clic Aprobar */}
             {task.status === "ready_for_review" && (
               <button
                 onClick={handleQuickVerifyClick}
                 disabled={isVerifying}
-                title="Aprobar directamente y bloquear contra futuros cambios"
-                className="inline-flex items-center space-x-1 px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold rounded shadow-2xs transition-all cursor-pointer"
+                title="Aprobación instantánea con 1 clic y bloqueo Quality Gate"
+                className="inline-flex items-center space-x-1.5 px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold rounded shadow-sm ring-1 ring-emerald-400/40 transition-all cursor-pointer"
               >
-                <CheckCircle2 className="w-3 h-3" />
-                <span>{isVerifying ? "Bloqueando..." : "Aprobar y Bloquear"}</span>
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-200" />
+                <span>{isVerifying ? "Bloqueando..." : "✓ Aprobar 1-Clic"}</span>
               </button>
             )}
 

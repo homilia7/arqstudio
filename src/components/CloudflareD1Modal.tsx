@@ -14,7 +14,8 @@ import {
   Layers,
   Cloud,
   Terminal,
-  Table
+  Table,
+  Trash2
 } from "lucide-react";
 import {
   fetchNeonStatus,
@@ -137,6 +138,30 @@ export const CloudflareD1Modal: React.FC<CloudflareD1ModalProps> = ({
       setSyncFeedback(`Error al verificar D1: ${err.message}`);
     } finally {
       setIsRecreating(false);
+    }
+  };
+
+  const [isPurging, setIsPurging] = useState(false);
+  const handlePurgeOldAudits = async () => {
+    if (!window.confirm("¿Deseas purgar registros de chat auditados de más de 60 días para liberar espacio en Cloudflare D1? (Las tareas y el historial aprobado se mantendrán 100% intactos).")) {
+      return;
+    }
+    setIsPurging(true);
+    setSyncFeedback(null);
+    try {
+      const res = await fetch("/api/maintenance/purge-audit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ days: 60 })
+      });
+      const data = await res.json();
+      setSyncFeedback(data.message || "Auditorías de más de 60 días purgadas correctamente.");
+      if (onRefreshData) onRefreshData();
+      await loadStatus();
+    } catch (err: any) {
+      setSyncFeedback(`Error al purgar: ${err.message}`);
+    } finally {
+      setIsPurging(false);
     }
   };
 
@@ -287,6 +312,16 @@ export const CloudflareD1Modal: React.FC<CloudflareD1ModalProps> = ({
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isRecreating ? "animate-spin text-orange-400" : ""}`} />
             <span>Verificar Esquema D1</span>
+          </button>
+
+          <button
+            onClick={handlePurgeOldAudits}
+            disabled={isPurging}
+            title="Eliminar logs de chat de más de 60 días para proteger los 500 MB de cuota D1"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:hover:bg-rose-900/80 dark:text-rose-300 text-xs font-semibold border border-rose-200 dark:border-rose-800/80 transition-colors cursor-pointer disabled:opacity-50"
+          >
+            <Trash2 className={`w-3.5 h-3.5 text-rose-500 ${isPurging ? "animate-spin" : ""}`} />
+            <span>{isPurging ? "Purgando..." : "Purgar Chats >60 días (Proteger 500 MB)"}</span>
           </button>
         </div>
 

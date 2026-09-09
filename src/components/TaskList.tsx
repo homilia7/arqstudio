@@ -10,6 +10,7 @@ import {
   Sparkles,
   ListTodo,
   Grid,
+  Bot,
 } from "lucide-react";
 import {
   TaskItem,
@@ -65,7 +66,12 @@ export const TaskList: React.FC<TaskListProps> = ({
   onRejectTask,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedAgent, setSelectedAgent] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"tasks" | "modules">("tasks");
+
+  const availableAgents = Array.from(
+    new Set(tasks.map((t) => t.assignedAgent).filter(Boolean))
+  ) as string[];
 
   const counts = {
     all: tasks.length,
@@ -77,6 +83,11 @@ export const TaskList: React.FC<TaskListProps> = ({
   };
 
   const filteredTasks = tasks.filter((task) => {
+    // Filtro por agente asignado
+    if (selectedAgent !== "all" && task.assignedAgent !== selectedAgent) {
+      return false;
+    }
+
     // Filtro por estado
     if (filter === "verified" && !(task.status === "verified" || task.locked)) {
       return false;
@@ -92,7 +103,8 @@ export const TaskList: React.FC<TaskListProps> = ({
       const matchNotes = (task.aiNotes || "").toLowerCase().includes(q);
       const matchFeedback = (task.humanFeedback || "").toLowerCase().includes(q);
       const matchUrl = (task.workUrl || "").toLowerCase().includes(q);
-      return matchTitle || matchInst || matchNotes || matchFeedback || matchUrl;
+      const matchAgent = (task.assignedAgent || "").toLowerCase().includes(q);
+      return matchTitle || matchInst || matchNotes || matchFeedback || matchUrl || matchAgent;
     }
 
     return true;
@@ -265,16 +277,38 @@ export const TaskList: React.FC<TaskListProps> = ({
               </button>
             </div>
 
-            {/* Buscador */}
-            <div className="relative min-w-[220px]">
-              <Search className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Buscar por instrucción o URL..."
-                className="w-full bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-300 dark:border-zinc-700 text-xs text-zinc-900 dark:text-white rounded pl-8 pr-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-zinc-100 dark:bg-zinc-900 dark:focus:bg-zinc-800 placeholder:text-zinc-400 dark:placeholder:text-zinc-500"
-              />
+            {/* Controles de Búsqueda y Filtro de Agente */}
+            <div className="flex items-center gap-2 flex-wrap">
+              {availableAgents.length > 0 && (
+                <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700">
+                  <Bot className="w-3.5 h-3.5 text-violet-600 dark:text-violet-400 shrink-0" />
+                  <select
+                    value={selectedAgent}
+                    onChange={(e) => setSelectedAgent(e.target.value)}
+                    className="bg-transparent text-xs text-zinc-800 dark:text-zinc-200 focus:outline-none cursor-pointer font-medium"
+                    title="Filtrar tareas por Agente de IA"
+                  >
+                    <option value="all" className="bg-white dark:bg-zinc-800">Todos los Agentes ({tasks.length})</option>
+                    {availableAgents.map((ag) => (
+                      <option key={ag} value={ag} className="bg-white dark:bg-zinc-800">
+                        {ag} ({tasks.filter((t) => t.assignedAgent === ag).length})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Buscador */}
+              <div className="relative min-w-[200px]">
+                <Search className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Buscar tareas, URLs o IA..."
+                  className="w-full bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-300 dark:border-zinc-700 text-xs text-zinc-900 dark:text-white rounded pl-8 pr-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-zinc-100 dark:bg-zinc-900 dark:focus:bg-zinc-800 placeholder:text-zinc-400 dark:placeholder:text-zinc-500"
+                />
+              </div>
             </div>
           </div>
 

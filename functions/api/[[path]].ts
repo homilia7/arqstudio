@@ -1004,6 +1004,34 @@ export async function onRequest(context: any) {
       );
     }
 
+    // --- MANTENIMIENTO: PURGAR AUDITORÍAS DE CHAT ANTIGUAS (POST /api/maintenance/purge-audit) ---
+    if (pathname === "/api/maintenance/purge-audit" && request.method === "POST") {
+      const body = await request.json().catch(() => ({}));
+      const days = Number(body.days) || 60;
+      let deletedCount = 0;
+
+      if (env && env.DB) {
+        const countRes = await env.DB.prepare(
+          "SELECT COUNT(*) as count FROM antigravity_chat_audit WHERE created_at < datetime('now', '-' || ? || ' days')"
+        ).bind(days).first().catch(() => null) as any;
+
+        deletedCount = countRes?.count || 0;
+
+        if (deletedCount > 0) {
+          await env.DB.prepare(
+            "DELETE FROM antigravity_chat_audit WHERE created_at < datetime('now', '-' || ? || ' days')"
+          ).bind(days).run();
+        }
+      }
+
+      return new Response(JSON.stringify({
+        success: true,
+        message: `Mantenimiento completado: ${deletedCount} registros de auditoría anteriores a ${days} días purgados.`,
+        purgedCount: deletedCount,
+        daysThreshold: days
+      }), { headers: jsonHeaders });
+    }
+
     // Helper de cálculo de bytes reales en SQLite / Cloudflare D1
     function calculateRowBytes(row: any): number {
       if (!row || typeof row !== "object") return 0;

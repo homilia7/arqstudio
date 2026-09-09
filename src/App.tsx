@@ -30,6 +30,7 @@ import { AdminUsersPanel } from "./components/AdminUsersPanel";
 import { NotificationsDrawer } from "./components/NotificationsDrawer";
 import { ProjectChangelogView } from "./components/ProjectChangelogView";
 import { ChatAuditModal } from "./components/ChatAuditModal";
+import { LiveProjectContextCard } from "./components/LiveProjectContextCard";
 import {
   Project,
   TaskItem,
@@ -463,6 +464,7 @@ export default function App() {
                 approvedCount={approvedTasksCount}
                 reviewCount={pendingReviewCount}
                 pendingCount={pendingWaitCount}
+                sessionTokens={tasks.reduce((acc, t) => acc + Math.round(((t.instruction?.length || 0) + (t.aiNotes?.length || 0) + 200) / 4), 14200)}
                 onOpenNewTask={() => {
                   const el = document.getElementById("instruction-input");
                   if (el) el.focus();
@@ -471,6 +473,9 @@ export default function App() {
 
               {/* Contenido Central */}
               <div className="p-4 space-y-4 max-w-5xl w-full mx-auto">
+                {/* Tarjeta de Contexto en Vivo de Sesión */}
+                <LiveProjectContextCard activeProject={activeProject} />
+
                 {/* Formulario de Entrada */}
                 <TaskInputForm
                   activeProject={activeProject}
