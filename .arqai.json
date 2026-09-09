@@ -1,0 +1,25 @@
+﻿{
+  "$schema": "https://arqaistudio.pages.dev/api/ai-spec",
+  "hub": {
+    "apiUrl": "https://arqaistudio.pages.dev/api",
+    "apiKey": "arqai_sec_arqstudio_core",
+    "projectId": "proj-default",
+    "projectName": "ARQAISTUDIO"
+  },
+  "security": {
+    "lockedFiles": [
+      "HISTORIAL_DE_CAMBIOS_APROBADOS.md"
+    ],
+    "enforceLock": true,
+    "notice": "LOS ARCHIVOS EN lockedFiles TIENEN CANDADO DE CALIDAD INMUTABLE. NO EDITARLOS SIN AUTORIZACIÓN."
+  },
+  "sync": {
+    "autoSync": true,
+    "chatAudit": true,
+    "ragEnabled": true,
+    "testUrl": "https://arqaistudio.pages.dev",
+    "chatLogEndpoint": "https://arqaistudio.pages.dev/api/agent/chat-log",
+    "ragContextEndpoint": "https://arqaistudio.pages.dev/api/agent/rag-context",
+    "notifyEndpoint": "https://arqaistudio.pages.dev/api/agent/notify-user"
+  }
+}
