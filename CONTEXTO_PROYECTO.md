@@ -1,14 +1,16 @@
 ﻿# Estado & Contexto del Proyecto: ARQAISTUDIO
-- **Última Actualización:** 2026-09-08 20:48 GMT-6
-- **Versión Actual:** 2.4.1 (Autonomous / Global Skills Enabled)
-- **Última Tarea Completada:** Creación de Skill Global `arqai-setup` para inicialización de cualquier proyecto con 1 comando
+- **Última Actualización:** 2026-09-08 21:05 GMT-6
+- **Versión Actual:** 2.5.0 (Live Context & Token Telemetry Enabled)
+- **Última Tarea Completada:** Tarjeta de Contexto en Vivo, Semáforo 40k Tokens, 1-Click Approve, Filtro por Agente y Purga D1 (Commit `bb1609a`)
 - **Deploy en Vivo:** `https://arqaistudio.pages.dev`
 - **Repositorio Git:** `https://github.com/homilia7/arqstudio.git` (rama `main`)
 - **Estado Actual del Sistema:**
-  - Skill global `arqai-setup` activa en `C:\Users\User\.gemini\config\skills\arqai-setup`.
-  - Supervisor HITL, autenticación D1 por usuario, gestión de proyectos y tareas con dos URLs obligatorias (`gitUrl` + `workUrl`).
-  - Endpoints de sincronización de contexto (`/api/projects/:id/context`) y alerta proactiva de 40.000 tokens.
-- **Siguiente Paso Inmediato:** Usar el comando "Inicializa ARQAI" en nuevos proyectos cuando se creen.
+  - LiveProjectContextCard sincronizado con /api/projects/:id/context en tiempo real.
+  - Semáforo de tokens en cabecera con botón de copiado rápido de rotación de chat.
+  - Botón "✓ Aprobar 1-Clic" en tareas para supervisión ágil.
+  - Filtro por Agente de IA (Antigravity, Claude, Codex, etc.) en TaskList.
+  - Mantenimiento D1: purgado de auditorías de chat >60 días en Cloudflare D1.
+- **Siguiente Paso Inmediato:** Probar la plataforma en vivo y usar "Inicializa ARQAI" en nuevos repositorios.
 - **Decisiones Técnicas Inmutables:**
   - Cloudflare Pages Functions (`functions/api/[[path]].ts`).
   - D1 SQLite con tablas `antigravity_*`. Capacidad 500 MB.
