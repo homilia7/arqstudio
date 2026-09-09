@@ -50,6 +50,7 @@ interface DesktopMenuBarProps {
   unreadNotificationsCount: number;
   isAdminUsersView?: boolean;
   isChatAuditView?: boolean;
+  onSwitchToHomeView?: () => void;
 }
 
 export const DesktopMenuBar: React.FC<DesktopMenuBarProps> = ({
@@ -76,6 +77,7 @@ export const DesktopMenuBar: React.FC<DesktopMenuBarProps> = ({
   isRefreshing,
   onLogout,
   unreadNotificationsCount,
+  onSwitchToHomeView,
 }) => {
   const { theme, toggleTheme } = useTheme();
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -353,8 +355,20 @@ export const DesktopMenuBar: React.FC<DesktopMenuBarProps> = ({
         </div>
 
         {/* Lado Derecho: Píldoras de Estado y Perfil */}
-        <div className="flex items-center gap-1 shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0">
           
+          {/* Botón Switcher a Vista Limpia /home */}
+          {onSwitchToHomeView && (
+            <button
+              onClick={onSwitchToHomeView}
+              title="Probar la nueva Vista Limpia / Focus (/home)"
+              className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-indigo-500/15 via-purple-500/15 to-emerald-500/15 border border-indigo-300/80 dark:border-indigo-700/80 text-indigo-700 dark:text-indigo-300 hover:scale-105 transition-all cursor-pointer text-[11px] font-bold shadow-2xs"
+            >
+              <Sparkles className="w-3 h-3 text-indigo-500 animate-pulse" />
+              <span>Vista Limpia (/home)</span>
+            </button>
+          )}
+
           {/* Píldora Manual */}
           <button
             onClick={onOpenUserManual}

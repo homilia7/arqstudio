@@ -31,6 +31,7 @@ import { NotificationsDrawer } from "./components/NotificationsDrawer";
 import { ProjectChangelogView } from "./components/ProjectChangelogView";
 import { ChatAuditModal } from "./components/ChatAuditModal";
 import { LiveProjectContextCard } from "./components/LiveProjectContextCard";
+import { HomeCleanView } from "./components/HomeCleanView";
 import {
   Project,
   TaskItem,
@@ -151,6 +152,48 @@ export default function App() {
     } catch {}
     return "workspace";
   });
+
+  // Routing para Vista Limpia (/home o ?view=home) vs Vista Clásica IDE (/)
+  const [isHomeView, setIsHomeView] = useState<boolean>(() => {
+    try {
+      if (typeof window !== "undefined") {
+        const p = window.location.pathname.toLowerCase();
+        const s = window.location.search.toLowerCase();
+        return p.startsWith("/home") || s.includes("view=home");
+      }
+    } catch {}
+    return false;
+  });
+
+  const handleSwitchToHomeView = () => {
+    setIsHomeView(true);
+    try {
+      if (typeof window !== "undefined") {
+        window.history.pushState({}, "", "/home");
+      }
+    } catch {}
+  };
+
+  const handleSwitchToClassicView = () => {
+    setIsHomeView(false);
+    try {
+      if (typeof window !== "undefined") {
+        window.history.pushState({}, "", "/");
+      }
+    } catch {}
+  };
+
+  useEffect(() => {
+    const handlePopState = () => {
+      try {
+        const p = window.location.pathname.toLowerCase();
+        const s = window.location.search.toLowerCase();
+        setIsHomeView(p.startsWith("/home") || s.includes("view=home"));
+      } catch {}
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -382,157 +425,207 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-zinc-100 dark:bg-[#07090c] text-zinc-900 dark:text-[#c9d1d9] font-sans selection:bg-emerald-600 selection:text-white pb-6">
-      {/* 1. Header Desktop Superior */}
-      <DesktopMenuBar
-        currentUser={currentUser}
-        activeProject={activeProject}
-        allProjects={projects}
-        onSelectProject={handleSelectProject}
-        onOpenNewProject={() => setCreateProjectModalOpen(true)}
-        onOpenMyAccount={() => setMyAccountOpen(true)}
-        onOpenAdminUsers={handleOpenAdminUsers}
-        isAdminUsersView={currentView === "admin_users"}
-        onOpenApiDocs={() => setApiDocsOpen(true)}
-        onOpenAgentConnections={() => setAgentConnectionsOpen(true)}
-        onOpenNotifications={() => setNotificationsDrawerOpen(true)}
-        onOpenD1Modal={() => setD1ModalOpen(true)}
-        onOpenAuditHistory={() => setIsLeftSidebarOpen(!isLeftSidebarOpen)}
-        onOpenChatAudit={() => handleOpenChatAudit(null)}
-        isChatAuditView={currentView === "chat_audit"}
-        onOpenUserManual={() => setUserManualOpen(true)}
-        onOpenApiKeyOnboarding={() => setApiKeyOnboardingOpen(true)}
-        onOpenCloudflareEdge={() => setCloudflareEdgeOpen(true)}
-        onOpenGatekeeper={() => setGatekeeperOpen(true)}
-        onRefresh={() => loadData(false)}
-        onLogout={() => handleUpdateCurrentUser(null)}
-        isRefreshing={isRefreshing}
-        unreadNotificationsCount={notifications.filter((n) => !n.read).length}
-      />
-
-      {/* 2. Vista Principal: Entorno de Directorio de Usuarios, Historial de Chat o Espacio de Trabajo */}
-      {currentView === "admin_users" ? (
-        <AdminUsersPanel
-          isOpen={true}
-          onClose={handleCloseAdminUsers}
-          currentUser={currentUser}
-        />
-      ) : currentView === "chat_audit" ? (
-        <ChatAuditModal
-          onClose={handleCloseChatAudit}
-          currentProject={activeProject}
-          currentTask={chatAuditTask}
-          onTaskUpdated={(updated) => {
-            setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
-            loadData(true);
+      {isHomeView ? (
+        <HomeCleanView
+          activeProject={activeProject}
+          projects={projects}
+          onSelectProject={handleSelectProject}
+          onOpenNewProject={() => setCreateProjectModalOpen(true)}
+          tasks={activeTasks}
+          modules={modules}
+          stages={stages}
+          filter={filter}
+          onFilterChange={setFilter}
+          onAddTask={handleAddTask}
+          onReviewTask={(t) => setReviewTask(t)}
+          onQuickVerify={handleVerifyTask}
+          onUnlockTask={(id) => api.unlockTask(id, currentUser?.id).then(() => loadData(true))}
+          onDeleteTask={(id) => api.deleteTask(id).then(() => loadData(true))}
+          onSimulateTask={(id) => {
+            const found = tasks.find((t) => t.id === id);
+            if (found) setSimulateTask(found);
           }}
+          onOpenNewTaskPrompt={() => {
+            const el = document.getElementById("instruction-input");
+            if (el) el.focus();
+          }}
+          onOpenContextMemory={(t) => setContextTask(t)}
+          onCreateModule={(title) => activeProject && api.createModule(activeProject.id, title).then(() => loadData(true))}
+          onCreateStage={(modId, title) => activeProject && api.createStage(modId, activeProject.id, title).then(() => loadData(true))}
+          onDeleteModule={(modId) => api.deleteModule(modId).then(() => loadData(true))}
+          onOpenPlanGenerator={() => setPlanGeneratorOpen(true)}
+          onOpenChatAudit={(t) => handleOpenChatAudit(t)}
+          onRejectTask={handleRejectTask}
+          onOpenApiDocs={() => setApiDocsOpen(true)}
+          onOpenAgentConnections={() => setAgentConnectionsOpen(true)}
+          onOpenAdminUsers={handleOpenAdminUsers}
+          onOpenHistory={() => setHistoryOpen(true)}
+          onOpenCloudflareD1={() => setD1ModalOpen(true)}
+          onOpenUserManual={() => setUserManualOpen(true)}
+          onOpenApiKeyOnboarding={() => setApiKeyOnboardingOpen(true)}
+          onOpenGatekeeper={() => setGatekeeperOpen(true)}
+          onOpenNotifications={() => setNotificationsDrawerOpen(true)}
+          unreadNotificationsCount={notifications.filter((n) => !n.read).length}
+          currentUser={currentUser}
+          onOpenMyAccount={() => setMyAccountOpen(true)}
+          onSwitchToClassicView={handleSwitchToClassicView}
         />
       ) : (
         <>
-          {/* Barra de Comandos y Badges de Estado */}
-          <ProjectCommandBar
+          {/* 1. Header Desktop Superior */}
+          <DesktopMenuBar
+            currentUser={currentUser}
             activeProject={activeProject}
             allProjects={projects}
             onSelectProject={handleSelectProject}
             onOpenNewProject={() => setCreateProjectModalOpen(true)}
-            onDeleteProject={handleDeleteProject}
-            approvedTasksCount={approvedTasksCount}
-            onRunAgentLoop={handleRunAgentLoop}
-            isAgentRunning={isAgentRunning}
-            activeModelName={activeModelName}
-            onToggleLeftSidebar={() => setIsLeftSidebarOpen(!isLeftSidebarOpen)}
-            onToggleRightSidebar={() => setIsRightSidebarOpen(!isRightSidebarOpen)}
-            isLeftSidebarOpen={isLeftSidebarOpen}
-            isRightSidebarOpen={isRightSidebarOpen}
+            onOpenMyAccount={() => setMyAccountOpen(true)}
+            onOpenAdminUsers={handleOpenAdminUsers}
+            isAdminUsersView={currentView === "admin_users"}
+            onOpenApiDocs={() => setApiDocsOpen(true)}
+            onOpenAgentConnections={() => setAgentConnectionsOpen(true)}
+            onOpenNotifications={() => setNotificationsDrawerOpen(true)}
+            onOpenD1Modal={() => setD1ModalOpen(true)}
+            onOpenAuditHistory={() => setIsLeftSidebarOpen(!isLeftSidebarOpen)}
+            onOpenChatAudit={() => handleOpenChatAudit(null)}
+            isChatAuditView={currentView === "chat_audit"}
+            onOpenUserManual={() => setUserManualOpen(true)}
+            onOpenApiKeyOnboarding={() => setApiKeyOnboardingOpen(true)}
+            onOpenCloudflareEdge={() => setCloudflareEdgeOpen(true)}
+            onOpenGatekeeper={() => setGatekeeperOpen(true)}
+            onRefresh={() => loadData(false)}
+            onLogout={() => handleUpdateCurrentUser(null)}
+            isRefreshing={isRefreshing}
+            unreadNotificationsCount={notifications.filter((n) => !n.read).length}
+            onSwitchToHomeView={handleSwitchToHomeView}
           />
 
-          {/* Layout Principal 3 Columnas Dockable */}
-          <div className="flex-1 flex overflow-hidden">
-            {/* Columna 1: Panel Izquierdo de Auditoría */}
-            <AuditSidebar
-              isOpen={isLeftSidebarOpen}
-              onClose={() => setIsLeftSidebarOpen(false)}
-              commits={commits}
-              onRollback={(c) => {
-                showToast(`Rollback completado para ${c.commitHash}`, "info");
+          {/* 2. Vista Principal: Entorno de Directorio de Usuarios, Historial de Chat o Espacio de Trabajo */}
+          {currentView === "admin_users" ? (
+            <AdminUsersPanel
+              isOpen={true}
+              onClose={handleCloseAdminUsers}
+              currentUser={currentUser}
+            />
+          ) : currentView === "chat_audit" ? (
+            <ChatAuditModal
+              onClose={handleCloseChatAudit}
+              currentProject={activeProject}
+              currentTask={chatAuditTask}
+              onTaskUpdated={(updated) => {
+                setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
+                loadData(true);
               }}
             />
-
-            {/* Columna 2: Panel Central de Flujo en Cascada / QA Hub */}
-            <main className="flex-1 flex flex-col overflow-y-auto bg-zinc-50 dark:bg-[#07090c] border-x border-zinc-200 dark:border-[#1e222d]">
-              {/* Cabecera del Flujo en Cascada */}
-              <CascadingHeader
-                approvedCount={approvedTasksCount}
-                reviewCount={pendingReviewCount}
-                pendingCount={pendingWaitCount}
-                sessionTokens={tasks.reduce((acc, t) => acc + Math.round(((t.instruction?.length || 0) + (t.aiNotes?.length || 0) + 200) / 4), 14200)}
-                onOpenNewTask={() => {
-                  const el = document.getElementById("instruction-input");
-                  if (el) el.focus();
-                }}
+          ) : (
+            <>
+              {/* Barra de Comandos y Badges de Estado */}
+              <ProjectCommandBar
+                activeProject={activeProject}
+                allProjects={projects}
+                onSelectProject={handleSelectProject}
+                onOpenNewProject={() => setCreateProjectModalOpen(true)}
+                onDeleteProject={handleDeleteProject}
+                approvedTasksCount={approvedTasksCount}
+                onRunAgentLoop={handleRunAgentLoop}
+                isAgentRunning={isAgentRunning}
+                activeModelName={activeModelName}
+                onToggleLeftSidebar={() => setIsLeftSidebarOpen(!isLeftSidebarOpen)}
+                onToggleRightSidebar={() => setIsRightSidebarOpen(!isRightSidebarOpen)}
+                isLeftSidebarOpen={isLeftSidebarOpen}
+                isRightSidebarOpen={isRightSidebarOpen}
               />
 
-              {/* Contenido Central */}
-              <div className="p-4 space-y-4 max-w-5xl w-full mx-auto">
-                {/* Tarjeta de Contexto en Vivo de Sesión */}
-                <LiveProjectContextCard activeProject={activeProject} />
-
-                {/* Formulario de Entrada */}
-                <TaskInputForm
-                  activeProject={activeProject}
-                  onAddTask={handleAddTask}
-                  onOpenApiDocs={() => setApiDocsOpen(true)}
+              {/* Layout Principal 3 Columnas Dockable */}
+              <div className="flex-1 flex overflow-hidden">
+                {/* Columna 1: Panel Izquierdo de Auditoría */}
+                <AuditSidebar
+                  isOpen={isLeftSidebarOpen}
+                  onClose={() => setIsLeftSidebarOpen(false)}
+                  commits={commits}
+                  onRollback={(c) => {
+                    showToast(`Rollback completado para ${c.commitHash}`, "info");
+                  }}
                 />
 
-                {/* Lista de Tareas y Quality Gates */}
-                <TaskList
-                  tasks={activeTasks}
-                  modules={modules}
-                  stages={stages}
-                  filter={filter}
+                {/* Columna 2: Panel Central de Flujo en Cascada / QA Hub */}
+                <main className="flex-1 flex flex-col overflow-y-auto bg-zinc-50 dark:bg-[#07090c] border-x border-zinc-200 dark:border-[#1e222d]">
+                  {/* Cabecera del Flujo en Cascada */}
+                  <CascadingHeader
+                    approvedCount={approvedTasksCount}
+                    reviewCount={pendingReviewCount}
+                    pendingCount={pendingWaitCount}
+                    sessionTokens={tasks.reduce((acc, t) => acc + Math.round(((t.instruction?.length || 0) + (t.aiNotes?.length || 0) + 200) / 4), 14200)}
+                    onOpenNewTask={() => {
+                      const el = document.getElementById("instruction-input");
+                      if (el) el.focus();
+                    }}
+                  />
+
+                  {/* Contenido Central */}
+                  <div className="p-4 space-y-4 max-w-5xl w-full mx-auto">
+                    {/* Tarjeta de Contexto en Vivo de Sesión */}
+                    <LiveProjectContextCard activeProject={activeProject} />
+
+                    {/* Formulario de Entrada */}
+                    <TaskInputForm
+                      activeProject={activeProject}
+                      onAddTask={handleAddTask}
+                      onOpenApiDocs={() => setApiDocsOpen(true)}
+                    />
+
+                    {/* Lista de Tareas y Quality Gates */}
+                    <TaskList
+                      tasks={activeTasks}
+                      modules={modules}
+                      stages={stages}
+                      filter={filter}
+                      activeProject={activeProject}
+                      onFilterChange={setFilter}
+                      onReviewTask={(t) => setReviewTask(t)}
+                      onQuickVerify={handleVerifyTask}
+                      onUnlockTask={(id) => api.unlockTask(id, currentUser?.id).then(() => loadData(true))}
+                      onDeleteTask={(id) => api.deleteTask(id).then(() => loadData(true))}
+                      onSimulateTask={(id) => {
+                        const found = tasks.find((t) => t.id === id);
+                        if (found) setSimulateTask(found);
+                      }}
+                      onOpenNewTaskPrompt={() => {
+                        const el = document.getElementById("instruction-input");
+                        if (el) el.focus();
+                      }}
+                      onOpenContextMemory={(t) => setContextTask(t)}
+                      onCreateModule={(title) => activeProject && api.createModule(activeProject.id, title).then(() => loadData(true))}
+                      onCreateStage={(modId, title) => activeProject && api.createStage(modId, activeProject.id, title).then(() => loadData(true))}
+                      onDeleteModule={(modId) => api.deleteModule(modId).then(() => loadData(true))}
+                      onOpenPlanGenerator={() => setPlanGeneratorOpen(true)}
+                      onOpenChatAudit={(t) => handleOpenChatAudit(t)}
+                      onRejectTask={handleRejectTask}
+                    />
+                  </div>
+                </main>
+
+                {/* Columna 3: Panel Derecho de Memoria y Lockfile */}
+                <MemoryLockfileSidebar
+                  isOpen={isRightSidebarOpen}
+                  onClose={() => setIsRightSidebarOpen(false)}
                   activeProject={activeProject}
-                  onFilterChange={setFilter}
-                  onReviewTask={(t) => setReviewTask(t)}
-                  onQuickVerify={handleVerifyTask}
-                  onUnlockTask={(id) => api.unlockTask(id, currentUser?.id).then(() => loadData(true))}
-                  onDeleteTask={(id) => api.deleteTask(id).then(() => loadData(true))}
-                  onSimulateTask={(id) => {
-                    const found = tasks.find((t) => t.id === id);
-                    if (found) setSimulateTask(found);
-                  }}
-                  onOpenNewTaskPrompt={() => {
-                    const el = document.getElementById("instruction-input");
-                    if (el) el.focus();
-                  }}
-                  onOpenContextMemory={(t) => setContextTask(t)}
-                  onCreateModule={(title) => activeProject && api.createModule(activeProject.id, title).then(() => loadData(true))}
-                  onCreateStage={(modId, title) => activeProject && api.createStage(modId, activeProject.id, title).then(() => loadData(true))}
-                  onDeleteModule={(modId) => api.deleteModule(modId).then(() => loadData(true))}
-                  onOpenPlanGenerator={() => setPlanGeneratorOpen(true)}
-                  onOpenChatAudit={(t) => handleOpenChatAudit(t)}
-                  onRejectTask={handleRejectTask}
+                  ragCount={0}
+                  activeTokens={0}
                 />
               </div>
-            </main>
+            </>
+          )}
 
-            {/* Columna 3: Panel Derecho de Memoria y Lockfile */}
-            <MemoryLockfileSidebar
-              isOpen={isRightSidebarOpen}
-              onClose={() => setIsRightSidebarOpen(false)}
-              activeProject={activeProject}
-              ragCount={0}
-              activeTokens={0}
-            />
-          </div>
+          {/* 4. Barra de Estado Inferior Inmóvil (Footer) */}
+          <IdeStatusBar
+            approvedCount={approvedTasksCount}
+            pendingReviewCount={pendingReviewCount}
+            activeTokens={0}
+            ragDocsCount={0}
+          />
         </>
       )}
-
-      {/* 4. Barra de Estado Inferior Inmóvil (Footer) */}
-      <IdeStatusBar
-        approvedCount={approvedTasksCount}
-        pendingReviewCount={pendingReviewCount}
-        activeTokens={0}
-        ragDocsCount={0}
-      />
 
       {/* Modales */}
       <UserManualModal
