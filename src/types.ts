@@ -74,6 +74,7 @@ export interface TaskContextMemory {
   rulesConstraints?: string[];
   dependencies?: string[];
   notes?: string;
+  imageRefs?: string[];
 }
 
 export interface TaskItem {
@@ -93,6 +94,7 @@ export interface TaskItem {
   locked: boolean;
   assignedAgent?: string;
   subtasks?: SubTaskItem[];
+  imageRefs?: string[];
   gitBranch?: string;
   gitCommit?: string;
   modifiedFiles?: string[];

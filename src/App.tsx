@@ -364,7 +364,13 @@ export default function App() {
     }
   };
 
-  const handleAddTask = async (title: string, instruction: string, assignedAgent?: string, branch?: string) => {
+  const handleAddTask = async (
+    title: string,
+    instruction: string,
+    assignedAgent?: string,
+    branch?: string,
+    imageRefs?: string[]
+  ) => {
     if (!activeProject) return;
     try {
       const created = await api.createTask({
@@ -372,7 +378,8 @@ export default function App() {
         title,
         instruction,
         assignedAgent: assignedAgent || "Antigravity AI",
-        gitBranch: branch || "main"
+        gitBranch: branch || "main",
+        imageRefs
       });
       setTasks((prev) => [created, ...prev]);
       showToast("Tarea agregada al flujo.", "success");
@@ -392,10 +399,10 @@ export default function App() {
     }
   };
 
-  const handleRejectTask = async (taskId: string, feedback: string) => {
+  const handleRejectTask = async (taskId: string, feedback: string, imageRefs?: string[]) => {
     try {
-      await api.rejectTask(taskId, feedback, currentUser?.id);
-      setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, status: "needs_revision", humanFeedback: feedback } : t)));
+      await api.rejectTask(taskId, feedback, imageRefs);
+      setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, status: "needs_revision", humanFeedback: feedback, imageRefs: imageRefs || t.imageRefs } : t)));
       showToast("Tarea devuelta al agente para ajustes.", "info");
       setReviewTask(null);
     } catch (e) {

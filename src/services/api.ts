@@ -314,6 +314,7 @@ export async function createTask(data: {
   assignedAgent?: string;
   subtasks?: SubTaskItem[];
   contextMemory?: TaskContextMemory;
+  imageRefs?: string[];
 }): Promise<TaskItem> {
   return safeFetchJson<TaskItem>(
     `${BASE_URL}/tasks`,
@@ -358,14 +359,15 @@ export async function verifyAndLockTask(
 
 export async function rejectTask(
   id: string,
-  feedback: string
+  feedback: string,
+  imageRefs?: string[]
 ): Promise<{ success: boolean; task: TaskItem; message: string }> {
   return safeFetchJson(
     `${BASE_URL}/tasks/${id}/reject`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ feedback }),
+      body: JSON.stringify({ feedback, imageRefs }),
     },
     "Error al solicitar ajuste"
   );

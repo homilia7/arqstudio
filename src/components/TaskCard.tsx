@@ -23,6 +23,10 @@ import {
   Send,
   MessageSquare,
   FileCode,
+  Mic,
+  MicOff,
+  Image,
+  Clipboard,
 } from "lucide-react";
 import { TaskItem, TaskStatus, Project } from "../types";
 
@@ -36,7 +40,7 @@ interface TaskCardProps {
   onSimulate: (taskId: string, actionType: "start" | "complete") => void;
   onOpenContextMemory: (task: TaskItem) => void;
   onOpenChatAudit?: (task: TaskItem) => void;
-  onRejectTask?: (taskId: string, feedback: string) => Promise<void>;
+  onRejectTask?: (taskId: string, feedback: string, imageRefs?: string[]) => Promise<void>;
 }
 
 export const TaskCard: React.FC<TaskCardProps> = ({
@@ -62,6 +66,172 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
   const reportBoxRef = useRef<HTMLDivElement>(null);
   const improveBoxRef = useRef<HTMLDivElement>(null);
+
+  // Estados para "No Funciona"
+  const [reportImages, setReportImages] = useState<string[]>([]);
+  const [isListeningReport, setIsListeningReport] = useState(false);
+  const reportFileInputRef = useRef<HTMLInputElement>(null);
+  const reportRecognitionRef = useRef<any>(null);
+
+  // Estados para "Mejorar"
+  const [improveImages, setImproveImages] = useState<string[]>([]);
+  const [isListeningImprove, setIsListeningImprove] = useState(false);
+  const improveFileInputRef = useRef<HTMLInputElement>(null);
+  const improveRecognitionRef = useRef<any>(null);
+
+  const toggleVoiceReport = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Dictado por voz no disponible en este navegador.");
+      return;
+    }
+    if (isListeningReport) {
+      reportRecognitionRef.current?.stop();
+      setIsListeningReport(false);
+      return;
+    }
+    try {
+      const rec = new SpeechRecognition();
+      rec.lang = "es-ES";
+      rec.continuous = true;
+      rec.interimResults = true;
+      rec.onresult = (event: any) => {
+        let text = "";
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          text += event.results[i][0].transcript;
+        }
+        setReportComment((prev) => {
+          const base = prev.replace(/\s*⌛.*$/, "").trimEnd();
+          return base + (base ? " " : "") + text;
+        });
+      };
+      rec.onend = () => setIsListeningReport(false);
+      rec.onerror = () => setIsListeningReport(false);
+      rec.start();
+      reportRecognitionRef.current = rec;
+      setIsListeningReport(true);
+    } catch {
+      setIsListeningReport(false);
+    }
+  };
+
+  const toggleVoiceImprove = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Dictado por voz no disponible en este navegador.");
+      return;
+    }
+    if (isListeningImprove) {
+      improveRecognitionRef.current?.stop();
+      setIsListeningImprove(false);
+      return;
+    }
+    try {
+      const rec = new SpeechRecognition();
+      rec.lang = "es-ES";
+      rec.continuous = true;
+      rec.interimResults = true;
+      rec.onresult = (event: any) => {
+        let text = "";
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          text += event.results[i][0].transcript;
+        }
+        setImproveComment((prev) => {
+          const base = prev.replace(/\s*⌛.*$/, "").trimEnd();
+          return base + (base ? " " : "") + text;
+        });
+      };
+      rec.onend = () => setIsListeningImprove(false);
+      rec.onerror = () => setIsListeningImprove(false);
+      rec.start();
+      improveRecognitionRef.current = rec;
+      setIsListeningImprove(true);
+    } catch {
+      setIsListeningImprove(false);
+    }
+  };
+
+  const addReportImageFromFile = (file: File) => {
+    if (!file.type.startsWith("image/")) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target?.result as string;
+      setReportImages((prev) => (prev.length < 4 ? [...prev, dataUrl] : prev));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleReportPaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (const item of Array.from(items)) {
+      if (item.type.startsWith("image/")) {
+        e.preventDefault();
+        const file = item.getAsFile();
+        if (file) addReportImageFromFile(file);
+        return;
+      }
+    }
+  };
+
+  const handleReportPasteFromClipboard = async () => {
+    try {
+      const clipItems = await (navigator.clipboard as any).read();
+      for (const item of clipItems) {
+        for (const type of item.types) {
+          if (type.startsWith("image/")) {
+            const blob = await item.getType(type);
+            addReportImageFromFile(new File([blob], "error-screenshot.png", { type }));
+            return;
+          }
+        }
+      }
+      reportFileInputRef.current?.click();
+    } catch {
+      reportFileInputRef.current?.click();
+    }
+  };
+
+  const addImproveImageFromFile = (file: File) => {
+    if (!file.type.startsWith("image/")) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target?.result as string;
+      setImproveImages((prev) => (prev.length < 4 ? [...prev, dataUrl] : prev));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleImprovePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (const item of Array.from(items)) {
+      if (item.type.startsWith("image/")) {
+        e.preventDefault();
+        const file = item.getAsFile();
+        if (file) addImproveImageFromFile(file);
+        return;
+      }
+    }
+  };
+
+  const handleImprovePasteFromClipboard = async () => {
+    try {
+      const clipItems = await (navigator.clipboard as any).read();
+      for (const item of clipItems) {
+        for (const type of item.types) {
+          if (type.startsWith("image/")) {
+            const blob = await item.getType(type);
+            addImproveImageFromFile(new File([blob], "mejora-screenshot.png", { type }));
+            return;
+          }
+        }
+      }
+      improveFileInputRef.current?.click();
+    } catch {
+      improveFileInputRef.current?.click();
+    }
+  };
 
   useEffect(() => {
     if (showImproveModal && improveBoxRef.current) {
@@ -266,16 +436,108 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             </div>
 
             <p className="text-[11px] text-rose-700 dark:text-rose-200">
-              Escribe detalladamente qué falló o no funciona para que Antigravity aplique los ajustes.
+              Escribe o dicta qué falló y pega capturas de pantalla para que Antigravity aplique los ajustes.
             </p>
+
+            {/* Toolbar: Micrófono y Pegar Imagen para Reporte de Fallo */}
+            <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+              <button
+                type="button"
+                onClick={toggleVoiceReport}
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold border transition-all cursor-pointer ${
+                  isListeningReport
+                    ? "bg-rose-600 hover:bg-rose-700 text-white border-rose-500 animate-pulse ring-2 ring-rose-400"
+                    : "bg-white dark:bg-zinc-800 hover:bg-rose-100 text-rose-800 dark:text-rose-200 border-rose-300 dark:border-rose-700"
+                }`}
+              >
+                {isListeningReport ? (
+                  <>
+                    <span className="relative flex h-1.5 w-1.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
+                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white" />
+                    </span>
+                    <MicOff className="w-3 h-3" />
+                    <span>Detener Voz</span>
+                  </>
+                ) : (
+                  <>
+                    <Mic className="w-3 h-3 text-rose-600 dark:text-rose-400" />
+                    <span>Dictar Voz</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleReportPasteFromClipboard}
+                disabled={reportImages.length >= 4}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold border bg-white dark:bg-zinc-800 hover:bg-rose-100 text-rose-800 dark:text-rose-200 border-rose-300 dark:border-rose-700 transition-all cursor-pointer disabled:opacity-40"
+              >
+                <Clipboard className="w-3 h-3 text-rose-600 dark:text-rose-400" />
+                <span>Pegar Captura</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => reportFileInputRef.current?.click()}
+                disabled={reportImages.length >= 4}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold border bg-white dark:bg-zinc-800 hover:bg-rose-100 text-rose-800 dark:text-rose-200 border-rose-300 dark:border-rose-700 transition-all cursor-pointer disabled:opacity-40"
+              >
+                <Image className="w-3 h-3 text-rose-600 dark:text-rose-400" />
+                <span>Adjuntar Foto</span>
+              </button>
+
+              <input
+                ref={reportFileInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={(e) => {
+                  Array.from(e.target.files || []).forEach(addReportImageFromFile);
+                  e.target.value = "";
+                }}
+              />
+
+              {reportImages.length > 0 && (
+                <span className="ml-auto text-xs font-semibold text-rose-600 dark:text-rose-300">
+                  📎 {reportImages.length}/4 capturas
+                </span>
+              )}
+            </div>
 
             <textarea
               autoFocus
               value={reportComment}
               onChange={(e) => setReportComment(e.target.value)}
-              placeholder="Ej: El botón de login no responde al hacer clic, o el cálculo de horarios libres no se muestra en pantalla..."
-              className="w-full bg-white dark:bg-zinc-900 border border-rose-300 dark:border-rose-900/80 rounded-lg p-2 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-slate-500 focus:outline-none focus:border-rose-500 min-h-[60px]"
+              onPaste={handleReportPaste}
+              placeholder="Ej: El botón de login no responde al hacer clic, o el diseño está roto en móvil... (Puedes dictar por voz o presionar Ctrl+V para pegar capturas)"
+              className="w-full bg-white dark:bg-zinc-900 border border-rose-300 dark:border-rose-900/80 rounded-lg p-2 text-xs text-zinc-900 dark:text-white placeholder-zinc-500 dark:placeholder-slate-500 focus:outline-none focus:border-rose-500 min-h-[65px]"
             />
+
+            {/* Miniaturas de capturas de error adjuntas */}
+            {reportImages.length > 0 && (
+              <div className="flex flex-wrap gap-2 p-1.5 bg-rose-100/60 dark:bg-rose-950/60 rounded border border-rose-300/60 dark:border-rose-800/60">
+                {reportImages.map((src, idx) => (
+                  <div key={idx} className="relative group shrink-0">
+                    <img
+                      src={src}
+                      alt={`Captura ${idx + 1}`}
+                      onClick={() => window.open(src, "_blank")}
+                      className="w-14 h-14 object-cover rounded border border-rose-400 dark:border-rose-700 shadow-sm cursor-pointer hover:border-rose-600 transition-colors"
+                      title="Clic para ver completa"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setReportImages((prev) => prev.filter((_, i) => i !== idx))}
+                      className="absolute -top-1 -right-1 w-4 h-4 bg-rose-600 hover:bg-rose-700 text-white rounded-full flex items-center justify-center cursor-pointer shadow"
+                    >
+                      <X className="w-2.5 h-2.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
 
             <div className="flex items-center justify-end space-x-2">
               <button
@@ -286,25 +548,30 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               </button>
               <button
                 onClick={async () => {
-                  if (!reportComment.trim()) return;
+                  if (!reportComment.trim() && reportImages.length === 0) return;
                   setIsSubmittingReport(true);
                   try {
+                    let finalMsg = reportComment.trim();
+                    if (reportImages.length > 0) {
+                      finalMsg += `\n\n[CAPTURAS DEL FALLO ADJUNTAS: ${reportImages.length} imagen(es) de evidencia adjunta(s)]`;
+                    }
                     if (onRejectTask) {
-                      await onRejectTask(task.id, reportComment.trim());
+                      await onRejectTask(task.id, finalMsg, reportImages);
                     }
                     setShowReportModal(false);
                     setReportComment("");
+                    setReportImages([]);
                   } catch (e) {
                     console.error(e);
                   } finally {
                     setIsSubmittingReport(false);
                   }
                 }}
-                disabled={isSubmittingReport || !reportComment.trim()}
+                disabled={isSubmittingReport || (!reportComment.trim() && reportImages.length === 0)}
                 className="px-3 py-1 bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white rounded text-xs font-bold flex items-center space-x-1.5 cursor-pointer transition-all shadow-sm"
               >
                 <Send className="w-3 h-3" />
-                <span>{isSubmittingReport ? "Enviando..." : "Enviar Observación"}</span>
+                <span>{isSubmittingReport ? "Enviando..." : "Enviar a Corrección"}</span>
               </button>
             </div>
           </div>
@@ -329,16 +596,108 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             </div>
 
             <p className="text-[11px] text-purple-700 dark:text-purple-200">
-              Indica qué aspectos o funcionalidades deseas que la IA optimice o perfeccione.
+              Escribe o dicta qué aspectos deseas optimizar y pega imágenes como referencia de diseño.
             </p>
+
+            {/* Toolbar: Micrófono y Pegar Imagen para Sugerencia de Mejora */}
+            <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+              <button
+                type="button"
+                onClick={toggleVoiceImprove}
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold border transition-all cursor-pointer ${
+                  isListeningImprove
+                    ? "bg-purple-600 hover:bg-purple-700 text-white border-purple-500 animate-pulse ring-2 ring-purple-400"
+                    : "bg-white dark:bg-zinc-800 hover:bg-purple-100 text-purple-800 dark:text-purple-200 border-purple-300 dark:border-purple-700"
+                }`}
+              >
+                {isListeningImprove ? (
+                  <>
+                    <span className="relative flex h-1.5 w-1.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
+                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white" />
+                    </span>
+                    <MicOff className="w-3 h-3" />
+                    <span>Detener Voz</span>
+                  </>
+                ) : (
+                  <>
+                    <Mic className="w-3 h-3 text-purple-600 dark:text-purple-400" />
+                    <span>Dictar Voz</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleImprovePasteFromClipboard}
+                disabled={improveImages.length >= 4}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold border bg-white dark:bg-zinc-800 hover:bg-purple-100 text-purple-800 dark:text-purple-200 border-purple-300 dark:border-purple-700 transition-all cursor-pointer disabled:opacity-40"
+              >
+                <Clipboard className="w-3 h-3 text-purple-600 dark:text-purple-400" />
+                <span>Pegar Imagen</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => improveFileInputRef.current?.click()}
+                disabled={improveImages.length >= 4}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold border bg-white dark:bg-zinc-800 hover:bg-purple-100 text-purple-800 dark:text-purple-200 border-purple-300 dark:border-purple-700 transition-all cursor-pointer disabled:opacity-40"
+              >
+                <Image className="w-3 h-3 text-purple-600 dark:text-purple-400" />
+                <span>Adjuntar Foto</span>
+              </button>
+
+              <input
+                ref={improveFileInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={(e) => {
+                  Array.from(e.target.files || []).forEach(addImproveImageFromFile);
+                  e.target.value = "";
+                }}
+              />
+
+              {improveImages.length > 0 && (
+                <span className="ml-auto text-xs font-semibold text-purple-600 dark:text-purple-300">
+                  📎 {improveImages.length}/4 referencias
+                </span>
+              )}
+            </div>
 
             <textarea
               autoFocus
               value={improveComment}
               onChange={(e) => setImproveComment(e.target.value)}
-              placeholder="Ej: Añadir animaciones de carga más suaves, agregar un botón de copiar al portapapeles o mejorar los colores..."
-              className="w-full bg-white dark:bg-zinc-900 border border-purple-300 dark:border-purple-900/80 rounded-lg p-2 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-slate-500 focus:outline-none focus:border-purple-500 min-h-[60px]"
+              onPaste={handleImprovePaste}
+              placeholder="Ej: Añadir animaciones de carga más suaves, cambiar colores o layout... (Puedes dictar por voz o presionar Ctrl+V para pegar referencias)"
+              className="w-full bg-white dark:bg-zinc-900 border border-purple-300 dark:border-purple-900/80 rounded-lg p-2 text-xs text-zinc-900 dark:text-white placeholder-zinc-500 dark:placeholder-slate-500 focus:outline-none focus:border-purple-500 min-h-[65px]"
             />
+
+            {/* Miniaturas de imágenes de mejora adjuntas */}
+            {improveImages.length > 0 && (
+              <div className="flex flex-wrap gap-2 p-1.5 bg-purple-100/60 dark:bg-purple-950/60 rounded border border-purple-300/60 dark:border-purple-800/60">
+                {improveImages.map((src, idx) => (
+                  <div key={idx} className="relative group shrink-0">
+                    <img
+                      src={src}
+                      alt={`Referencia ${idx + 1}`}
+                      onClick={() => window.open(src, "_blank")}
+                      className="w-14 h-14 object-cover rounded border border-purple-400 dark:border-purple-700 shadow-sm cursor-pointer hover:border-purple-600 transition-colors"
+                      title="Clic para ver completa"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setImproveImages((prev) => prev.filter((_, i) => i !== idx))}
+                      className="absolute -top-1 -right-1 w-4 h-4 bg-purple-600 hover:bg-purple-700 text-white rounded-full flex items-center justify-center cursor-pointer shadow"
+                    >
+                      <X className="w-2.5 h-2.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
 
             <div className="flex items-center justify-end space-x-2">
               <button
@@ -349,21 +708,26 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               </button>
               <button
                 onClick={async () => {
-                  if (!improveComment.trim()) return;
+                  if (!improveComment.trim() && improveImages.length === 0) return;
                   setIsSubmittingReport(true);
                   try {
+                    let finalMsg = `✨ MEJORA SOLICITADA POR HUMANO: ${improveComment.trim()}`;
+                    if (improveImages.length > 0) {
+                      finalMsg += `\n\n[REFERENCIAS VISUALES DE LA MEJORA ADJUNTAS: ${improveImages.length} imagen(es) adjunta(s)]`;
+                    }
                     if (onRejectTask) {
-                      await onRejectTask(task.id, `✨ MEJORA SOLICITADA POR HUMANO: ${improveComment.trim()}`);
+                      await onRejectTask(task.id, finalMsg, improveImages);
                     }
                     setShowImproveModal(false);
                     setImproveComment("");
+                    setImproveImages([]);
                   } catch (e) {
                     console.error(e);
                   } finally {
                     setIsSubmittingReport(false);
                   }
                 }}
-                disabled={isSubmittingReport || !improveComment.trim()}
+                disabled={isSubmittingReport || (!improveComment.trim() && improveImages.length === 0)}
                 className="px-3 py-1 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white rounded text-xs font-bold flex items-center space-x-1.5 cursor-pointer transition-all shadow-sm"
               >
                 <Send className="w-3 h-3" />
@@ -438,6 +802,27 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             </p>
           </div>
         </div>
+
+        {/* Referencias visuales en imágenes si existen */}
+        {((task.imageRefs && task.imageRefs.length > 0) || (task.contextMemory?.imageRefs && task.contextMemory.imageRefs.length > 0)) && (
+          <div className="bg-emerald-50/60 dark:bg-emerald-950/30 rounded px-2.5 py-2 border border-emerald-200/60 dark:border-emerald-800/50">
+            <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider flex items-center gap-1 mb-1.5">
+              🖼️ Referencias visuales para la IA ({((task.imageRefs || task.contextMemory?.imageRefs) || []).length}):
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {((task.imageRefs || task.contextMemory?.imageRefs) || []).map((imgSrc, idx) => (
+                <img
+                  key={idx}
+                  src={imgSrc}
+                  alt={`Referencia ${idx + 1}`}
+                  onClick={() => window.open(imgSrc, "_blank")}
+                  className="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-lg border-2 border-emerald-300 dark:border-emerald-700 shadow-xs hover:border-emerald-500 cursor-pointer transition-all hover:scale-105"
+                  title="Clic para ver en tamaño completo"
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Subtareas Progress Bar & Drawer */}
         {subtasks.length > 0 && (

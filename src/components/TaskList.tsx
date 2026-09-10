@@ -41,7 +41,7 @@ interface TaskListProps {
   onDeleteModule: (id: string) => Promise<void>;
   onOpenPlanGenerator: () => void;
   onOpenChatAudit?: (task: TaskItem) => void;
-  onRejectTask?: (taskId: string, feedback: string) => Promise<void>;
+  onRejectTask?: (taskId: string, feedback: string, imageRefs?: string[]) => Promise<void>;
 }
 
 export const TaskList: React.FC<TaskListProps> = ({

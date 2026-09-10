@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import {
   X,
@@ -15,6 +15,10 @@ import {
   Plus,
   GitBranch,
   GitCommit,
+  Mic,
+  MicOff,
+  Image,
+  Clipboard,
 } from "lucide-react";
 import { TaskItem } from "../types";
 
@@ -22,7 +26,7 @@ interface ReviewModalProps {
   task: TaskItem | null;
   onClose: () => void;
   onVerify: (taskId: string, notes?: string) => Promise<void>;
-  onReject: (taskId: string, feedback: string) => Promise<void>;
+  onReject: (taskId: string, feedback: string, imageRefs?: string[]) => Promise<void>;
 }
 
 export const ReviewModal: React.FC<ReviewModalProps> = ({
@@ -37,6 +41,89 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
   const [feedback, setFeedback] = useState("");
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // Estados para voz e imágenes en el rechazo de la revisión
+  const [rejectImages, setRejectImages] = useState<string[]>([]);
+  const [isListeningReject, setIsListeningReject] = useState(false);
+  const rejectFileInputRef = useRef<HTMLInputElement>(null);
+  const rejectRecognitionRef = useRef<any>(null);
+
+  const toggleVoiceReject = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Dictado por voz no disponible en este navegador.");
+      return;
+    }
+    if (isListeningReject) {
+      rejectRecognitionRef.current?.stop();
+      setIsListeningReject(false);
+      return;
+    }
+    try {
+      const rec = new SpeechRecognition();
+      rec.lang = "es-ES";
+      rec.continuous = true;
+      rec.interimResults = true;
+      rec.onresult = (event: any) => {
+        let text = "";
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          text += event.results[i][0].transcript;
+        }
+        setFeedback((prev) => {
+          const base = prev.replace(/\s*⌛.*$/, "").trimEnd();
+          return base + (base ? " " : "") + text;
+        });
+      };
+      rec.onend = () => setIsListeningReject(false);
+      rec.onerror = () => setIsListeningReject(false);
+      rec.start();
+      rejectRecognitionRef.current = rec;
+      setIsListeningReject(true);
+    } catch {
+      setIsListeningReject(false);
+    }
+  };
+
+  const addRejectImageFromFile = (file: File) => {
+    if (!file.type.startsWith("image/")) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target?.result as string;
+      setRejectImages((prev) => (prev.length < 4 ? [...prev, dataUrl] : prev));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRejectPaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (const item of Array.from(items)) {
+      if (item.type.startsWith("image/")) {
+        e.preventDefault();
+        const file = item.getAsFile();
+        if (file) addRejectImageFromFile(file);
+        return;
+      }
+    }
+  };
+
+  const handleRejectPasteFromClipboard = async () => {
+    try {
+      const clipItems = await (navigator.clipboard as any).read();
+      for (const item of clipItems) {
+        for (const type of item.types) {
+          if (type.startsWith("image/")) {
+            const blob = await item.getType(type);
+            addRejectImageFromFile(new File([blob], "evidencia-error.png", { type }));
+            return;
+          }
+        }
+      }
+      rejectFileInputRef.current?.click();
+    } catch {
+      rejectFileInputRef.current?.click();
+    }
+  };
 
   // Checklist de Comprobación de Calidad
   const [checkItems, setCheckItems] = useState([
@@ -85,11 +172,15 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
 
   const handleReject = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!feedback.trim()) return;
+    if (!feedback.trim() && rejectImages.length === 0) return;
 
     try {
       setIsProcessing(true);
-      await onReject(task.id, feedback.trim());
+      let finalFeedback = feedback.trim();
+      if (rejectImages.length > 0) {
+        finalFeedback += `\n\n[CAPTURAS DEL FALLO ADJUNTAS: ${rejectImages.length} imagen(es) de evidencia adjunta(s)]`;
+      }
+      await onReject(task.id, finalFeedback, rejectImages);
       onClose();
     } catch (err) {
       console.error(err);
@@ -101,17 +192,17 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
   if (typeof document === "undefined") return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[99999] bg-zinc-950/80 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4">
-      <div className="bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-200 dark:border-zinc-800 rounded-lg max-w-2xl w-full shadow-2xl overflow-hidden flex flex-col transition-colors">
+    <div className="fixed inset-0 z-[99999] bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg max-w-2xl w-full shadow-2xl overflow-hidden flex flex-col transition-colors">
         {/* Header */}
-        <div className="px-4 py-2.5 border-b border-zinc-200 dark:border-zinc-200 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-800/60 flex items-center justify-between">
+        <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/60 flex items-center justify-between">
           <div className="flex items-center space-x-2.5">
             <div className="w-7 h-7 rounded bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 flex items-center justify-center text-amber-700 dark:text-amber-400 shrink-0">
               <FileCheck className="w-3.5 h-3.5" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <h2 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-zinc-900 dark:text-white tracking-tight">
+                <h2 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white tracking-tight">
                   Revisión y Control de Calidad
                 </h2>
                 {task.locked && (
@@ -121,7 +212,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                   </span>
                 )}
               </div>
-              <p className="text-[10px] text-zinc-500 dark:text-zinc-600 dark:text-zinc-400 truncate max-w-md">
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate max-w-md">
                 Tarea: "{task.title}"
               </p>
             </div>
@@ -129,7 +220,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-1 text-zinc-600 dark:text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded transition-colors cursor-pointer"
+            className="p-1 text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -149,7 +240,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                   Pendiente Corrección
                 </span>
               </div>
-              <p className="text-zinc-900 dark:text-white text-xs font-semibold whitespace-pre-wrap bg-zinc-900/80 p-2 rounded border border-rose-900/80 font-mono">
+              <p className="text-white text-xs font-semibold whitespace-pre-wrap bg-slate-900/80 p-2 rounded border border-rose-900/80 font-mono">
                 {task.humanFeedback}
               </p>
             </div>
@@ -159,17 +250,17 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
           <div className="bg-indigo-50/50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-800/60 rounded p-2.5 flex items-center justify-between gap-2">
             <div className="flex items-center space-x-1.5 min-w-0">
               <Globe className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
-              <span className="text-[11px] font-mono font-medium text-zinc-800 dark:text-zinc-200 truncate">
+              <span className="text-[11px] font-mono font-medium text-slate-800 dark:text-slate-200 truncate">
                 {task.workUrl || "No se ha especificado una URL"}
               </span>
             </div>
 
             {task.workUrl && (
               <a
-                href={task.workUrl.startsWith("http") ? task.workUrl : `https://${task.workUrl}`}
+                href={workUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center space-x-1 px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-zinc-900 dark:text-white font-semibold text-[11px] rounded shadow-2xs transition-colors shrink-0 cursor-pointer"
+                className="inline-flex items-center space-x-1 px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-[11px] rounded shadow-2xs transition-colors shrink-0 cursor-pointer"
               >
                 <span>Abrir Web</span>
                 <ExternalLink className="w-2.5 h-2.5" />
@@ -178,11 +269,11 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
           </div>
 
           {/* CHECKLIST COMPACTO */}
-          <div className="bg-zinc-100 dark:bg-zinc-800/60 border border-zinc-300 dark:border-zinc-700/80 rounded p-2.5 space-y-1.5">
-            <div className="flex items-center justify-between pb-1 border-b border-zinc-300 dark:border-zinc-700">
+          <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded p-2.5 space-y-1.5">
+            <div className="flex items-center justify-between pb-1 border-b border-slate-200 dark:border-slate-700">
               <div className="flex items-center space-x-1.5">
                 <CheckSquare className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                <span className="text-[10px] font-bold text-zinc-900 dark:text-zinc-900 dark:text-white uppercase tracking-wider">
+                <span className="text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                   Checklist Rápido de Calidad
                 </span>
               </div>
@@ -199,11 +290,11 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                   className={`flex items-center space-x-1.5 p-1.5 rounded border cursor-pointer select-none transition-all ${
                     item.checked
                       ? "bg-emerald-50/70 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200"
-                      : "bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-800 border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300"
+                      : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300"
                   }`}
                 >
                   <button type="button" className="text-emerald-600 dark:text-emerald-400 shrink-0">
-                    {item.checked ? <CheckSquare className="w-3.5 h-3.5" /> : <Square className="w-3.5 h-3.5 text-zinc-600 dark:text-zinc-400" />}
+                    {item.checked ? <CheckSquare className="w-3.5 h-3.5" /> : <Square className="w-3.5 h-3.5 text-slate-400" />}
                   </button>
                   <span className={`text-[11px] truncate ${item.checked ? "line-through opacity-80" : "font-medium"}`}>
                     {item.label}
@@ -215,20 +306,20 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
 
           {/* Comparativa Compacta */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <div className="bg-zinc-100 dark:bg-zinc-800/60 border border-zinc-300 dark:border-zinc-700/80 rounded p-2 space-y-1">
-              <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider block">
+            <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded p-2 space-y-1">
+              <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider block">
                 Instrucción Asignada:
               </span>
-              <p className="text-[11px] text-zinc-700 dark:text-zinc-300 font-mono leading-tight max-h-16 overflow-y-auto">
+              <p className="text-[11px] text-slate-700 dark:text-slate-300 font-mono leading-tight max-h-16 overflow-y-auto">
                 {task.instruction}
               </p>
             </div>
 
-            <div className="bg-zinc-100 dark:bg-zinc-800/60 border border-zinc-300 dark:border-zinc-700/80 rounded p-2 space-y-1">
+            <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded p-2 space-y-1">
               <span className="text-[9px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider block">
                 Entrega / Reporte IA:
               </span>
-              <p className="text-[11px] text-zinc-700 dark:text-zinc-300 font-mono leading-tight max-h-16 overflow-y-auto">
+              <p className="text-[11px] text-slate-700 dark:text-slate-300 font-mono leading-tight max-h-16 overflow-y-auto">
                 {task.aiNotes || task.aiOutput || "Completado y desplegado."}
               </p>
             </div>
@@ -240,31 +331,121 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
               onSubmit={handleReject}
               className="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 rounded p-2.5 space-y-2 animate-fadeIn"
             >
-              <div className="flex items-center space-x-1.5 text-rose-800 dark:text-rose-300 text-xs font-bold">
-                <AlertTriangle className="w-3 h-3 text-rose-600 dark:text-rose-400" />
-                <span>¿Qué necesita corregir la IA?</span>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-1.5 text-rose-800 dark:text-rose-300 text-xs font-bold">
+                  <AlertTriangle className="w-3 h-3 text-rose-600 dark:text-rose-400" />
+                  <span>¿Qué necesita corregir la IA?</span>
+                </div>
+                {rejectImages.length > 0 && (
+                  <span className="text-[10px] font-semibold text-rose-600 dark:text-rose-400">
+                    📎 {rejectImages.length}/4 capturas
+                  </span>
+                )}
               </div>
+
+              {/* Toolbar: Micrófono y Pegar Imagen */}
+              <div className="flex flex-wrap items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={toggleVoiceReject}
+                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold border transition-all cursor-pointer ${
+                    isListeningReject
+                      ? "bg-rose-600 text-white border-rose-600 animate-pulse"
+                      : "bg-white dark:bg-slate-800 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800 hover:bg-rose-100"
+                  }`}
+                >
+                  {isListeningReject ? (
+                    <>
+                      <MicOff className="w-2.5 h-2.5" />
+                      <span>Detener Voz</span>
+                    </>
+                  ) : (
+                    <>
+                      <Mic className="w-2.5 h-2.5 text-rose-500" />
+                      <span>Dictar por Voz</span>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleRejectPasteFromClipboard}
+                  disabled={rejectImages.length >= 4}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold border bg-white dark:bg-slate-800 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800 hover:bg-rose-100 transition-all cursor-pointer disabled:opacity-40"
+                >
+                  <Clipboard className="w-2.5 h-2.5 text-rose-500" />
+                  <span>Pegar Captura</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => rejectFileInputRef.current?.click()}
+                  disabled={rejectImages.length >= 4}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold border bg-white dark:bg-slate-800 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800 hover:bg-rose-100 transition-all cursor-pointer disabled:opacity-40"
+                >
+                  <Image className="w-2.5 h-2.5 text-rose-500" />
+                  <span>Adjuntar Imagen</span>
+                </button>
+
+                <input
+                  ref={rejectFileInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={(e) => {
+                    Array.from(e.target.files || []).forEach(addRejectImageFromFile);
+                    e.target.value = "";
+                  }}
+                />
+              </div>
+
               <textarea
                 autoFocus
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
+                onPaste={handleRejectPaste}
                 rows={2}
-                placeholder="Indica qué falló o falta por ajustar..."
-                className="w-full bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-800 border border-rose-300 dark:border-rose-700 rounded p-2 text-xs text-zinc-900 dark:text-zinc-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-rose-500"
-                required
+                placeholder="Indica qué falló o falta por ajustar... (puedes dictar por voz o presionar Ctrl+V para pegar capturas)"
+                className="w-full bg-white dark:bg-slate-800 border border-rose-300 dark:border-rose-700 rounded p-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-rose-500"
               />
+
+              {/* Miniaturas de capturas adjuntas */}
+              {rejectImages.length > 0 && (
+                <div className="flex flex-wrap gap-2 p-1.5 bg-rose-100/60 dark:bg-rose-950/60 rounded border border-rose-300/60 dark:border-rose-800/60">
+                  {rejectImages.map((src, idx) => (
+                    <div key={idx} className="relative group shrink-0">
+                      <img
+                        src={src}
+                        alt={`Captura ${idx + 1}`}
+                        onClick={() => window.open(src, "_blank")}
+                        className="w-12 h-12 object-cover rounded border border-rose-400 dark:border-rose-700 shadow-sm cursor-pointer hover:border-rose-600 transition-colors"
+                        title="Clic para ver completa"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setRejectImages((prev) => prev.filter((_, i) => i !== idx))}
+                        className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-rose-600 hover:bg-rose-700 text-white rounded-full flex items-center justify-center cursor-pointer shadow"
+                      >
+                        <X className="w-2 h-2" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               <div className="flex justify-end space-x-2">
                 <button
                   type="button"
                   onClick={() => setShowRejectForm(false)}
-                  className="px-2.5 py-1 text-xs text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 cursor-pointer"
+                  className="px-2.5 py-1 text-xs text-slate-600 dark:text-slate-300 hover:text-slate-900 cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  disabled={isProcessing}
-                  className="px-3 py-1 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-zinc-900 dark:text-white rounded shadow-2xs transition-colors cursor-pointer"
+                  disabled={isProcessing || (!feedback.trim() && rejectImages.length === 0)}
+                  className="px-3 py-1 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white rounded shadow-2xs transition-colors cursor-pointer"
                 >
                   {isProcessing ? "Enviando..." : "Enviar a la IA"}
                 </button>
@@ -274,7 +455,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
         </div>
 
         {/* Footer Actions */}
-        <div className="px-4 py-2.5 border-t border-zinc-200 dark:border-zinc-200 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-800/60 flex items-center justify-between gap-2">
+        <div className="px-4 py-2.5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/60 flex items-center justify-between gap-2">
           <div>
             {!showRejectForm && (
               <button
@@ -292,7 +473,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-3 py-1 text-xs font-semibold text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 bg-zinc-100 dark:bg-zinc-900 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-slate-700 border border-zinc-300 dark:border-zinc-700 rounded shadow-2xs transition-colors cursor-pointer"
+              className="px-3 py-1 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded shadow-2xs transition-colors cursor-pointer"
             >
               Cerrar
             </button>
@@ -301,7 +482,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
               type="button"
               onClick={handleApprove}
               disabled={isProcessing}
-              className="inline-flex items-center space-x-1.5 px-3.5 py-1 text-xs font-bold text-zinc-900 dark:text-white bg-emerald-600 hover:bg-emerald-700 rounded shadow-2xs transition-colors cursor-pointer"
+              className="inline-flex items-center space-x-1.5 px-3.5 py-1 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded shadow-2xs transition-colors cursor-pointer"
             >
               <CheckCircle2 className="w-3.5 h-3.5" />
               <span>{isProcessing ? "Bloqueando..." : "Marcar como Completado & Bloquear"}</span>
