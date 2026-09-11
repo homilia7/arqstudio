@@ -2235,6 +2235,259 @@ Devuelve \xDANICAMENTE el JSON sin bloques de texto adicionales.`;
   return parsedPlan;
 }
 
+// server/ragEngine.ts
+function generateLocalSemanticVector(text, dimensions = 768) {
+  const clean = (text || "").toLowerCase().trim();
+  const vector = new Array(dimensions).fill(0);
+  if (!clean) return vector;
+  for (let i = 0; i < clean.length; i++) {
+    const code = clean.charCodeAt(i);
+    const pos = (code * 31 + i * 17) % dimensions;
+    vector[pos] += 1;
+  }
+  for (let i = 0; i < clean.length - 2; i++) {
+    const hash = (clean.charCodeAt(i) * 31 * 31 + clean.charCodeAt(i + 1) * 31 + clean.charCodeAt(i + 2)) % dimensions;
+    vector[hash] += 2;
+  }
+  let norm = 0;
+  for (let i = 0; i < dimensions; i++) {
+    norm += vector[i] * vector[i];
+  }
+  norm = Math.sqrt(norm);
+  if (norm > 0) {
+    for (let i = 0; i < dimensions; i++) {
+      vector[i] = Number((vector[i] / norm).toFixed(6));
+    }
+  }
+  return vector;
+}
+function cosineSimilarity(vecA, vecB) {
+  if (!vecA || !vecB || vecA.length !== vecB.length) return 0;
+  let dotProduct = 0;
+  let normA = 0;
+  let normB = 0;
+  for (let i = 0; i < vecA.length; i++) {
+    dotProduct += vecA[i] * vecB[i];
+    normA += vecA[i] * vecA[i];
+    normB += vecB[i] * vecB[i];
+  }
+  if (normA === 0 || normB === 0) return 0;
+  const sim = dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+  return Math.max(0, Math.min(1, sim));
+}
+async function generateEmbedding(text, env) {
+  const cleanText = (text || "").trim();
+  if (!cleanText) return new Array(768).fill(0);
+  if (env && env.AI) {
+    try {
+      const response = await env.AI.run("@cf/baai/bge-base-en-v1.5", {
+        text: [cleanText]
+      });
+      if (response && response.data && response.data[0]) {
+        return response.data[0];
+      }
+    } catch (err) {
+      console.warn(
+        "[RAG Workers AI] Fallback a generador sem\xE1ntico local:",
+        err
+      );
+    }
+  }
+  return generateLocalSemanticVector(cleanText, 768);
+}
+async function indexRagDocument(doc, env, db2) {
+  const id = doc.id || `rag-${doc.type}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+  const textToIndex = `${doc.title}
+${doc.content}`;
+  const embedding = doc.embedding || await generateEmbedding(textToIndex, env);
+  const metadataJson = JSON.stringify(doc.metadata || {});
+  const embeddingJson = JSON.stringify(embedding);
+  if (env && env.VECTORIZE) {
+    try {
+      await env.VECTORIZE.upsert([
+        {
+          id,
+          values: embedding,
+          metadata: {
+            projectId: doc.projectId,
+            type: doc.type,
+            referenceId: doc.referenceId || "",
+            title: doc.title.slice(0, 100)
+          }
+        }
+      ]);
+    } catch (err) {
+      console.warn("[RAG Vectorize Upsert Warn]:", err);
+    }
+  }
+  if (db2) {
+    try {
+      await db2.prepare(`
+          INSERT INTO antigravity_rag_entries (id, project_id, type, reference_id, title, content, metadata, embedding, created_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+          ON CONFLICT(id) DO UPDATE SET
+            title = excluded.title,
+            content = excluded.content,
+            metadata = excluded.metadata,
+            embedding = excluded.embedding
+        `).bind(
+        id,
+        doc.projectId,
+        doc.type,
+        doc.referenceId || null,
+        doc.title,
+        doc.content,
+        metadataJson,
+        embeddingJson
+      ).run();
+    } catch (e) {
+      console.error("[RAG D1 Insert Error]:", e);
+    }
+  }
+  return { success: true, id };
+}
+async function searchRag(query, options = {}, env, db2) {
+  const cleanQuery = (query || "").trim();
+  if (!cleanQuery) return [];
+  const topK = options.topK || 5;
+  const threshold = options.threshold ?? 0.15;
+  const queryVec = await generateEmbedding(cleanQuery, env);
+  if (env && env.VECTORIZE) {
+    try {
+      const vecMatches = await env.VECTORIZE.query(queryVec, {
+        topK,
+        returnValues: false,
+        returnMetadata: "all"
+      });
+      if (vecMatches && vecMatches.matches && vecMatches.matches.length > 0) {
+        const results = [];
+        for (const match of vecMatches.matches) {
+          const m = match.metadata || {};
+          if (options.projectId && m.projectId && m.projectId !== options.projectId) {
+            continue;
+          }
+          if (options.type && options.type !== "all" && m.type && m.type !== options.type) {
+            continue;
+          }
+          let content = "";
+          let metadata = {};
+          if (db2) {
+            const row = await db2.prepare("SELECT title, content, metadata FROM antigravity_rag_entries WHERE id = ?").bind(match.id).first();
+            if (row) {
+              content = row.content || "";
+              try {
+                metadata = JSON.parse(row.metadata || "{}");
+              } catch {
+              }
+            }
+          }
+          results.push({
+            id: String(match.id),
+            projectId: String(m.projectId || options.projectId || ""),
+            type: String(m.type || "history"),
+            referenceId: String(m.referenceId || ""),
+            title: String(m.title || "Resultado"),
+            content,
+            metadata,
+            score: Number(match.score || 0)
+          });
+        }
+        if (results.length > 0) {
+          return results.sort((a, b) => b.score - a.score);
+        }
+      }
+    } catch (err) {
+      console.warn("[RAG Vectorize Query Warn]:", err);
+    }
+  }
+  if (db2) {
+    try {
+      let querySql = "SELECT id, project_id, type, reference_id, title, content, metadata, embedding FROM antigravity_rag_entries WHERE 1=1";
+      const params = [];
+      if (options.projectId) {
+        querySql += " AND project_id = ?";
+        params.push(options.projectId);
+      }
+      if (options.type && options.type !== "all") {
+        querySql += " AND type = ?";
+        params.push(options.type);
+      }
+      const rowsRes = await db2.prepare(querySql).bind(...params).all();
+      const rows = rowsRes.results || [];
+      const scored = [];
+      for (const row of rows) {
+        let entryEmbedding = [];
+        try {
+          entryEmbedding = JSON.parse(row.embedding || "[]");
+        } catch {
+        }
+        if (entryEmbedding.length === 0) {
+          entryEmbedding = await generateEmbedding(`${row.title} ${row.content}`, env);
+        }
+        const score = cosineSimilarity(queryVec, entryEmbedding);
+        if (score >= threshold) {
+          let metadata = {};
+          try {
+            metadata = JSON.parse(row.metadata || "{}");
+          } catch {
+          }
+          scored.push({
+            id: row.id,
+            projectId: row.project_id,
+            type: row.type,
+            referenceId: row.reference_id,
+            title: row.title,
+            content: row.content,
+            metadata,
+            score: Number(score.toFixed(4))
+          });
+        }
+      }
+      return scored.sort((a, b) => b.score - a.score).slice(0, topK);
+    } catch (e) {
+      console.error("[RAG D1 Search Error]:", e);
+    }
+  }
+  return [];
+}
+async function getAgentRagContext(projectId, taskTitle, taskInstruction, env, db2) {
+  const query = `${taskTitle} ${taskInstruction || ""}`.trim();
+  const searchResults = await searchRag(
+    query,
+    { projectId, topK: 4, threshold: 0.12 },
+    env,
+    db2
+  );
+  if (searchResults.length === 0) {
+    return {
+      promptContext: "No se identificaron cambios previos aprobados directamente relacionados con esta tarea espec\xEDfica.",
+      matchesCount: 0,
+      estimatedTokensSaved: 0,
+      items: []
+    };
+  }
+  const lines = [
+    "### \u{1F6E1}\uFE0F MEMORIA RAG: CAMBIOS APROBADOS Y REGLAS PREVIAS RELACIONADAS (\xA1NO MODIFICAR!):"
+  ];
+  for (const item of searchResults) {
+    const typeLabel = item.type === "history" ? "CAMBIO APROBADO" : item.type === "rule" ? "REGLA T\xC9CNICA" : "TAREA PREVIA";
+    lines.push(
+      `- [${typeLabel} \u2022 Similitud ${(item.score * 100).toFixed(0)}%] **${item.title}**: ${item.content.slice(0, 220).replace(/\n+/g, " ")}`
+    );
+  }
+  lines.push(
+    "> \u26A0\uFE0F **Instrucci\xF3n de blindaje:** Respeta rigurosamente el comportamiento de estos m\xF3dulos sin revertir ni alterar sus funcionalidades."
+  );
+  const promptContext = lines.join("\n");
+  const estimatedTokensSaved = Math.max(12e3, 25e3 - promptContext.length / 4);
+  return {
+    promptContext,
+    matchesCount: searchResults.length,
+    estimatedTokensSaved: Math.round(estimatedTokensSaved),
+    items: searchResults
+  };
+}
+
 // server/apiApp.ts
 var DATA_DIR = path.join(process.cwd(), "data");
 var DB_FILE = path.join(DATA_DIR, "store.json");
@@ -2397,16 +2650,73 @@ app.get("/api/health", (req, res) => {
     historyCount: db.history.length
   });
 });
+app.post("/api/rag/search", async (req, res) => {
+  try {
+    const { query = "", projectId, type = "all", topK = 5, threshold = 0.12 } = req.body;
+    const results = await searchRag(query, { projectId, type, topK: Number(topK), threshold: Number(threshold) });
+    res.json({ query, count: results.length, results });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+app.get("/api/rag/context", async (req, res) => {
+  try {
+    const { projectId = "", taskTitle = "", taskInstruction = "" } = req.query;
+    const contextData = await getAgentRagContext(projectId, taskTitle, taskInstruction);
+    res.json(contextData);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+app.post("/api/rag/reindex", async (req, res) => {
+  try {
+    const { projectId } = req.body;
+    let tasksIndexed = 0;
+    let historyIndexed = 0;
+    const tasksToIndex = projectId ? db.tasks.filter((t) => t.projectId === projectId) : db.tasks;
+    for (const t of tasksToIndex) {
+      await indexRagDocument({
+        projectId: t.projectId,
+        type: "task",
+        referenceId: t.id,
+        title: t.title,
+        content: `${t.instruction || ""} ${t.aiOutput || ""}`,
+        metadata: { taskId: t.id }
+      });
+      tasksIndexed++;
+    }
+    const historyToIndex = projectId ? db.history.filter((h) => h.projectId === projectId) : db.history;
+    for (const h of historyToIndex) {
+      await indexRagDocument({
+        projectId: h.projectId || projectId || "global",
+        type: "history",
+        referenceId: h.id,
+        title: h.taskTitle || h.action,
+        content: h.details || "",
+        metadata: { historyId: h.id }
+      });
+      historyIndexed++;
+    }
+    res.json({
+      success: true,
+      message: "Reindexaci\xF3n de base vectorial RAG completada con \xE9xito.",
+      tasksIndexed,
+      historyIndexed,
+      totalIndexed: tasksIndexed + historyIndexed
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
 app.post("/api/auth/login", async (req, res) => {
   const { name, pin, email } = req.body;
-  if (!name || !name.trim()) return res.status(400).json({ error: "Ingresa tu usuario o correo electr\xF3nico." });
-  const pinStr = pin ? pin.toString().trim() : "";
-  if (!pinStr || pinStr.length < 4 || pinStr.length > 6) {
-    return res.status(400).json({ error: "Ingresa un PIN de acceso v\xE1lido (m\xE1ximo 6 d\xEDgitos)." });
+  if (!name || !name.trim()) return res.status(400).json({ error: "Ingresa tu nombre de usuario." });
+  if (!pin || typeof pin !== "string" || pin.trim().length !== 4) {
+    return res.status(400).json({ error: "Ingresa un PIN de 4 d\xEDgitos v\xE1lido." });
   }
   if (!db.users) db.users = [];
   const cleanName = name.trim();
-  const cleanPin = pinStr;
+  const cleanPin = pin.trim();
   const cleanEmail = email ? email.trim() : "";
   const lowerName = cleanName.toLowerCase();
   let user = null;
@@ -2468,13 +2778,12 @@ var handleRegisterUser = async (req, res) => {
   if (!name || !name.trim()) {
     return res.status(400).json({ error: "El nombre de usuario es obligatorio." });
   }
-  const pinStr = pin ? pin.toString().trim() : "";
-  if (!pinStr || pinStr.length < 4 || pinStr.length > 6) {
-    return res.status(400).json({ error: "El PIN o contrase\xF1a debe tener entre 4 y 6 d\xEDgitos." });
+  if (!pin || typeof pin !== "string" || pin.trim().length !== 4) {
+    return res.status(400).json({ error: "El PIN debe ser exactamente de 4 d\xEDgitos num\xE9ricos." });
   }
   if (!db.users) db.users = [];
   const cleanName = name.trim();
-  const cleanPin = pinStr;
+  const cleanPin = pin.trim();
   const cleanEmail = email ? email.trim() : "";
   const cleanAccess = accessType ? accessType.trim() : "Acceso Full";
   const lowerName = cleanName.toLowerCase();
@@ -4399,7 +4708,8 @@ app.post("/api/tasks", async (req, res) => {
     workUrl,
     assignedAgent,
     subtasks,
-    contextMemory
+    contextMemory,
+    imageRefs
   } = req.body;
   if (!instruction) {
     res.status(400).json({ error: "La instrucci\xF3n para la IA es obligatoria." });
@@ -4419,12 +4729,14 @@ app.post("/api/tasks", async (req, res) => {
     locked: false,
     assignedAgent: assignedAgent || "Antigravity AI",
     subtasks: Array.isArray(subtasks) ? subtasks : [],
+    imageRefs: Array.isArray(imageRefs) ? imageRefs : contextMemory?.imageRefs || [],
     contextMemory: contextMemory || {
       technicalRequirements: [],
       affectedFiles: [],
       rulesConstraints: [],
       dependencies: [],
-      notes: "Memoria de contexto creada autom\xE1ticamente para guiar a Antigravity."
+      notes: "Memoria de contexto creada autom\xE1ticamente para guiar a Antigravity.",
+      imageRefs: Array.isArray(imageRefs) ? imageRefs : []
     },
     createdAt: (/* @__PURE__ */ new Date()).toISOString(),
     updatedAt: (/* @__PURE__ */ new Date()).toISOString()
@@ -4668,8 +4980,11 @@ app.patch("/api/tasks/:id", async (req, res) => {
   }
   const prevStatus = task.status;
   if (title !== void 0) task.title = title.trim();
-  if (instruction !== void 0) task.instruction = instruction.trim();
-  if (status !== void 0) task.status = status;
+  let effectiveStatus = status;
+  if (effectiveStatus === "completed" || effectiveStatus === "done" || effectiveStatus === "finished" || effectiveStatus === "complete") {
+    effectiveStatus = "ready_for_review";
+  }
+  if (effectiveStatus !== void 0) task.status = effectiveStatus;
   if (workUrl !== void 0) task.workUrl = workUrl.trim();
   if (aiOutput !== void 0) task.aiOutput = aiOutput;
   if (aiNotes !== void 0) task.aiNotes = aiNotes;

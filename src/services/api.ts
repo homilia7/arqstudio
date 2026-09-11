@@ -11,6 +11,9 @@ import {
   User,
   AgentNotification,
   BlockedAgent,
+  ChatAuditEntry,
+  RagMemorySnippet,
+  DatabaseStorageStats,
 } from "../types";
 
 const BASE_URL = "/api";
@@ -530,6 +533,8 @@ export async function simulateAgentAction(data: {
   actionType: "start" | "complete";
   workUrl?: string;
   customNotes?: string;
+  aiModel?: string;
+  agentName?: string;
 }): Promise<{ success: boolean; task: TaskItem }> {
   return safeFetchJson(
     `${BASE_URL}/agent/simulate`,
@@ -804,6 +809,17 @@ export async function fetchUsers(requesterUserId?: string, requesterUserPin?: st
   return res.json();
 }
 
+export async function fetchDatabaseStorageStats(): Promise<DatabaseStorageStats | null> {
+  try {
+    const res = await fetch('/api/admin/database-storage');
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (err) {
+    console.error("Error fetching database storage stats:", err);
+    return null;
+  }
+}
+
 export async function getUserProfile(id: string) {
   return safeFetchJson(
     `${BASE_URL}/auth/user/${encodeURIComponent(id)}`,
@@ -812,13 +828,10 @@ export async function getUserProfile(id: string) {
   );
 }
 
-export async function fetchNotifications(userId?: string, projectId?: string): Promise<AgentNotification[]> {
-  const params = new URLSearchParams();
-  if (userId) params.set("userId", userId);
-  if (projectId) params.set("projectId", projectId);
-  const qs = params.toString() ? `?${params.toString()}` : "";
+export async function fetchNotifications(userId?: string): Promise<AgentNotification[]> {
+  const url = userId ? `${BASE_URL}/notifications?userId=${encodeURIComponent(userId)}` : `${BASE_URL}/notifications`;
   return safeFetchJson<AgentNotification[]>(
-    `${BASE_URL}/notifications${qs}`,
+    url,
     userId ? { headers: { "x-user-id": userId } } : undefined,
     "Error al obtener notificaciones"
   ).catch(() => []);
@@ -868,25 +881,6 @@ export async function clearNotifications(userId?: string): Promise<boolean> {
   return true;
 }
 
-export async function notifyUser(data: {
-  agentName?: string;
-  title: string;
-  message: string;
-  type?: string;
-  projectId?: string;
-  userId?: string;
-}): Promise<any> {
-  return safeFetchJson<any>(
-    `${BASE_URL}/agent/notify-user`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    },
-    "Error al emitir notificación"
-  ).catch(() => null);
-}
-
 export async function fetchBlockedAgents(userId?: string): Promise<BlockedAgent[]> {
   const url = userId ? `${BASE_URL}/blocked-agents?userId=${encodeURIComponent(userId)}` : `${BASE_URL}/blocked-agents`;
   return safeFetchJson<BlockedAgent[]>(
@@ -911,76 +905,127 @@ export async function toggleBlockAgent(agentName: string, userId?: string, reaso
   );
 }
 
-// --- RAG & CLOUDFLARE VECTORIZE ---
-export interface RagSearchResultItem {
-  id: string;
-  projectId: string;
-  type: string;
-  referenceId?: string;
-  title: string;
-  content: string;
-  metadata?: Record<string, any>;
-  score: number;
-}
-
-export async function searchRag(
-  query: string,
-  options?: {
-    projectId?: string;
-    type?: "task" | "history" | "chat" | "rule" | "all";
-    topK?: number;
-    threshold?: number;
-  }
-): Promise<{ query: string; count: number; results: RagSearchResultItem[] }> {
-  return safeFetchJson(
-    `${BASE_URL}/rag/search`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query, ...options }),
-    },
-    "Error al realizar búsqueda semántica RAG"
-  );
-}
-
-export async function fetchAgentRagContext(
-  projectId: string,
-  taskTitle: string,
-  taskInstruction?: string
-): Promise<{
-  promptContext: string;
-  matchesCount: number;
-  estimatedTokensSaved: number;
-  items: RagSearchResultItem[];
-}> {
+export async function fetchChatLogs(projectId?: string, taskId?: string): Promise<ChatAuditEntry[]> {
   const params = new URLSearchParams();
-  if (projectId) params.append("projectId", projectId);
-  if (taskTitle) params.append("taskTitle", taskTitle);
-  if (taskInstruction) params.append("taskInstruction", taskInstruction);
-
-  return safeFetchJson(
-    `${BASE_URL}/rag/context?${params.toString()}`,
-    undefined,
-    "Error al obtener contexto RAG para el agente"
-  );
+  if (projectId) params.set("projectId", projectId);
+  if (taskId) params.set("taskId", taskId);
+  const qs = params.toString();
+  const url = qs ? `${BASE_URL}/agent/chat-log?${qs}` : `${BASE_URL}/agent/chat-log`;
+  return safeFetchJson<ChatAuditEntry[]>(url, {}, "Error al obtener historial de chat").catch(() => []);
 }
 
-export async function reindexRag(projectId?: string): Promise<{
-  success: boolean;
-  message: string;
-  tasksIndexed: number;
-  historyIndexed: number;
-  totalIndexed: number;
-}> {
-  return safeFetchJson(
-    `${BASE_URL}/rag/reindex`,
+export async function createChatLog(data: {
+  projectId: string;
+  taskId?: string;
+  userPrompt: string;
+  aiSummary?: string;
+  modifiedFiles?: string[];
+  workUrl?: string;
+  agentName?: string;
+  aiModel?: string;
+}): Promise<ChatAuditEntry> {
+  const res = await safeFetchJson<{ success: boolean; auditEntry: ChatAuditEntry }>(
+    `${BASE_URL}/agent/chat-log`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ projectId }),
+      body: JSON.stringify(data),
     },
-    "Error al reindexar la base vectorial RAG"
+    "Error al registrar diálogo de chat"
+  );
+  return res.auditEntry;
+}
+
+export async function deleteChatLog(id: string): Promise<boolean> {
+  await safeFetchJson(`${BASE_URL}/agent/chat-log/${encodeURIComponent(id)}`, { method: "DELETE" }, "Error al eliminar diálogo de chat");
+  return true;
+}
+
+export async function clearChatLogs(projectId?: string): Promise<boolean> {
+  const url = projectId
+    ? `${BASE_URL}/agent/chat-log?projectId=${encodeURIComponent(projectId)}&clearAll=true`
+    : `${BASE_URL}/agent/chat-log?clearAll=true`;
+  await safeFetchJson(url, { method: "DELETE" }, "Error al vaciar historial de chat");
+  return true;
+}
+
+export async function cleanMockData(): Promise<boolean> {
+  await safeFetchJson(`${BASE_URL}/admin/clean-mock-data`, { method: "POST" }, "Error al limpiar datos de prueba");
+  return true;
+}
+
+export async function fetchRagMemory(
+  projectId: string,
+  query?: string,
+  tag?: string
+): Promise<{ snippets: RagMemorySnippet[]; count: number; estimatedTokensSaved: number }> {
+  const params = new URLSearchParams({ projectId });
+  if (query) params.set("query", query);
+  if (tag) params.set("tag", tag);
+  return safeFetchJson<{ snippets: RagMemorySnippet[]; count: number; estimatedTokensSaved: number }>(
+    `${BASE_URL}/agent/rag-context?${params.toString()}`,
+    {},
+    "Error al obtener fragmentos RAG"
+  ).catch(() => ({ snippets: [], count: 0, estimatedTokensSaved: 0 }));
+}
+
+export async function createRagMemory(data: {
+  projectId: string;
+  componentTag?: string;
+  title: string;
+  contentSnippet: string;
+  rulesSummary?: string;
+  tokenWeight?: number;
+}): Promise<{ success: boolean; id: string }> {
+  return safeFetchJson<{ success: boolean; id: string }>(
+    `${BASE_URL}/agent/rag-memory`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    },
+    "Error al indexar fragmento de memoria RAG"
   );
 }
+
+export async function connectAgentAutonomous(data: {
+  apiKey?: string;
+  projectName?: string;
+  localPath?: string;
+  agentName?: string;
+  userId?: string;
+}): Promise<any> {
+  return safeFetchJson<any>(
+    `${BASE_URL}/agent/connect`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(data.apiKey ? { "x-api-key": data.apiKey } : {}),
+        ...(data.agentName ? { "x-agent-name": data.agentName } : {}),
+        ...(data.userId ? { "x-user-id": data.userId } : {}),
+      },
+      body: JSON.stringify(data),
+    },
+    "Error al conectar agente autónomamente"
+  );
+}
+
+export async function syncLockfile(
+  projectId: string,
+  localLockedFiles?: string[]
+): Promise<{ success: boolean; lockedFiles: string[]; connectorConfig: any; lastSyncedAt: string }> {
+  return safeFetchJson<{ success: boolean; lockedFiles: string[]; connectorConfig: any; lastSyncedAt: string }>(
+    `${BASE_URL}/agent/sync-lockfile`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ projectId, lockedFiles: localLockedFiles }),
+    },
+    "Error al sincronizar lockfile"
+  );
+}
+
+
 
 
