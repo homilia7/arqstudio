@@ -29,6 +29,11 @@ import {
   Clipboard,
 } from "lucide-react";
 import { TaskItem, TaskStatus, Project } from "../types";
+import {
+  isSpeechRecognitionSupported,
+  startSpeechRecognitionSession,
+  SpeechSession,
+} from "../utils/speechRecognition";
 
 interface TaskCardProps {
   task: TaskItem;
@@ -71,84 +76,55 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   const [reportImages, setReportImages] = useState<string[]>([]);
   const [isListeningReport, setIsListeningReport] = useState(false);
   const reportFileInputRef = useRef<HTMLInputElement>(null);
-  const reportRecognitionRef = useRef<any>(null);
+  const reportSessionRef = useRef<SpeechSession | null>(null);
 
   // Estados para "Mejorar"
   const [improveImages, setImproveImages] = useState<string[]>([]);
   const [isListeningImprove, setIsListeningImprove] = useState(false);
   const improveFileInputRef = useRef<HTMLInputElement>(null);
-  const improveRecognitionRef = useRef<any>(null);
+  const improveSessionRef = useRef<SpeechSession | null>(null);
+
+  useEffect(() => {
+    return () => {
+      reportSessionRef.current?.stop();
+      improveSessionRef.current?.stop();
+    };
+  }, []);
 
   const toggleVoiceReport = () => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
+    if (!isSpeechRecognitionSupported()) {
       alert("Dictado por voz no disponible en este navegador.");
       return;
     }
     if (isListeningReport) {
-      reportRecognitionRef.current?.stop();
+      reportSessionRef.current?.stop();
+      reportSessionRef.current = null;
       setIsListeningReport(false);
       return;
     }
-    try {
-      const rec = new SpeechRecognition();
-      rec.lang = "es-ES";
-      rec.continuous = true;
-      rec.interimResults = true;
-      rec.onresult = (event: any) => {
-        let text = "";
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          text += event.results[i][0].transcript;
-        }
-        setReportComment((prev) => {
-          const base = prev.replace(/\s*⌛.*$/, "").trimEnd();
-          return base + (base ? " " : "") + text;
-        });
-      };
-      rec.onend = () => setIsListeningReport(false);
-      rec.onerror = () => setIsListeningReport(false);
-      rec.start();
-      reportRecognitionRef.current = rec;
-      setIsListeningReport(true);
-    } catch {
-      setIsListeningReport(false);
-    }
+    reportSessionRef.current = startSpeechRecognitionSession(reportComment, {
+      onTranscript: (fullText) => setReportComment(fullText),
+      onListeningChange: (listening) => setIsListeningReport(listening),
+      onError: () => setIsListeningReport(false),
+    });
   };
 
   const toggleVoiceImprove = () => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
+    if (!isSpeechRecognitionSupported()) {
       alert("Dictado por voz no disponible en este navegador.");
       return;
     }
     if (isListeningImprove) {
-      improveRecognitionRef.current?.stop();
+      improveSessionRef.current?.stop();
+      improveSessionRef.current = null;
       setIsListeningImprove(false);
       return;
     }
-    try {
-      const rec = new SpeechRecognition();
-      rec.lang = "es-ES";
-      rec.continuous = true;
-      rec.interimResults = true;
-      rec.onresult = (event: any) => {
-        let text = "";
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          text += event.results[i][0].transcript;
-        }
-        setImproveComment((prev) => {
-          const base = prev.replace(/\s*⌛.*$/, "").trimEnd();
-          return base + (base ? " " : "") + text;
-        });
-      };
-      rec.onend = () => setIsListeningImprove(false);
-      rec.onerror = () => setIsListeningImprove(false);
-      rec.start();
-      improveRecognitionRef.current = rec;
-      setIsListeningImprove(true);
-    } catch {
-      setIsListeningImprove(false);
-    }
+    improveSessionRef.current = startSpeechRecognitionSession(improveComment, {
+      onTranscript: (fullText) => setImproveComment(fullText),
+      onListeningChange: (listening) => setIsListeningImprove(listening),
+      onError: () => setIsListeningImprove(false),
+    });
   };
 
   const addReportImageFromFile = (file: File) => {
@@ -164,7 +140,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   const handleReportPaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const items = e.clipboardData?.items;
     if (!items) return;
-    for (const item of Array.from(items)) {
+    for (const item of Array.from(items) as DataTransferItem[]) {
       if (item.type.startsWith("image/")) {
         e.preventDefault();
         const file = item.getAsFile();
@@ -205,7 +181,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   const handleImprovePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const items = e.clipboardData?.items;
     if (!items) return;
-    for (const item of Array.from(items)) {
+    for (const item of Array.from(items) as DataTransferItem[]) {
       if (item.type.startsWith("image/")) {
         e.preventDefault();
         const file = item.getAsFile();
@@ -428,7 +404,14 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                 </h4>
               </div>
               <button
-                onClick={() => setShowReportModal(false)}
+                onClick={() => {
+                  if (isListeningReport) {
+                    reportSessionRef.current?.stop();
+                    reportSessionRef.current = null;
+                    setIsListeningReport(false);
+                  }
+                  setShowReportModal(false);
+                }}
                 className="p-1 text-rose-400 hover:text-white rounded cursor-pointer"
               >
                 <X className="w-3 h-3" />
@@ -500,7 +483,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               />
 
               {reportImages.length > 0 && (
-                <span className="ml-auto text-xs font-semibold text-rose-600 dark:text-rose-300">
+                <span className="ml-auto text-[10px] font-semibold text-rose-600 dark:text-rose-400">
                   📎 {reportImages.length}/4 capturas
                 </span>
               )}
@@ -511,8 +494,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               value={reportComment}
               onChange={(e) => setReportComment(e.target.value)}
               onPaste={handleReportPaste}
-              placeholder="Ej: El botón de login no responde al hacer clic, o el diseño está roto en móvil... (Puedes dictar por voz o presionar Ctrl+V para pegar capturas)"
-              className="w-full bg-white dark:bg-zinc-900 border border-rose-300 dark:border-rose-900/80 rounded-lg p-2 text-xs text-zinc-900 dark:text-white placeholder-zinc-500 dark:placeholder-slate-500 focus:outline-none focus:border-rose-500 min-h-[65px]"
+              placeholder="Ej: El botón de login no responde al hacer clic, o el diseño está roto en móvil... (Puedes dictar por voz o pulsar Ctrl+V para pegar capturas)"
+              className="w-full bg-white dark:bg-zinc-900 border border-rose-300 dark:border-rose-800/80 rounded-lg p-2 text-xs text-zinc-900 dark:text-white placeholder-zinc-500 dark:placeholder-slate-500 focus:outline-none focus:border-rose-500 min-h-[65px]"
             />
 
             {/* Miniaturas de capturas de error adjuntas */}
@@ -541,7 +524,14 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
             <div className="flex items-center justify-end space-x-2">
               <button
-                onClick={() => setShowReportModal(false)}
+                onClick={() => {
+                  if (isListeningReport) {
+                    reportSessionRef.current?.stop();
+                    reportSessionRef.current = null;
+                    setIsListeningReport(false);
+                  }
+                  setShowReportModal(false);
+                }}
                 className="px-2.5 py-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded text-xs font-medium cursor-pointer"
               >
                 Cancelar
@@ -549,6 +539,11 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               <button
                 onClick={async () => {
                   if (!reportComment.trim() && reportImages.length === 0) return;
+                  if (isListeningReport) {
+                    reportSessionRef.current?.stop();
+                    reportSessionRef.current = null;
+                    setIsListeningReport(false);
+                  }
                   setIsSubmittingReport(true);
                   try {
                     let finalMsg = reportComment.trim();
@@ -588,7 +583,14 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                 </h4>
               </div>
               <button
-                onClick={() => setShowImproveModal(false)}
+                onClick={() => {
+                  if (isListeningImprove) {
+                    improveSessionRef.current?.stop();
+                    improveSessionRef.current = null;
+                    setIsListeningImprove(false);
+                  }
+                  setShowImproveModal(false);
+                }}
                 className="p-1 text-purple-400 hover:text-white rounded cursor-pointer"
               >
                 <X className="w-3 h-3" />
@@ -701,7 +703,14 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
             <div className="flex items-center justify-end space-x-2">
               <button
-                onClick={() => setShowImproveModal(false)}
+                onClick={() => {
+                  if (isListeningImprove) {
+                    improveSessionRef.current?.stop();
+                    improveSessionRef.current = null;
+                    setIsListeningImprove(false);
+                  }
+                  setShowImproveModal(false);
+                }}
                 className="px-2.5 py-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded text-xs font-medium cursor-pointer"
               >
                 Cancelar
@@ -709,6 +718,11 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               <button
                 onClick={async () => {
                   if (!improveComment.trim() && improveImages.length === 0) return;
+                  if (isListeningImprove) {
+                    improveSessionRef.current?.stop();
+                    improveSessionRef.current = null;
+                    setIsListeningImprove(false);
+                  }
                   setIsSubmittingReport(true);
                   try {
                     let finalMsg = `✨ MEJORA SOLICITADA POR HUMANO: ${improveComment.trim()}`;

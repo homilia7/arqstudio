@@ -36,7 +36,7 @@ interface ManualArchitecturePanelProps {
   onProjectUpdated: (project: Project) => void;
   onPlanGeneratedSuccess: () => void;
   onSwitchToTasksView: () => void;
-  onOpenCloudflare D1Modal?: () => void;
+  onOpenCloudflareD1Modal?: () => void;
   showToast: (message: string, type?: "success" | "error" | "info") => void;
 }
 
@@ -45,7 +45,7 @@ export const ManualArchitecturePanel: React.FC<ManualArchitecturePanelProps> = (
   onProjectUpdated,
   onPlanGeneratedSuccess,
   onSwitchToTasksView,
-  onOpenCloudflare D1Modal,
+  onOpenCloudflareD1Modal,
   showToast,
 }) => {
   const [blueprint, setBlueprint] = useState<ProjectBlueprint>({
@@ -954,11 +954,11 @@ Con el payload JSON: { "clearExisting": true, "modules": [ ...tu plan desglosado
           </div>
 
           <div className="flex items-center space-x-2.5 shrink-0">
-            {onOpenCloudflare D1Modal && (
+            {onOpenCloudflareD1Modal && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  onOpenCloudflare D1Modal();
+                  onOpenCloudflareD1Modal();
                 }}
                 className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 flex items-center space-x-1.5 transition-colors cursor-pointer shadow-2xs"
               >

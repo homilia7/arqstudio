@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import {
   X,
@@ -21,6 +21,11 @@ import {
   Clipboard,
 } from "lucide-react";
 import { TaskItem } from "../types";
+import {
+  isSpeechRecognitionSupported,
+  startSpeechRecognitionSession,
+  SpeechSession,
+} from "../utils/speechRecognition";
 
 interface ReviewModalProps {
   task: TaskItem | null;
@@ -46,42 +51,30 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
   const [rejectImages, setRejectImages] = useState<string[]>([]);
   const [isListeningReject, setIsListeningReject] = useState(false);
   const rejectFileInputRef = useRef<HTMLInputElement>(null);
-  const rejectRecognitionRef = useRef<any>(null);
+  const rejectSessionRef = useRef<SpeechSession | null>(null);
+
+  useEffect(() => {
+    return () => {
+      rejectSessionRef.current?.stop();
+    };
+  }, []);
 
   const toggleVoiceReject = () => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
+    if (!isSpeechRecognitionSupported()) {
       alert("Dictado por voz no disponible en este navegador.");
       return;
     }
     if (isListeningReject) {
-      rejectRecognitionRef.current?.stop();
+      rejectSessionRef.current?.stop();
+      rejectSessionRef.current = null;
       setIsListeningReject(false);
       return;
     }
-    try {
-      const rec = new SpeechRecognition();
-      rec.lang = "es-ES";
-      rec.continuous = true;
-      rec.interimResults = true;
-      rec.onresult = (event: any) => {
-        let text = "";
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          text += event.results[i][0].transcript;
-        }
-        setFeedback((prev) => {
-          const base = prev.replace(/\s*⌛.*$/, "").trimEnd();
-          return base + (base ? " " : "") + text;
-        });
-      };
-      rec.onend = () => setIsListeningReject(false);
-      rec.onerror = () => setIsListeningReject(false);
-      rec.start();
-      rejectRecognitionRef.current = rec;
-      setIsListeningReject(true);
-    } catch {
-      setIsListeningReject(false);
-    }
+    rejectSessionRef.current = startSpeechRecognitionSession(feedback, {
+      onTranscript: (fullText) => setFeedback(fullText),
+      onListeningChange: (listening) => setIsListeningReject(listening),
+      onError: () => setIsListeningReject(false),
+    });
   };
 
   const addRejectImageFromFile = (file: File) => {
@@ -97,7 +90,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
   const handleRejectPaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const items = e.clipboardData?.items;
     if (!items) return;
-    for (const item of Array.from(items)) {
+    for (const item of Array.from(items) as DataTransferItem[]) {
       if (item.type.startsWith("image/")) {
         e.preventDefault();
         const file = item.getAsFile();
@@ -173,6 +166,11 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
   const handleReject = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!feedback.trim() && rejectImages.length === 0) return;
+    if (isListeningReject) {
+      rejectSessionRef.current?.stop();
+      rejectSessionRef.current = null;
+      setIsListeningReject(false);
+    }
 
     try {
       setIsProcessing(true);
@@ -437,7 +435,14 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
               <div className="flex justify-end space-x-2">
                 <button
                   type="button"
-                  onClick={() => setShowRejectForm(false)}
+                  onClick={() => {
+                    if (isListeningReject) {
+                      rejectSessionRef.current?.stop();
+                      rejectSessionRef.current = null;
+                      setIsListeningReject(false);
+                    }
+                    setShowRejectForm(false);
+                  }}
                   className="px-2.5 py-1 text-xs text-slate-600 dark:text-slate-300 hover:text-slate-900 cursor-pointer"
                 >
                   Cancelar

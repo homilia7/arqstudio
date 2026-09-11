@@ -1,13 +1,12 @@
 import React from "react";
 import { Bot, History, Code2, RefreshCw, Sun, Moon, Database, Sparkles, Network, User, ShieldCheck, Bell, Activity, Radio } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
-import { Cloudflare D1DatabaseStatus } from "../services/api";
 
 interface HeaderProps {
   onOpenHistory: () => void;
   onOpenChangelog?: () => void;
   onOpenApiDocs: () => void;
-  onOpenCloudflare D1Modal?: () => void;
+  onOpenCloudflareD1Modal?: () => void;
   onOpenAutoArchitecture?: () => void;
   onOpenAgentConnections?: () => void;
   activeAgentsCount?: number;
@@ -17,7 +16,7 @@ interface HeaderProps {
   onOpenMyAccount?: () => void;
   onOpenAdminUsers?: () => void;
   currentUser?: { name: string; pin?: string } | null;
-  neonStatus?: Cloudflare D1DatabaseStatus | null;
+  neonStatus?: any;
   onRefresh: () => void;
   isRefreshing: boolean;
   pendingReviewsCount: number;
@@ -27,7 +26,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenHistory,
   onOpenChangelog,
   onOpenApiDocs,
-  onOpenCloudflare D1Modal,
+  onOpenCloudflareD1Modal,
   onOpenAutoArchitecture,
   onOpenAgentConnections,
   activeAgentsCount = 0,

@@ -12,6 +12,11 @@ import {
   X
 } from "lucide-react";
 import { Project } from "../types";
+import {
+  isSpeechRecognitionSupported,
+  startSpeechRecognitionSession,
+  SpeechSession,
+} from "../utils/speechRecognition";
 
 interface TaskInputFormProps {
   activeProject: Project | null;
@@ -45,42 +50,30 @@ export const TaskInputForm: React.FC<TaskInputFormProps> = ({
 
   // ── Voz ──
   const [isListening, setIsListening] = useState(false);
-  const recognitionRef = useRef<any>(null);
+  const voiceSessionRef = useRef<SpeechSession | null>(null);
+
+  useEffect(() => {
+    return () => {
+      voiceSessionRef.current?.stop();
+    };
+  }, []);
 
   const toggleVoice = () => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
+    if (!isSpeechRecognitionSupported()) {
       alert("El dictado por voz requiere Google Chrome, Microsoft Edge o Safari con permisos de micrófono habilitados.");
       return;
     }
     if (isListening) {
-      recognitionRef.current?.stop();
+      voiceSessionRef.current?.stop();
+      voiceSessionRef.current = null;
       setIsListening(false);
       return;
     }
-    try {
-      const rec = new SpeechRecognition();
-      rec.lang = "es-ES";
-      rec.continuous = true;
-      rec.interimResults = true;
-      rec.onresult = (event: any) => {
-        let transcript = "";
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          transcript += event.results[i][0].transcript;
-        }
-        setInstruction((prev) => {
-          const base = prev.replace(/\s*⌛.*$/, "").trimEnd();
-          return base + (base ? " " : "") + transcript;
-        });
-      };
-      rec.onend = () => setIsListening(false);
-      rec.onerror = () => setIsListening(false);
-      rec.start();
-      recognitionRef.current = rec;
-      setIsListening(true);
-    } catch {
-      setIsListening(false);
-    }
+    voiceSessionRef.current = startSpeechRecognitionSession(instruction, {
+      onTranscript: (fullText) => setInstruction(fullText),
+      onListeningChange: (listening) => setIsListening(listening),
+      onError: () => setIsListening(false),
+    });
   };
 
   const addImageFromFile = useCallback((file: File) => {
@@ -97,7 +90,7 @@ export const TaskInputForm: React.FC<TaskInputFormProps> = ({
     (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
       const items = e.clipboardData?.items;
       if (!items) return;
-      for (const item of Array.from(items)) {
+      for (const item of Array.from(items) as DataTransferItem[]) {
         if (item.type.startsWith("image/")) {
           e.preventDefault();
           const file = item.getAsFile();
@@ -144,7 +137,8 @@ export const TaskInputForm: React.FC<TaskInputFormProps> = ({
     if (!instruction.trim() || !activeProject) return;
 
     if (isListening) {
-      recognitionRef.current?.stop();
+      voiceSessionRef.current?.stop();
+      voiceSessionRef.current = null;
       setIsListening(false);
     }
 
