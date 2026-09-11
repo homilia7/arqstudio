@@ -142,17 +142,24 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 onClick={onOpenNotifications}
                 title="Buzón de Notificaciones de Agentes IA"
-                className="h-7 inline-flex items-center gap-1 px-2 rounded-lg text-xs font-medium text-zinc-600 dark:text-zinc-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors cursor-pointer whitespace-nowrap relative shrink-0"
+                className={`h-7 inline-flex items-center gap-1.5 px-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap relative shrink-0 ${
+                  unreadNotificationsCount > 0
+                    ? "bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-800 shadow-xs ring-1 ring-rose-400/40 hover:bg-rose-100 dark:hover:bg-rose-900/60"
+                    : "text-zinc-600 dark:text-zinc-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 border border-transparent"
+                }`}
               >
                 <div className="relative">
-                  <Bell className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                  <Bell className={`w-3.5 h-3.5 shrink-0 ${unreadNotificationsCount > 0 ? "text-rose-600 dark:text-rose-400 animate-bounce" : "text-zinc-500 dark:text-zinc-400"}`} />
                   {unreadNotificationsCount > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 w-2 h-2 rounded-full bg-emerald-500 animate-pulse ring-2 ring-white dark:ring-slate-900" />
+                    <span className="absolute -top-1 -right-1 flex h-2 w-2 shrink-0">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600 ring-2 ring-white dark:ring-zinc-900" />
+                    </span>
                   )}
                 </div>
                 <span>Buzón IA</span>
                 {unreadNotificationsCount > 0 && (
-                  <span className="px-1.5 py-0.2 bg-emerald-500 text-slate-950 font-black rounded-full text-[9px] uppercase">
+                  <span className="px-1.5 py-0.5 bg-rose-600 text-white font-black rounded-full text-[9px] uppercase shadow-xs animate-pulse">
                     {unreadNotificationsCount}
                   </span>
                 )}

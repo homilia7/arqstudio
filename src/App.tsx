@@ -46,6 +46,7 @@ import {
   AgentCommit,
 } from "./types";
 import * as api from "./services/api";
+import { notifyTaskFinished, playNotificationSound } from "./utils/notifications";
 import {
   CheckCircle2,
   AlertCircle,
@@ -239,6 +240,8 @@ export default function App() {
   const [notificationsDrawerOpen, setNotificationsDrawerOpen] = useState(false);
   const [notifications, setNotifications] = useState<AgentNotification[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const previousTaskStatusRef = useRef<Map<string, TaskStatus>>(new Map());
+  const isInitialLoadRef = useRef(true);
 
   // Toast
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
@@ -258,6 +261,7 @@ export default function App() {
       setModules([]);
       setStages([]);
       setHistory([]);
+      setNotifications([]);
       return;
     }
 
@@ -278,21 +282,71 @@ export default function App() {
       setActiveProject(current);
 
       if (current) {
-        const [loadedTasks, loadedModules, loadedStages, loadedHistory] = await Promise.all([
+        const [loadedTasks, loadedModules, loadedStages, loadedHistory, loadedNotifs] = await Promise.all([
           api.fetchTasks(current.id),
           api.fetchModules(current.id),
           api.fetchStages(current.id),
-          api.fetchHistory(current.id)
+          api.fetchHistory(current.id),
+          api.fetchNotifications(userToUse.id, current.id)
         ]);
         setTasks(loadedTasks);
         setModules(loadedModules);
         setStages(loadedStages);
         setHistory(loadedHistory);
+
+        // --- Sincronizar avisos de tareas terminadas al buzón ---
+        const notifMap = new Map<string, AgentNotification>();
+        (loadedNotifs || []).forEach((n) => notifMap.set(n.id, n));
+
+        const readTaskNotifIds: string[] = JSON.parse(
+          localStorage.getItem(`arqai_read_notifs_${userToUse.id}`) || "[]"
+        );
+        const readSet = new Set(readTaskNotifIds);
+
+        // Detectar tareas terminadas y generar sus avisos en el buzón
+        loadedTasks.forEach((t) => {
+          const isFinished = t.status === "ready_for_review" || t.status === "verified";
+          const prevStatus = previousTaskStatusRef.current.get(t.id);
+
+          if (isFinished) {
+            const syntheticId = `notif-task-${t.id}`;
+            if (!notifMap.has(syntheticId)) {
+              notifMap.set(syntheticId, {
+                id: syntheticId,
+                agentName: t.assignedAgent || "Antigravity AI",
+                title: t.status === "ready_for_review"
+                  ? `🎯 Tarea Lista para Revisión: ${t.title}`
+                  : `✅ Tarea Verificada: ${t.title}`,
+                message: `La tarea "${t.title}" fue completada por la IA.${t.workUrl ? `\nWeb en vivo: ${t.workUrl}` : ""}${t.gitUrl ? `\nGit: ${t.gitUrl}` : ""}`,
+                type: "task_completed",
+                projectId: t.projectId,
+                userId: userToUse.id,
+                read: readSet.has(syntheticId),
+                createdAt: t.completedAt || t.updatedAt || t.createdAt || new Date().toISOString(),
+              });
+            }
+
+            // Si cambió a terminada durante la sesión activa:
+            if (!isInitialLoadRef.current && prevStatus && prevStatus !== "ready_for_review" && prevStatus !== "verified") {
+              notifyTaskFinished(t.title, t.assignedAgent, current.name);
+            }
+          }
+
+          previousTaskStatusRef.current.set(t.id, t.status);
+        });
+
+        isInitialLoadRef.current = false;
+
+        const mergedNotifs = Array.from(notifMap.values()).sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        setNotifications(mergedNotifs);
       } else {
         setTasks([]);
         setModules([]);
         setStages([]);
         setHistory([]);
+        setNotifications([]);
       }
     } catch (e) {
       console.error("Error al cargar datos:", e);
@@ -300,6 +354,49 @@ export default function App() {
       if (!isSilent) setIsRefreshing(false);
     }
   }, [activeProject, currentUser]);
+
+  // Polling silencioso cada 6 segundos para recibir notificaciones y tareas terminadas en vivo
+  useEffect(() => {
+    if (!currentUser?.id || !activeProject?.id) return;
+    const interval = setInterval(() => {
+      loadData(true);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, [currentUser?.id, activeProject?.id, loadData]);
+
+  const handleMarkNotifAsRead = async (id: string) => {
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+    if (currentUser?.id) {
+      const stored = JSON.parse(localStorage.getItem(`arqai_read_notifs_${currentUser.id}`) || "[]");
+      if (!stored.includes(id)) {
+        stored.push(id);
+        localStorage.setItem(`arqai_read_notifs_${currentUser.id}`, JSON.stringify(stored));
+      }
+    }
+    await api.markNotificationAsRead(id);
+  };
+
+  const handleMarkAllNotifsAsRead = async () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    if (currentUser?.id) {
+      const allIds = notifications.map((n) => n.id);
+      localStorage.setItem(`arqai_read_notifs_${currentUser.id}`, JSON.stringify(allIds));
+    }
+    await api.markAllNotificationsAsRead(currentUser?.id);
+  };
+
+  const handleDeleteNotif = async (id: string) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+    await api.deleteNotification(id);
+  };
+
+  const handleClearNotifs = async () => {
+    setNotifications([]);
+    if (currentUser?.id) {
+      localStorage.removeItem(`arqai_read_notifs_${currentUser.id}`);
+    }
+    await api.clearNotifications(currentUser?.id);
+  };
 
   useEffect(() => {
     if (currentUser?.id) {
@@ -749,10 +846,10 @@ export default function App() {
         isOpen={notificationsDrawerOpen}
         onClose={() => setNotificationsDrawerOpen(false)}
         notifications={notifications}
-        onMarkAllAsRead={() => setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))}
-        onMarkAsRead={(id) => setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)))}
-        onDeleteNotification={(id) => setNotifications((prev) => prev.filter((n) => n.id !== id))}
-        onClearNotifications={() => setNotifications([])}
+        onMarkAllAsRead={handleMarkAllNotifsAsRead}
+        onMarkAsRead={handleMarkNotifAsRead}
+        onDeleteNotification={handleDeleteNotif}
+        onClearNotifications={handleClearNotifs}
         projects={projects}
         onSelectProjectById={handleSelectProject}
       />

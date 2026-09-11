@@ -442,12 +442,18 @@ export const DesktopMenuBar: React.FC<DesktopMenuBarProps> = ({
           {/* Campana de Notificaciones */}
           <button
             onClick={onOpenNotifications}
-            title="Notificaciones en Vivo"
-            className="relative p-1 rounded hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:text-zinc-300 dark:hover:text-white transition-colors cursor-pointer"
+            title="Buzón de Notificaciones en Vivo"
+            className={`relative p-1.5 rounded transition-colors cursor-pointer ${
+              unreadNotificationsCount > 0
+                ? "bg-rose-50 dark:bg-rose-950/50 text-rose-600 hover:bg-rose-100"
+                : "hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:text-zinc-300 dark:hover:text-white"
+            }`}
           >
-            <Bell className="w-3.5 h-3.5 text-amber-400" />
+            <Bell className={`w-3.5 h-3.5 ${unreadNotificationsCount > 0 ? "text-rose-600 animate-bounce" : "text-amber-400"}`} />
             {unreadNotificationsCount > 0 && (
-              <span className="absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="absolute -top-1 -right-1 px-1 min-w-[15px] h-3.5 flex items-center justify-center rounded-full bg-rose-600 text-white text-[9px] font-black animate-pulse shadow-xs">
+                {unreadNotificationsCount}
+              </span>
             )}
           </button>
 

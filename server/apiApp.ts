@@ -31,6 +31,11 @@ import {
   synthesizeBlueprintByDomain,
   synthesizeWorkPlanFromBlueprint,
 } from "./blueprintEngine";
+import {
+  indexRagDocument,
+  searchRag,
+  getAgentRagContext,
+} from "./ragEngine";
 
 export interface ProjectScreen {
   id: string;
@@ -133,6 +138,7 @@ export interface TaskItem {
   verifiedAt?: string;
   gitBranch?: string;
   gitCommit?: string;
+  imageRefs?: string[];
 }
 
 export interface ChangeLogEntry {
@@ -377,18 +383,81 @@ app.use(async (req, res, next) => {
     });
   });
 
-  
+  // --- RAG ENDPOINTS (Vectorize + Workers AI / Local Semantic Engine) ---
+  app.post("/api/rag/search", async (req, res) => {
+    try {
+      const { query = "", projectId, type = "all", topK = 5, threshold = 0.12 } = req.body;
+      const results = await searchRag(query, { projectId, type, topK: Number(topK), threshold: Number(threshold) });
+      res.json({ query, count: results.length, results });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.get("/api/rag/context", async (req, res) => {
+    try {
+      const { projectId = "", taskTitle = "", taskInstruction = "" } = req.query as Record<string, string>;
+      const contextData = await getAgentRagContext(projectId, taskTitle, taskInstruction);
+      res.json(contextData);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.post("/api/rag/reindex", async (req, res) => {
+    try {
+      const { projectId } = req.body;
+      let tasksIndexed = 0;
+      let historyIndexed = 0;
+
+      const tasksToIndex = projectId ? db.tasks.filter((t) => t.projectId === projectId) : db.tasks;
+      for (const t of tasksToIndex) {
+        await indexRagDocument({
+          projectId: t.projectId,
+          type: "task",
+          referenceId: t.id,
+          title: t.title,
+          content: `${t.instruction || ""} ${t.aiOutput || ""}`,
+          metadata: { taskId: t.id },
+        });
+        tasksIndexed++;
+      }
+
+      const historyToIndex = projectId ? db.history.filter((h) => h.projectId === projectId) : db.history;
+      for (const h of historyToIndex) {
+        await indexRagDocument({
+          projectId: h.projectId || projectId || "global",
+          type: "history",
+          referenceId: h.id,
+          title: h.taskTitle || h.action,
+          content: h.details || "",
+          metadata: { historyId: h.id },
+        });
+        historyIndexed++;
+      }
+
+      res.json({
+        success: true,
+        message: "Reindexación de base vectorial RAG completada con éxito.",
+        tasksIndexed,
+        historyIndexed,
+        totalIndexed: tasksIndexed + historyIndexed,
+      });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
   // --- AUTH & USERS (REAL SQL PERSISTENCE IN NEON POSTGRESQL) ---
   app.post("/api/auth/login", async (req, res) => {
     const { name, pin, email } = req.body;
-    if (!name || !name.trim()) return res.status(400).json({ error: "Ingresa tu usuario o correo electrónico." });
-    const pinStr = pin ? pin.toString().trim() : "";
-    if (!pinStr || pinStr.length < 4 || pinStr.length > 6) {
-      return res.status(400).json({ error: "Ingresa un PIN de acceso válido (máximo 6 dígitos)." });
+    if (!name || !name.trim()) return res.status(400).json({ error: "Ingresa tu nombre de usuario." });
+    if (!pin || typeof pin !== "string" || pin.trim().length !== 4) {
+      return res.status(400).json({ error: "Ingresa un PIN de 4 dígitos válido." });
     }
     if (!db.users) db.users = [];
     const cleanName = name.trim();
-    const cleanPin = pinStr;
+    const cleanPin = pin.trim();
     const cleanEmail = email ? email.trim() : "";
     const lowerName = cleanName.toLowerCase();
 
@@ -466,14 +535,13 @@ app.use(async (req, res, next) => {
     if (!name || !name.trim()) {
       return res.status(400).json({ error: "El nombre de usuario es obligatorio." });
     }
-    const pinStr = pin ? pin.toString().trim() : "";
-    if (!pinStr || pinStr.length < 4 || pinStr.length > 6) {
-      return res.status(400).json({ error: "El PIN o contraseña debe tener entre 4 y 6 dígitos." });
+    if (!pin || typeof pin !== "string" || pin.trim().length !== 4) {
+      return res.status(400).json({ error: "El PIN debe ser exactamente de 4 dígitos numéricos." });
     }
 
     if (!db.users) db.users = [];
     const cleanName = name.trim();
-    const cleanPin = pinStr;
+    const cleanPin = pin.trim();
     const cleanEmail = email ? email.trim() : "";
     const cleanAccess = accessType ? accessType.trim() : "Acceso Full";
     const lowerName = cleanName.toLowerCase();
@@ -2685,6 +2753,7 @@ app.use(async (req, res, next) => {
       assignedAgent,
       subtasks,
       contextMemory,
+      imageRefs,
     } = req.body;
 
     if (!instruction) {
@@ -2713,12 +2782,14 @@ app.use(async (req, res, next) => {
       locked: false,
       assignedAgent: assignedAgent || "Antigravity AI",
       subtasks: Array.isArray(subtasks) ? subtasks : [],
+      imageRefs: Array.isArray(imageRefs) ? imageRefs : (contextMemory?.imageRefs || []),
       contextMemory: contextMemory || {
         technicalRequirements: [],
         affectedFiles: [],
         rulesConstraints: [],
         dependencies: [],
         notes: "Memoria de contexto creada automáticamente para guiar a Antigravity.",
+        imageRefs: Array.isArray(imageRefs) ? imageRefs : [],
       },
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -3014,8 +3085,11 @@ app.use(async (req, res, next) => {
     const prevStatus = task.status;
 
     if (title !== undefined) task.title = title.trim();
-    if (instruction !== undefined) task.instruction = instruction.trim();
-    if (status !== undefined) task.status = status;
+    let effectiveStatus = status;
+    if (effectiveStatus === "completed" || effectiveStatus === "done" || effectiveStatus === "finished" || effectiveStatus === "complete") {
+      effectiveStatus = "ready_for_review";
+    }
+    if (effectiveStatus !== undefined) task.status = effectiveStatus;
     if (workUrl !== undefined) task.workUrl = workUrl.trim();
     if (aiOutput !== undefined) task.aiOutput = aiOutput;
     if (aiNotes !== undefined) task.aiNotes = aiNotes;

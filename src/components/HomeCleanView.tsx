@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+import React, { useState } from "react";
 import {
   Bot,
   Plus,
@@ -212,12 +212,16 @@ export const HomeCleanView: React.FC<HomeCleanViewProps> = ({
             {/* Buzón de Notificaciones */}
             <button
               onClick={onOpenNotifications}
-              className="relative p-1.5 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+              className={`relative p-1.5 rounded-lg transition cursor-pointer ${
+                unreadNotificationsCount > 0
+                  ? "bg-rose-50 dark:bg-rose-950/40 text-rose-600 hover:bg-rose-100"
+                  : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+              }`}
               title="Buzón de notificaciones"
             >
-              <Bell className="w-4 h-4" />
+              <Bell className={`w-4 h-4 ${unreadNotificationsCount > 0 ? "text-rose-600 animate-bounce" : ""}`} />
               {unreadNotificationsCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center animate-pulse">
+                <span className="absolute -top-1 -right-1 px-1 min-w-[16px] h-4 rounded-full bg-rose-600 text-white text-[9px] font-black flex items-center justify-center animate-pulse shadow-xs">
                   {unreadNotificationsCount}
                 </span>
               )}
